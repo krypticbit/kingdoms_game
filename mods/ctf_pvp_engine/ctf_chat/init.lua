@@ -32,7 +32,7 @@ minetest.register_chatcommand("team", {
 		local test   = string.match(param, "^player ([%a%d_-]+)")
 		local create = string.match(param, "^add ([%a%d_-]+)")
 		local remove = string.match(param, "^remove ([%a%d_-]+)")
-		local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
+		--local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
 		local l_name = string.match(param, "^removeplr ([%a%d_-]+)")
 		if create then
 			local privs = minetest.get_player_privs(name)
@@ -96,6 +96,7 @@ minetest.register_chatcommand("team", {
 			else
 				return true, test.." is not in a team"
 			end
+		--[[
 		elseif j_name and j_tname then
 			local privs = minetest.get_player_privs(name)
 			if privs and privs.ctf_team_mgr then
@@ -107,6 +108,7 @@ minetest.register_chatcommand("team", {
 			else
 				return true, "You are not a ctf_team_mgr!"
 			end
+		--]]
 		elseif l_name then
 			local privs = minetest.get_player_privs(name)
 			if privs and privs.ctf_team_mgr then
@@ -155,7 +157,7 @@ minetest.register_chatcommand("apply", {
 		end
 	end
 })
-
+--[[
 minetest.register_chatcommand("join", {
 	params = "player name",
 	description = "Add to team",
@@ -178,6 +180,7 @@ minetest.register_chatcommand("join", {
 	end
 end
 })
+--]]
 minetest.register_chatcommand("teamkick", {
 	params = "player name",
 	description = "Kick player from your team",
