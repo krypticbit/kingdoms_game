@@ -19,11 +19,9 @@ local function team_console_help(name)
 	local privs = minetest.get_player_privs(name)
 	if privs and privs.ctf_admin == true then
 		minetest.chat_send_player(name, "/team remove <team> - add a team called name (ctf_admin only)")
+		minetest.chat_send_player(name, "/team join <name> <team> - add 'player' to team 'team' (ctf_admin only)")
+		minetest.chat_send_player(name, "/team removeply <name> - add 'player' to team 'team' (ctf_admin only)")
 	end
-	--if privs and privs.ctf_team_mgr == true then
-		--minetest.chat_send_player(name, "/team join <name> <team> - add 'player' to team 'team' (ctf_team_mgr only)")
-		--minetest.chat_send_player(name, "/team removeply <name> - add 'player' to team 'team' (ctf_team_mgr only)")
-	--end
 end
 
 minetest.register_chatcommand("team", {
@@ -32,8 +30,8 @@ minetest.register_chatcommand("team", {
 		local test   = string.match(param, "^player ([%a%d_-]+)")
 		local create = string.match(param, "^add ([%a%d_-]+)")
 		local remove = string.match(param, "^remove ([%a%d_-]+)")
-		--local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
-		--local l_name = string.match(param, "^removeplr ([%a%d_-]+)")
+		local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
+		local l_name = string.match(param, "^removeplr ([%a%d_-]+)")
 		if create then
 			if ctf and ctf.players and ctf.players[name] and not ctf.players[name].team and not ctf.team(create) then
 				if (
@@ -102,32 +100,28 @@ minetest.register_chatcommand("team", {
 			else
 				return true, test.." is not in a team"
 			end
-		--[[
 		elseif j_name and j_tname then
 			local privs = minetest.get_player_privs(name)
-			if privs and privs.ctf_team_mgr then
+			if privs and privs.ctf_admin then
 				if ctf.join(j_name, j_tname, true, name) then
 					return true, "Successfully added " .. j_name .. " to " .. j_tname
 				else
 					return false, "Failed to add " .. j_name .. " to " .. j_tname
 				end
 			else
-				return true, "You are not a ctf_team_mgr!"
+				return true, "You are not a ctf_admin!"
 			end
-		--]]
-		--[[
 		elseif l_name then
 			local privs = minetest.get_player_privs(name)
-			if privs and privs.ctf_team_mgr then
+			if privs and privs.ctf_admin then
 				if ctf.remove_player(l_name) then
 					return true, "Removed player " .. l_name
 				else
 					return false, "Failed to remove player."
 				end
 			else
-				return false, "You are not a ctf_team_mgr!"
+				return false, "You are not a ctf_admin!"
 			end
-		--]]
 		elseif param=="help" then
 			team_console_help(name)
 		else
