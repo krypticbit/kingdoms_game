@@ -38,7 +38,8 @@ function ctf.create_team(name, data)
 		data = data,
 		spawn = nil,
 		players = {},
-		applications = {}
+		applications = {},
+		power = 0
 	}
 
 	for i = 1, #ctf.registered_on_new_team do
@@ -283,6 +284,8 @@ function ctf.join(name, team, force, by)
 
 	player.team = team
 	team_data.players[player.name] = player
+	
+	ctf.team(team).power = ctf.team(team).power + 1
 	
 	ctf.needs_save = true
 

@@ -43,7 +43,7 @@ minetest.register_chatcommand("team", {
 					and ctf.team({name=create, add_team=true})
 				) then
 					ctf.join(name, create, false, name)
-					ctf.player(param).auth = true
+					ctf.player(name).auth = true
 					minetest.chat_send_all(name.." was upgraded to an admin of "..create)
 					return true, "Added team '"..create.."'"
 				else
@@ -204,6 +204,7 @@ minetest.register_chatcommand("teamkick", {
 			if ctf.remove_player(param) then
 				ctf.player(param).auth = false
 				ctf.player(param).recuiter = false
+				ctf.team(team).power = ctf.team(team).power - 1
 				return true, "Kicked " .. param .. " from " .. team .. "!"
 			else 
 				return false, "Failed to kick " .. param.. "!"
@@ -223,6 +224,7 @@ minetest.register_chatcommand("teamleave", {
 		if ctf.remove_player(name) then
 			ctf.player(name).auth = false
 			ctf.player(name).recuiter = false
+			ctf.team(team).power = ctf.team(team).power - 1
 			return true, "You have left " .. team .. "!"
 		else 				
 			return false, "Failed to leave " .. team.. "!"
