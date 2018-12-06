@@ -22,9 +22,10 @@ minetest.register_node("ctf_flag:flag", {
 	on_punch = ctf_flag.on_punch,
 	on_rightclick = ctf_flag.on_rightclick,
 	on_construct = ctf_flag.on_construct,
-	after_place_node = ctf_flag.after_place_node
+	after_place_node = ctf_flag.after_place_node,
+	on_timer = ctf_flag.flag_tick
 })
---[[
+
 minetest.register_craft({
 	output = "ctf_flag:flag",
 	recipe = {
@@ -33,7 +34,7 @@ minetest.register_craft({
 		{"default:stick", ""}
 	}
 })
---]]
+
 for color, _ in pairs(ctf.flag_colors) do
 	minetest.register_node("ctf_flag:flag_top_"..color,{
 		description = "You are not meant to have this! - flag top",
@@ -85,9 +86,11 @@ minetest.register_node("ctf_flag:flag_captured_top",{
 	on_rightclick = ctf_flag.on_rightclick_top
 })
 
+--[[
 minetest.register_abm({
 	nodenames = {"group:flag_bottom"},
 	inteval = 5,
 	chance = 1,
 	action = ctf_flag.update
 })
+--]]

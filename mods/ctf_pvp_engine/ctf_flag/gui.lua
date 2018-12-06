@@ -173,12 +173,17 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 
 		ctf_flag.delete(team,pos)
+		
+		if ctf.team(team).power then
+			ctf.team(team).power = ctf.team(team).power + 1
+		end
 
 		minetest.set_node(pos,{name="air"})
 		pos.y=pos.y+1
 		minetest.set_node(pos,{name="air"})
                 player:get_inventory():add_item('main', 'ctf_flag:flag')
 
+		ctf.needs_save = true
 		return true
 	end
 end)

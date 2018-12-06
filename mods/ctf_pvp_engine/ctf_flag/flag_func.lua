@@ -180,6 +180,7 @@ ctf_flag = {
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", "Unowned flag")
+		minetest.get_node_timer(pos):start(5)
 	end,
 	after_place_node = function(pos, placer)
 		local name = placer:get_player_name()
@@ -196,13 +197,15 @@ ctf_flag = {
 
 		local tplayer = ctf.player_or_nil(name)
 		if tplayer and ctf.team(tplayer.team) then
-			if not minetest.check_player_privs(name, {ctf_place_flag=true}) then
-				minetest.chat_send_player(name, "You're not allowed to place flags! Reported to admin for investigation.")
+			if ctf.player(name).auth == false then
+				minetest.chat_send_player(name, "You're not allowed to place flags!")
 				minetest.set_node(pos, {name="air"})
-				if minetest.global_exists("chatplus") then
-					chatplus.send_mail("*SERVER*", minetest.setting_get("name"),
-						"player " .. name .. " attempted to place flag!")
-				end
+				return
+			end
+			
+			if ctf.team(tplayer.team).power and ctf.team(tplayer.team).power < 1 then
+				minetest.chat_send_player(name, "You need more members to be-able to place more flags.")
+				minetest.set_node(pos, {name="air"})
 				return
 			end
 
@@ -245,6 +248,10 @@ ctf_flag = {
 			local meta2 = minetest.get_meta(pos2)
 
 			meta2:set_string("infotext", tname.."'s flag")
+			
+			if ctf.team(tplayer.team).power then
+				ctf.team(tplayer.team).power = ctf.team(tplayer.team).power - 1
+			end
 		else
 			minetest.chat_send_player(name, "You are not part of a team!")
 			minetest.set_node(pos, {name="air"})
