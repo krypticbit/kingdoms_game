@@ -468,21 +468,21 @@ minetest.register_on_respawnplayer(function(player)
 end)--]]
 
 function ctf.get_territory_owner(pos)
-	local largest = nil
-	local largest_weight = 0
-	for i = 1, #ctf.registered_on_territory_query do
-		local team, weight = ctf.registered_on_territory_query[i](pos)
-		if team and weight then
-			if weight == -1 then
-				return team
-			end
-			if weight > largest_weight then
-				largest = team
-				largest_weight = weight
+	if pos.y < -100 then
+		return nil
+	end
+	local pd = ctf.setting("flag.protect_distance")
+	local pdSQ = pd * pd
+	for tname, team in pairs(ctf.teams) do
+		for f = 1, #team.flags do
+			local fPos = team.flags[i]
+			local diffX = fPos.x - pos.x
+			local diffZ = fPos.z - pos.z
+			local distSQ = diffX * diffX + diffZ * diffZ
+			if distSQ < pdSQ then
+				return tname
 			end
 		end
-	end
-	return largest
 end
 
 minetest.register_on_newplayer(function(player)
