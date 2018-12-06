@@ -51,7 +51,8 @@ function irc.bot_command(msg, text)
 			return
 		end
 		minetest.chat_send_player(player_to,
-				"PM from "..msg.user.nick.."@IRC: "..message, false)
+				minetest.colorize(irc.config.pm_color,
+				"PM from "..msg.user.nick.."@IRC: "..message, false))
 		irc.reply("Message sent!")
 		return
 	end
@@ -125,7 +126,7 @@ irc.register_bot_command("list", {
 	end
 })
 
---[[
+
 irc.register_bot_command("whereis", {
 	params = "<player>",
 	description = "Tell the location of <player>",
@@ -137,11 +138,11 @@ irc.register_bot_command("whereis", {
 		if not player then
 			return false, "There is no player named '"..args.."'"
 		end
-		local fmt = "Player %s is at (%.2f,%.2f,%.2f)"
+		local fmt = "Player %s is at [REDACTED]"
 		local pos = player:getpos()
 		return true, fmt:format(args, pos.x, pos.y, pos.z)
 	end
-})--]]
+})
 
 
 local starttime = os.time()

@@ -7,6 +7,5 @@ minetest.register_on_newplayer(function(player)
             player:get_inventory():add_item('main', 'default:torch')
             player:get_inventory():add_item('main', 'default:papyrus 8')
 			player:get_inventory():add_item('main', 'wiki:wiki')
-			player:setpos({x=0,y=0,z=0})
 	end
 end)
