@@ -209,6 +209,7 @@ minetest.register_chatcommand("teamkick", {
 	end
 end
 end})
+
 minetest.register_chatcommand("teamleave", {
 	params = "none",
 	description = "Leave your team",
@@ -219,12 +220,45 @@ minetest.register_chatcommand("teamleave", {
 			ctf.player(name).auth = false
 			ctf.player(name).recuiter = false
 			ctf.team(team).power = ctf.team(team).power - 1
+			-- Disband if there are zero players lefted on team
+			local disband = true
+			local teamdata = ctf.team(team)
+			for username, player in pairs(teamdata.players) do
+				disband = false
+				break
+			end
+			if disband == true then
+				if ctf.remove_team(team) then
+					ctf.needs_save = true
+					minetest.chat_send_all("team '" .. team .. "'" .. " disbanded " .. "from having zero players on team.")
+				else
+					minetest.chat_send_all("Error disbanding team '" .. team .. "'")
+				end
+			end
 			return true, "You have left " .. team .. "!"
 		else 				
 			return false, "Failed to leave " .. team.. "!"
 		end
 	else
 		return false, "You are not in a team!"
+	end
+end
+})
+
+minetest.register_chatcommand("teamdisband", {
+	params = "none",
+	description = "Disband your team",
+	func = function(name, param)
+	if ctf.player(name).auth or minetest.get_player_privs(name).ctf_admin then
+		local team = ctf.player(name).team
+		if ctf.remove_team(team) then
+			ctf.needs_save = true
+			return true, "team '" .. team .. "'" .. " disbanded."
+		else
+			return false, "Error disbanding team '" .. team .. "'"
+		end
+	else
+		return false, "You are not a team_owner!"
 	end
 end
 })
