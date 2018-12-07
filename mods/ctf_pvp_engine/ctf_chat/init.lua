@@ -228,6 +228,59 @@ minetest.register_chatcommand("teamleave", {
 	end
 end
 })
+
+minetest.register_chatcommand("t", {
+	params = "msg",
+	description = "Send a message to the team channel",
+	func = function(name, param)
+	local tname = ctf.player(name).team
+	if ctf.player(name).team ~= nil then
+		local team = ctf.team(tname)
+		if team then
+			local color, colorHex = ctf_colors.get_color(name,ctf.player(name))
+			local playerslist = minetest.get_connected_players()
+			for i in pairs(playerslist) do
+				local realplayer = playerslist[i]
+				if team.players[realplayer:get_player_name()] then
+					minetest.chat_send_player(realplayer:get_player_name(),
+							minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+				end
+			end
+		end
+	else
+		return false, "You're not in a team, so you have no team to talk to."
+	end
+end
+})
+
+minetest.register_chatcommand("a", {
+	params = "msg",
+	description = "Send a message to the alliance channel",
+	func = function(name, param)
+	local tname = ctf.player(name).team
+	if ctf.player(name).team ~= nil then
+		local team = ctf.team(tname)
+		if team then
+			local color, colorHex = ctf_colors.get_color(name,ctf.player(name))
+			local playerslist = minetest.get_connected_players()
+			for i in pairs(playerslist) do
+				local realplayer = playerslist[i]
+				local ot = ctf.player(realplayer:get_player_name()).team
+				if ot then
+					local diplo = ctf.diplo.get(team,ot)
+					if team.players[realplayer:get_player_name()] or diplo == "alliance" then
+						minetest.chat_send_player(realplayer:get_player_name(),
+								minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+					end
+				end
+			end
+		end
+	else
+		return false, "You're not in a team, so you have no team to talk to."
+	end
+end
+})
+
 --[[
 minetest.register_chatcommand("join", {
 	params = "player name",
