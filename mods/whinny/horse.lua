@@ -68,7 +68,7 @@ whinny:register_mob ("whinny:horse"..basename, {
         if item:get_name() == "farming:wheat" then
             minetest.add_entity (self.object:getpos(),
 "whinny:horse"..basename.."h1")
-            if not minetest.settings.get_bool("creative_mode") then
+            if not minetest.settings:get_bool("creative_mode") then
                 item:take_item()
                 clicker:set_wielded_item(item)
             end
@@ -88,7 +88,7 @@ local function register_basehorse(name, craftitem, horse)
         function craftitem.on_place(itemstack, placer, pointed_thing)
             if pointed_thing.above then
                 minetest.env:add_entity(pointed_thing.above, name)
-                if not minetest.settings.get_bool("creative_mode") then
+                if not minetest.settings:get_bool("creative_mode") then
                     itemstack:take_item()
                 end
             end

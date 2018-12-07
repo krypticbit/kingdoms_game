@@ -61,7 +61,7 @@ minetest.register_chatcommand("sethp", {
 	description = "Sets your health to <hp> HP (=hearts/2).",
 	privs = {heal=true},
 	func = function(name, hp)
-		if(minetest.settings.get_bool("enable_damage")==true) then
+		if(minetest.settings:get_bool("enable_damage")==true) then
 			local player = minetest.get_player_by_name(name)
 			if not player then
 				return
@@ -87,7 +87,7 @@ minetest.register_chatcommand("sethealth", {
 	description = "Sets your health to <hearts> hearts.",
 	privs = {heal=true},
 	func = function(name, hearts)
-		if(minetest.settings.get_bool("enable_damage")==true) then
+		if(minetest.settings:get_bool("enable_damage")==true) then
 			local player = minetest.get_player_by_name(name)
 			if not player then
 				return
@@ -114,7 +114,7 @@ minetest.register_chatcommand("killme", {
 	params = "",
 	description = "Kills yourself.",
 	func = function(name, param)
-		if(minetest.settings.get_bool("enable_damage")==true) then
+		if(minetest.settings:get_bool("enable_damage")==true) then
 			local player = minetest.get_player_by_name(name)
 			if not player then
 				return
@@ -213,7 +213,7 @@ minetest.register_chatcommand("grief_check", {
 			.. " hours = 24 = 1d, limit = 5",
 	privs = {interact=true},
 	func = function(name, param)
-		if not minetest.settings.get_bool("enable_rollback_recording") then
+		if not minetest.settings:get_bool("enable_rollback_recording") then
 			return false, "Rollback functions are disabled."
 		end
 		local range, hours, limit =

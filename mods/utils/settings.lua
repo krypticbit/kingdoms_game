@@ -42,7 +42,7 @@ settings = {}
 -- @return The value from the configuration with the given name. If the read
 --         value is nil, the default value is returned or nil.
 function settings.get(name, default_value, cast_function)
-	local value = minetest.settings.get(name)
+	local value = minetest.settings:get(name)
 	
 	if value ~= nil and cast_function ~= nil then
 		value = cast_function(value)
@@ -63,7 +63,7 @@ end
 -- @return The boolean with the given name, or the default value if it is nil,
 --         or nil.
 function settings.get_bool(name, default_value)
-	local value = minetest.settings.get_bool(name)
+	local value = minetest.settings:get_bool(name)
 	
 	if value ~= nil then
 		return value
@@ -110,7 +110,7 @@ end
 -- @return The pos with the given name, or the default value if it is nil,
 --         or nil.
 function settings.get_pos2d(name, default_value)
-	local value = minetest.settings.get(name)
+	local value = minetest.settings:get(name)
 	
 	if value ~= nil then
 		local splitted_value = stringutil.split(value, ",")

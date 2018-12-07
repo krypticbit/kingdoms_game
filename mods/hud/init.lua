@@ -57,9 +57,9 @@ HUD_HUNGER_EXHAUST_LVL = 160 -- at what exhaustion player saturation gets lowerd
 
 
 
-HUD_ENABLE_HUNGER = minetest.settings.get_bool("hud_hunger_enable")
+HUD_ENABLE_HUNGER = minetest.settings:get_bool("hud_hunger_enable")
 if HUD_ENABLE_HUNGER == nil then
-	HUD_ENABLE_HUNGER = minetest.settings.get_bool("enable_damage")
+	HUD_ENABLE_HUNGER = minetest.settings:get_bool("enable_damage")
 end
 
 HUD_SHOW_ARMOR = false
@@ -92,7 +92,7 @@ local function custom_hud(player)
 	player:hud_set_hotbar_selected_image("hud_hotbar_selected.png")
  end
 
- if minetest.settings.get_bool("enable_damage") then
+ if minetest.settings:get_bool("enable_damage") then
  --hunger
 	if HUD_ENABLE_HUNGER then
        	 player:hud_add({
@@ -296,7 +296,7 @@ minetest.after(10, function() --originally 2.5
 			local name = player:get_player_name()
 
 			-- only proceed if damage is enabled
-			if minetest.settings.get_bool("enable_damage") then
+			if minetest.settings:get_bool("enable_damage") then
 			 local h = tonumber(hud.hunger[name])
 			 local hp = player:get_hp()
 			 if HUD_ENABLE_HUNGER and timer > 10 then
@@ -304,7 +304,7 @@ minetest.after(10, function() --originally 2.5
 				if h > 15 and hp > 0 and hud.air[name] > 0 then
 					player:set_hp(hp+1)
 				-- or damage player by 1 hp if saturation is < 2 (of 30)
-				elseif h <= 1 and minetest.settings.get_bool("enable_damage") then
+				elseif h <= 1 and minetest.settings:get_bool("enable_damage") then
 					if hp-1 >= 0 then player:set_hp(hp-1) end
 				end
 			 end

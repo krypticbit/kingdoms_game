@@ -1,6 +1,6 @@
 -- Load setting
 local suffocation_damage = 10
-local setting = minetest.settings.get("real_suffocation_damage")
+local setting = minetest.settings:get("real_suffocation_damage")
 if tonumber(setting) ~= nil then
 	suffocation_damage = tonumber(setting)
 end

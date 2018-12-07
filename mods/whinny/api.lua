@@ -162,7 +162,7 @@ function whinny:register_mob(name, def)
 
                 on_step = function(self, dtime)
 
-                        if self.type == "monster" and minetest.settings.get_bool("only_peaceful_whinny") then
+                        if self.type == "monster" and minetest.settings:get_bool("only_peaceful_whinny") then
                                 self.object:remove()
                         end
 
@@ -276,7 +276,7 @@ function whinny:register_mob(name, def)
                         end
 
                         -- FIND SOMEONE TO ATTACK
-                        if ( self.type == "monster" or self.type == "barbarian" ) and minetest.settings.get_bool("enable_damage") and self.state ~= "attack" then
+                        if ( self.type == "monster" or self.type == "barbarian" ) and minetest.settings:get_bool("enable_damage") and self.state ~= "attack" then
                                 local s = self.object:getpos()
                                 local inradius = minetest.get_objects_inside_radius(s,self.view_range)
                                 local player = nil
@@ -583,7 +583,7 @@ function whinny:register_mob(name, def)
                         self.state = "stand"
                         self.object:setvelocity({x=0, y=self.object:getvelocity().y, z=0})
                         self.object:setyaw(math.random(1, 360)/180*math.pi)
-                        if self.type == "monster" and minetest.settings.get_bool("only_peaceful_whinny") then
+                        if self.type == "monster" and minetest.settings:get_bool("only_peaceful_whinny") then
                                 self.object:remove()
                         end
                         if self.type ~= "npc" then
@@ -767,7 +767,7 @@ function whinny:register_spawn(name, nodes, max_light, min_light, chance, active
                                 return
                         end
 
-                        if minetest.settings.get_bool("display_mob_spawn") then
+                        if minetest.settings:get_bool("display_mob_spawn") then
                                 minetest.chat_send_all("[whinny] Add "..name.." at "..minetest.pos_to_string(pos))
                         end
                         local mob = minetest.add_entity(pos, name)

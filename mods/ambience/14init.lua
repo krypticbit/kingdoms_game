@@ -117,7 +117,7 @@ local lava2 = {
 	{name="earth01a", length=15}
 }
 
-local play_music = minetest.settings.get_bool("music") or false
+local play_music = minetest.settings:get_bool("music") or false
 local music = {
 	handler = {},
 	frequency = music_frequency,

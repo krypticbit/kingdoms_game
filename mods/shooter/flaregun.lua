@@ -104,7 +104,7 @@ minetest.register_tool("shooter:flaregun", {
 			minetest.sound_play("shooter_click", {object=user})
 			return itemstack
 		end
-		if not minetest.settings.get_bool("creative_mode") then
+		if not minetest.settings:get_bool("creative_mode") then
 			inv:remove_item("main", "shooter:flare 1")
 			itemstack:add_wear(65535/100)
 		end

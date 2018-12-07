@@ -281,7 +281,7 @@ xdecor.register("cushion", {
 
 			minetest.set_node(pos, {name="xdecor:cushion_block", param2=node.param2})
 
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			return itemstack

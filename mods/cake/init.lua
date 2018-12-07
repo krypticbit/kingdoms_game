@@ -138,7 +138,7 @@ minetest.register_entity("cake:cake_entity", {
 if throwable_cake then
 	minetest.override_item("cake:cake", {
 		on_use = function(itemstack, player, pointed_thing)
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			local playerpos = player:getpos()

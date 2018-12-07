@@ -44,7 +44,7 @@ function throwing_unload (itemstack, player, unloaded, wear)
 	if itemstack:get_metadata() then
 		for _,arrow in ipairs(throwing_arrows) do
 			if itemstack:get_metadata() == arrow[2] then
-				if not minetest.settings.get_bool("creative_mode") then
+				if not minetest.settings:get_bool("creative_mode") then
 					player:get_inventory():add_item("main", arrow[1])
 				end
 			end
@@ -65,7 +65,7 @@ function throwing_reload (itemstack, player, pos, is_cross, loaded)
 			local wear = itemstack:get_wear()
 			for _,arrow in ipairs(throwing_arrows) do
 				if player:get_inventory():get_stack("main", player:get_wield_index()+1):get_name() == arrow[1] then
-					if not minetest.settings.get_bool("creative_mode") then
+					if not minetest.settings:get_bool("creative_mode") then
 						player:get_inventory():remove_item("main", arrow[1])
 					end
 					local meta = arrow[2]
@@ -102,7 +102,7 @@ function throwing_register_bow (name, desc, scale, stiffness, reload_time, tough
 	    stack_max = 1,
 		on_use = function(itemstack, user, pointed_thing)
 			local wear = itemstack:get_wear()
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				wear = wear + (65535/toughness)
 			end
 			local unloaded = "throwing:" .. name
