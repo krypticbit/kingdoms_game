@@ -6,13 +6,13 @@ local function setting(tp, name, default)
 	local full_name = "areas."..name
 	local value
 	if tp == "boolean" then
-		value = minetest.settings.get_bool(full_name)
+		value = minetest.settings:get_bool(full_name)
 	elseif tp == "string" then
-		value = minetest.settings.get(full_name)
+		value = minetest.settings:get(full_name)
 	elseif tp == "position" then
 		value = minetest.setting_get_pos(full_name)
 	elseif tp == "number" then
-		value = tonumber(minetest.settings.get(full_name))
+		value = tonumber(minetest.settings:get(full_name))
 	else
 		error("Invalid setting type!")
 	end
@@ -40,4 +40,3 @@ setting("number",   "self_protection_max_areas_high", 32)
 
 -- legacy_table (owner_defs) compatibility.  Untested and has known issues.
 setting("boolean", "legacy_table", false)
-

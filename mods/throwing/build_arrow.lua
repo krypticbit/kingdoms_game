@@ -18,7 +18,7 @@ minetest.register_node("throwing:arrow_build_box", {
 			{7.5/17, -2.5/17, 2.5/17, 6.5/17, -1.5/17, 1.5/17},
 			{7.5/17, 2.5/17, -2.5/17, 6.5/17, 1.5/17, -1.5/17},
 			{6.5/17, -1.5/17, -1.5/17, 7.5/17, -2.5/17, -2.5/17},
-			
+
 			{7.5/17, 2.5/17, 2.5/17, 8.5/17, 3.5/17, 3.5/17},
 			{8.5/17, -3.5/17, 3.5/17, 7.5/17, -2.5/17, 2.5/17},
 			{8.5/17, 3.5/17, -3.5/17, 7.5/17, 2.5/17, -2.5/17},
@@ -54,7 +54,7 @@ THROWING_ARROW_ENTITY.on_step = function(self, dtime)
 			if obj:get_luaentity() ~= nil then
 				if obj:get_luaentity().name ~= "throwing:arrow_build_entity" and obj:get_luaentity().name ~= "__builtin:item" then
 					self.object:remove()
-					if self.inventory and self.stack and not minetest.settings.get_bool("creative_mode") then
+					if self.inventory and self.stack and not minetest.settings:get_bool("creative_mode") then
 						self.inventory:remove_item("main", {name=self.stack:get_name()})
 					end
 					if self.stack then
@@ -74,7 +74,7 @@ THROWING_ARROW_ENTITY.on_step = function(self, dtime)
 	if self.lastpos.x~=nil then
 		if node.name ~= "air" then
 			self.object:remove()
-			if self.inventory and self.stack and not minetest.settings.get_bool("creative_mode") then
+			if self.inventory and self.stack and not minetest.settings:get_bool("creative_mode") then
 					self.inventory:remove_item("main", {name=self.stack:get_name()})
 			end
 			if self.stack then

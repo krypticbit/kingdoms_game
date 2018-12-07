@@ -42,12 +42,12 @@ settings = {}
 -- @return The value from the configuration with the given name. If the read
 --         value is nil, the default value is returned or nil.
 function settings.get(name, default_value, cast_function)
-	local value = minetest.settings.get(name)
-	
+	local value = minetest.settings:get(name)
+
 	if value ~= nil and cast_function ~= nil then
 		value = cast_function(value)
 	end
-	
+
 	if value ~= nil then
 		return value
 	else
@@ -63,8 +63,8 @@ end
 -- @return The boolean with the given name, or the default value if it is nil,
 --         or nil.
 function settings.get_bool(name, default_value)
-	local value = minetest.settings.get_bool(name)
-	
+	local value = minetest.settings:get_bool(name)
+
 	if value ~= nil then
 		return value
 	else
@@ -81,7 +81,7 @@ end
 --        or nil.
 function settings.get_list(name, default_value)
 	local value = settings.get(name, nil, tostring)
-	
+
 	if value ~= nil then
 		return stringutil.split(value, ",")
 	elseif type(default_value) == "string" then
@@ -110,15 +110,15 @@ end
 -- @return The pos with the given name, or the default value if it is nil,
 --         or nil.
 function settings.get_pos2d(name, default_value)
-	local value = minetest.settings.get(name)
-	
+	local value = minetest.settings:get(name)
+
 	if value ~= nil then
 		local splitted_value = stringutil.split(value, ",")
-		
+
 		if splitted_value:size() == 2 then
 			local x = tonumber(splitted_value:get(1))
 			local y = tonumber(splitted_value:get(2))
-			
+
 			if x ~= nil and y ~= nil then
 				return {
 					x = x,
@@ -127,7 +127,7 @@ function settings.get_pos2d(name, default_value)
 			end
 		end
 	end
-	
+
 	return default_value
 end
 
@@ -140,7 +140,7 @@ end
 --         or nil.
 function settings.get_pos3d(name, default_value)
 	local value = minetest.setting_get_pos(name)
-	
+
 	if value ~= nil then
 		return value
 	else
@@ -169,22 +169,22 @@ end
 --         value it is nil.
 function settings.get_table(name, default_value, ...)
 	local value = settings.get_list(name, nil)
-	
+
 	if value ~= nil then
 		local table = {}
-		
+
 		if ... ~= nil then
 			for index, key in ipairs({...}) do
 				table[key] = value:get(index)
 			end
 		end
-		
+
 		if ... == nil or  #{...} < value:size() then
 			for index = #{...} + 1, value:size(), 1 do
 				table[index] = value:get(index)
 			end
 		end
-		
+
 		return table
 	else
 		return default_value
@@ -193,7 +193,7 @@ end
 
 --- Saves all settings to configuration file.
 function settings.save()
-	minetest.settings.write()
+	minetest.settings:write()
 end
 
 --- Set a value with the given name into the configuration.
@@ -201,7 +201,7 @@ end
 -- @param name The name of the value to set. Is not allowed to contain '="#{}'.
 -- @param value The value.
 function settings.set(name, value)
-	minetest.settings.set(name, value)
+	minetest.settings:set(name, value)
 end
 
 --- Gets a pos from the configuration, this is an alias for get_pos3d.
@@ -212,4 +212,3 @@ end
 -- @return The pos with the given name, or the default value if it is nil,
 --         or nil.
 settings.get_pos = settings.get_pos3d
-

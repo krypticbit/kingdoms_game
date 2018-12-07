@@ -5,26 +5,26 @@ local max_frequency_all = 1000 --the larger you make this number the lest freque
 
 --for frequencies below use a number between 0 and max_frequency_all
 --for volumes below, use a number between 0.0 and 1, the larger the number the louder the sounds
-local night_frequency = 20  --owls, wolves 
-local night_volume = 0.9  
+local night_frequency = 20  --owls, wolves
+local night_volume = 0.9
 local night_frequent_frequency = 150  --crickets
 local night_frequent_volume = 0.9
 local day_frequency = 100  --crow, bluejay, cardinal
-local day_volume = 0.9 
+local day_volume = 0.9
 local day_frequent_frequency = 1000  --crow, bluejay, cardinal
 local day_frequent_volume = 0.18
 local cave_frequency = 10  --bats
-local cave_volume = 1.0  
+local cave_volume = 1.0
 local cave_frequent_frequency = 70  --drops of water dripping
-local cave_frequent_volume = 1.0 
+local cave_frequent_volume = 1.0
 local beach_frequency = 20  --seagulls
-local beach_volume = 1.0  
+local beach_volume = 1.0
 local beach_frequent_frequency = 1000  --waves
-local beach_frequent_volume = 1.0 
+local beach_frequent_volume = 1.0
 local water_frequent_frequency = 1000  --water sounds
-local water_frequent_volume = 1.0 
+local water_frequent_volume = 1.0
 local music_frequency = 7  --music (suggestion: keep this one low like around 6)
-local music_volume = 0.3 
+local music_volume = 0.3
 --End of Config
 ----------------------------------------------------------------------------------------------------
 local played_on_start = false
@@ -135,7 +135,7 @@ local lava2 = {
 }
 
 
-local play_music = minetest.settings.get_bool("music") or false
+local play_music = minetest.settings:get_bool("music") or false
 local music = {
 	handler = {},
 	frequency = music_frequency,
@@ -191,7 +191,7 @@ local get_ambience = function(player)
 	end
 	if nodes_in_range(pos, 7, "default:lava_flowing")>5 or nodes_in_range(pos, 7, "default:lava_source")>5 then
 		if music then
-			return {lava=lava, lava2=lava2, music=music}		
+			return {lava=lava, lava2=lava2, music=music}
 		else
 			return {lava=lava}
 		end
@@ -203,7 +203,7 @@ local get_ambience = function(player)
 			return {flowing_water=flowing_water, flowing_water2=flowing_water2}
 		end
 	end
-	pos.y = pos.y-2 
+	pos.y = pos.y-2
 	nodename = minetest.env:get_node(pos).name
 	--minetest.chat_send_all("Found " .. nodename .. pos.y )
 	if string.find(nodename, "default:sand") and pos.y < 5 then
@@ -381,7 +381,7 @@ local stop_sound = function(still_playing, player)
 			minetest.sound_stop(list.handler[player_name])
 			list.handler[player_name] = nil
 		end
-	end	
+	end
 	if still_playing.lava2 == nil then
 		local list = lava2
 		if list.handler[player_name] ~= nil then
@@ -391,7 +391,7 @@ local stop_sound = function(still_playing, player)
 			minetest.sound_stop(list.handler[player_name])
 			list.handler[player_name] = nil
 		end
-	end		
+	end
 	if still_playing.water == nil then
 		local list = water
 		if list.handler[player_name] ~= nil then
@@ -405,7 +405,7 @@ local stop_sound = function(still_playing, player)
 	if still_playing.water_frequent == nil then
 		local list = water_frequent
 		if list.handler[player_name] ~= nil then
-			if list.on_stop ~= nil then				
+			if list.on_stop ~= nil then
 				minetest.sound_play(list.on_stop, {to_player=player:get_player_name()})
 				played_on_start = false
 			end
@@ -430,7 +430,7 @@ minetest.register_globalstep(function(dtime)
 			if math.random(1, 1000) <= ambience.frequency then
 				if ambience.on_start ~= nil and played_on_start == false then
 					played_on_start = true
-					minetest.sound_play(ambience.on_start, {to_player=player:get_player_name()})					
+					minetest.sound_play(ambience.on_start, {to_player=player:get_player_name()})
 				end
 				play_sound(player, ambience, math.random(1, #ambience))
 			end

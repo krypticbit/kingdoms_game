@@ -66,4 +66,3 @@ dofile(base_path .. "/tango.lua")
 dofile(base_path .. "/textureutil.lua")
 dofile(base_path .. "/transform.lua")
 dofile(base_path .. "/wallmountedutil.lua")
-

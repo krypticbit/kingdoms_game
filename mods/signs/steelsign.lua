@@ -62,7 +62,7 @@ local update_sign = function(pos, fields)
 			return
         end
     end
-	
+
 	-- if there is no entity
 	local sign_info
 	if minetest.env:get_node(pos).name == "signs:sign_yard_steel" then
@@ -96,13 +96,13 @@ minetest.register_node(":default:sign_wall_steel", {
     on_place = function(itemstack, placer, pointed_thing)
         local above = pointed_thing.above
         local under = pointed_thing.under
-			
+
 	pname = placer:get_player_name()
 	if minetest.is_protected(above, pname) then
 		minetest.record_protection_violation(above, pname)
 		return itemstack
 	end
-		
+
         local dir = {x = under.x - above.x,
                      y = under.y - above.y,
                      z = under.z - above.z}
@@ -121,9 +121,9 @@ minetest.register_node(":default:sign_wall_steel", {
         local fdir = minetest.dir_to_facedir(dir)
 
         local sign_info
-		
+
 		if minetest.env:get_node(above).name == "air" then
-		
+
         if wdir == 0 then
             --how would you add sign to ceiling?
             minetest.env:add_item(above, "default:sign_wall_steel")
@@ -141,12 +141,12 @@ minetest.register_node(":default:sign_wall_steel", {
                                               y = above.y + sign_info.delta.y,
                                               z = above.z + sign_info.delta.z}, "signs:text")
         text:setyaw(sign_info.yaw)
-		
+
 		local meta = minetest.get_meta(above)
 		local owner = placer:get_player_name()
 		meta:set_string("owner", owner)
 		meta:set_string("infotext", ("Locked sign (Owned by "..owner..")"))
-		
+
 		itemstack:take_item()
         return itemstack
 		end
@@ -165,14 +165,14 @@ minetest.register_node(":default:sign_wall_steel", {
     on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.get_meta(pos);
 		local owner = meta:get_string("owner")
-		if sender:get_player_name() == owner or owner == "" then		
+		if sender:get_player_name() == owner or owner == "" then
 			update_sign(pos, fields)
 		end
     end,
 	on_punch = function(pos, node, puncher)
 		local meta = minetest.get_meta(pos);
 		local owner = meta:get_string("owner")
-		if puncher:get_player_name() == owner or owner == "" then		
+		if puncher:get_player_name() == owner or owner == "" then
 			update_sign(pos, fields)
 		end
 	end,
@@ -205,14 +205,14 @@ minetest.register_node("signs:sign_yard_steel", {
     on_receive_fields = function(pos, formname, fields, sender)
 		local meta = minetest.get_meta(pos);
 		local owner = meta:get_string("owner")
-		if sender:get_player_name() == owner or owner == "" then		
+		if sender:get_player_name() == owner or owner == "" then
 			update_sign(pos, fields)
 		end
     end,
 	on_punch = function(pos, node, puncher)
 		local meta = minetest.get_meta(pos);
 		local owner = meta:get_string("owner")
-		if puncher:get_player_name() == owner or owner == "" then		
+		if puncher:get_player_name() == owner or owner == "" then
 			update_sign(pos, fields)
 		end
 	end,
@@ -226,6 +226,6 @@ minetest.register_craft({
 	}
 })
 
-if minetest.settings.get("log_mods") then
+if minetest.settings:get("log_mods") then
 	minetest.log("action", "locked signs loaded")
 end

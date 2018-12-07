@@ -111,7 +111,7 @@ function boat.on_punch(self, puncher)
 		minetest.after(0.1, function()
 			self.object:remove()
 		end)
-		if not minetest.settings.get_bool("creative_mode") then
+		if not minetest.settings:get_bool("creative_mode") then
 			local inv = puncher:get_inventory()
 			if inv:room_for_item("main", "boats:boat") then
 				inv:add_item("main", "boats:boat")
@@ -229,7 +229,7 @@ minetest.register_craftitem("boats:boat", {
 		end
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
 		minetest.add_entity(pointed_thing.under, "boats:boat")
-		if not minetest.settings.get_bool("creative_mode") then
+		if not minetest.settings:get_bool("creative_mode") then
 			itemstack:take_item()
 		end
 		return itemstack

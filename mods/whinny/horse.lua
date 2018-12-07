@@ -68,7 +68,7 @@ whinny:register_mob ("whinny:horse"..basename, {
         if item:get_name() == "farming:wheat" then
             minetest.add_entity (self.object:getpos(),
 "whinny:horse"..basename.."h1")
-            if not minetest.settings.get_bool("creative_mode") then
+            if not minetest.settings:get_bool("creative_mode") then
                 item:take_item()
                 clicker:set_wielded_item(item)
             end
@@ -88,7 +88,7 @@ local function register_basehorse(name, craftitem, horse)
         function craftitem.on_place(itemstack, placer, pointed_thing)
             if pointed_thing.above then
                 minetest.env:add_entity(pointed_thing.above, name)
-                if not minetest.settings.get_bool("creative_mode") then
+                if not minetest.settings:get_bool("creative_mode") then
                     itemstack:take_item()
                 end
             end
@@ -98,7 +98,7 @@ local function register_basehorse(name, craftitem, horse)
     end
 
     function horse:set_animation(type)
-        if type == self.animation_current then 
+        if type == self.animation_current then
 			return
 		end
         if type == self.animation.mode_stand then
@@ -161,7 +161,7 @@ local function register_basehorse(name, craftitem, horse)
                 self.object:setyaw(self.object:getyaw()-3*(2-math.abs(self.speed/self.max_speed))*math.pi/90 -dtime*math.pi/90)
             end
             -- jumping (only if on ground)
-			
+
 			if ctrl.jump then
 				if on_ground then
 					local v = self.object:getvelocity()

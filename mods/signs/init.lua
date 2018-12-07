@@ -63,7 +63,7 @@ local update_sign = function(pos, fields)
 			return
         end
     end
-	
+
 	-- if there is no entity
 	local sign_info
 	if minetest.env:get_node(pos).name == "signs:sign_yard" then
@@ -97,13 +97,13 @@ minetest.register_node(":default:sign_wall_wood", {
     on_place = function(itemstack, placer, pointed_thing)
         local above = pointed_thing.above
         local under = pointed_thing.under
-			
+
 	pname = placer:get_player_name()
 	if minetest.is_protected(above, pname) then
 		minetest.record_protection_violation(above, pname)
 		return itemstack
 	end
-			
+
         local dir = {x = under.x - above.x,
                      y = under.y - above.y,
                      z = under.z - above.z}
@@ -122,9 +122,9 @@ minetest.register_node(":default:sign_wall_wood", {
         local fdir = minetest.dir_to_facedir(dir)
 
         local sign_info
-		
+
 		if minetest.env:get_node(above).name == "air" then
-		
+
         if wdir == 0 then
             --how would you add sign to ceiling?
             minetest.env:add_item(above, "default:sign_wall_wood")
@@ -308,6 +308,6 @@ end
 modpath=minetest.get_modpath("signs")
 
 dofile(modpath.."/steelsign.lua")
-if minetest.settings.get("log_mods") then
+if minetest.settings:get("log_mods") then
 	minetest.log("action", "signs loaded")
 end

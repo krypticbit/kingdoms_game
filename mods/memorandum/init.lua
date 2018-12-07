@@ -7,7 +7,7 @@ local mname     = "memorandum"
 local sheet =   { -1/2  , -1/2   , -1/2   , 1/2    , -7/16  ,  1/2  }
 local info  =   '"'
 local sign  =   '" Signed by '
-            
+
 minetest.register_craftitem(":default:paper", {
     description = "Paper",
     inventory_image = "default_paper.png",
@@ -36,7 +36,7 @@ minetest.register_node("memorandum:letter_empty", {
     on_construct = function(pos)
         local meta = minetest.get_meta(pos)
         meta:set_string(
-                    "formspec", 
+                    "formspec",
                     "size[10,7]"..
                     "field[1,1;8.5,1;text; Write a Letter;${text}]"..
                     "field[1,3;4.25,1;signed; Sign Letter (optional);${signed}]"..
@@ -216,14 +216,14 @@ minetest.register_tool("memorandum:eraser", {
             if string.find(node.name, "memorandum:letter_written") then
                 if signer == player or signer == "" then
                     meta:set_string(
-                        "formspec", 
+                        "formspec",
                         "size[10,7]"..
                         "field[1,1;8.5,1;text; Edit Text;${text}]"..
                         "field[1,3;4.25,1;signed; Edit Signature;${signed}]"..
                         "button_exit[0.75,5;4.25,1;text,signed;Done]"
                     )
-                    if not minetest.settings.get_bool("creative_mode") then
-                        return eraser_wear(itemstack, user, pointed_thing, 30)  
+                    if not minetest.settings:get_bool("creative_mode") then
+                        return eraser_wear(itemstack, user, pointed_thing, 30)
                     else
                         return {name="memorandum:eraser", count=1, wear=0, metadata=""}
                     end

@@ -1,7 +1,7 @@
 
 --[[ Default to enabled in singleplayer and disabled in multiplayer
 local singleplayer = minetest.is_singleplayer()
-local setting = minetest.settings.get_bool("enable_tnt")
+local setting = minetest.settings:get_bool("enable_tnt")
 if (not singleplayer and setting ~= true) or
 		(singleplayer and setting == false) then
 	return
@@ -13,7 +13,7 @@ local loss_prob = {}
 loss_prob["default:cobble"] = 3
 loss_prob["default:dirt"] = 4
 
-local radius = tonumber(minetest.settings.get("tnt_radius") or 3)
+local radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
 -- Fill a list with data for content IDs, after all nodes are registered
 local cid_data = {}
@@ -295,7 +295,7 @@ minetest.register_node("tnt:gunpowder", {
 	},
 	groups = {dig_immediate=2,attached_node=1,connect_to_raillike=minetest.raillike_group("gunpowder")},
 	sounds = default.node_sound_leaves_defaults(),
-	
+
 	on_punch = function(pos, node, puncher)
 		if puncher:get_wielded_item():get_name() == "default:torch" then
 			burn(pos)

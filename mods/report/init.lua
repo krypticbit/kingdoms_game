@@ -24,12 +24,12 @@ minetest.register_chatcommand("report", {
 
 		if #mods > 0 then
 			mod_list = table.concat(mods, ", ")
-			email.send_mail(name, minetest.settings.get("name"),
+			email.send_mail(name, minetest.settings:get("name"),
 				"Report: " .. param .. " (mods online: " .. mod_list .. ")")
                                 irc:say(name .. " sent a report! (mods online: " .. mod_list .. ")")
 			return true, "Reported. Moderators currently online: " .. mod_list
 		else
-			email.send_mail(name, minetest.settings.get("name"),
+			email.send_mail(name, minetest.settings:get("name"),
 				"Report: " .. param .. " (no mods online)")
                                 irc:say(name .. " sent a report! (no mods online)")
 			return true, "Reported. We'll get back to you."

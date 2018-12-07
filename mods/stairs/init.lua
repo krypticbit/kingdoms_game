@@ -15,7 +15,7 @@ minetest.register_alias("stairs:slab_pinewood", "stairs:slab_pine_wood")
 
 -- Get setting for replace ABM
 
-local replace = minetest.settings.get_bool("enable_stairs_replace_abm")
+local replace = minetest.settings:get_bool("enable_stairs_replace_abm")
 
 
 -- Register stairs.
@@ -105,7 +105,7 @@ function stairs.register_stair(subname, recipeitem, groups, images, description,
 			{recipeitem, recipeitem, recipeitem},
 		},
 	})
-        
+
         --added by sparky: less stair recipie
 
 	minetest.register_craft({
@@ -190,7 +190,7 @@ function stairs.register_slab(subname, recipeitem, groups, images, description, 
 				end
 				return itemstack
 			end
-			
+
 			-- Upside down slabs
 			if p0.y - 1 == p1.y then
 				-- Turn into full block if pointing at a existing slab
@@ -369,7 +369,7 @@ stairs.register_stair_and_slab("sandstone", "default:sandstone",
 		"Sandstone Stair",
 		"Sandstone Slab",
 		default.node_sound_stone_defaults())
-		
+
 stairs.register_stair_and_slab("sandstonebrick", "default:sandstonebrick",
 		{crumbly = 2, cracky = 2},
 		{"default_sandstone_brick.png"},
