@@ -9,7 +9,7 @@ ctf.gui.register_tab("flags", "Flags", function(name, team)
 
 	local x = 1
 	local y = 2
-	result = result .. "label[1,1;Click a flag button to go there]"
+	--result = result .. "label[1,1;Click a flag button to go there]"
 
 	if ctf.setting("gui.team.teleport_to_spawn") and minetest.get_setting("static_spawnpoint") then
 		local x,y,z = string.match(minetest.get_setting("static_spawnpoint"), "(%d+),(%d+),(%d+)")
@@ -35,8 +35,7 @@ ctf.gui.register_tab("flags", "Flags", function(name, team)
 		end
 
 		result = result ..
-			"button[" .. x .. "," .. y .. ";2,1;goto_"
-			..f.x.."_"..f.y.."_"..f.z..";"
+			"button[" .. x .. "," .. y .. ";"
 
 		if f.name then
 			result = result .. f.name .. "]"
@@ -51,20 +50,6 @@ ctf.gui.register_tab("flags", "Flags", function(name, team)
 		"size[10,7]"..
 		ctf.gui.get_tabs(name,team)..
 		result)
-end)
-
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-	-- Todo: fix security issue here
-	local name = player:get_player_name()
-	if formname == "ctf:flags" then
-		for key, field in pairs(fields) do
-			local x,y,z = string.match(key, "goto_([%d-]+)_([%d-]+)_([%d-]+)")
-			if x and y and z then
-				player:setpos({ x=tonumber(x), y=tonumber(y), z=tonumber(z) })
-				return true
-			end
-		end
-	end
 end)
 
 -- Flag interface
