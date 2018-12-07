@@ -235,20 +235,20 @@ ctf_flag = {
 		local name = placer:get_player_name()
 		if not pos or not name then
 			minetest.set_node(pos, {name="air"})
-			return
+			return true
 		end
 
 		local meta = minetest.get_meta(pos)
 		if not meta then
 			minetest.set_node(pos, {name="air"})
-			return
+			return true
 		end
 		
 		if not can_place_flag(pos) then
 			minetest.chat_send_player(name,
 			"Too close to the flag to build! Leave at least " .. r .. " blocks around the flag.")
 			minetest.set_node(pos, {name="air"})
-			return
+			return true
 		end
 
 		local tplayer = ctf.player_or_nil(name)
@@ -256,13 +256,13 @@ ctf_flag = {
 			if ctf.player(name).auth == false then
 				minetest.chat_send_player(name, "You're not allowed to place flags!")
 				minetest.set_node(pos, {name="air"})
-				return
+				return true
 			end
 			
 			if ctf.team(tplayer.team).power and ctf.team(tplayer.team).power < 1 then
 				minetest.chat_send_player(name, "You need more members to be-able to place more flags.")
 				minetest.set_node(pos, {name="air"})
-				return
+				return true
 			end
 
 			local tname = tplayer.team
@@ -311,6 +311,7 @@ ctf_flag = {
 		else
 			minetest.chat_send_player(name, "You are not part of a team!")
 			minetest.set_node(pos, {name="air"})
+			return true
 		end
 	end
 }
