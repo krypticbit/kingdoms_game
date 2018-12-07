@@ -223,7 +223,7 @@ minetest.register_tool("memorandum:eraser", {
                         "button_exit[0.75,5;4.25,1;text,signed;Done]"
                     )
                     if not minetest.settings:get_bool("creative_mode") then
-                        return eraser_wear(itemstack, user, pointed_thing, 30)
+                        return eraser_wear(itemstack, user, pointed_thing, 30)  
                     else
                         return {name="memorandum:eraser", count=1, wear=0, metadata=""}
                     end
