@@ -202,7 +202,7 @@ function ctf.decide_application(applicant_name, acceptor_name, team_name, decisi
 			minetest.chat_send_player(acceptor_name, "Player " .. applicant_name .. " already a member of team " .. applicant.team)
 		else
 			ctf.join(applicant_name, team_name, true, acceptor_name)
-			table.insert(ctf.teams[ctf.players[acceptor_name].team].log,{msg=applicant_name .. " was recruited " .. acceptor_name .. "!"})
+			table.insert(ctf.teams[team_name].log,{msg=applicant_name .. " was recruited " .. acceptor_name .. "!"})
 		end
 	end
 	for key, field in pairs(ctf.teams) do
@@ -475,7 +475,7 @@ function ctf.get_territory_owner(pos)
 	local pdSQ = pd * pd
 	for tname, team in pairs(ctf.teams) do
 		for f = 1, #team.flags do
-			local fPos = team.flags[i]
+			local fPos = team.flags[f]
 			local diffX = fPos.x - pos.x
 			local diffZ = fPos.z - pos.z
 			local distSQ = diffX * diffX + diffZ * diffZ
@@ -483,6 +483,7 @@ function ctf.get_territory_owner(pos)
 				return tname
 			end
 		end
+	end
 end
 
 minetest.register_on_newplayer(function(player)
