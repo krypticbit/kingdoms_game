@@ -17,7 +17,7 @@ for i, size in ipairs(sizes) do
 	local description
 	local drop
 	local tiles
-	
+
 	if slice == 0 then
 		name = "cake:cake"
 		description = S("Cake")
@@ -28,7 +28,7 @@ for i, size in ipairs(sizes) do
 		drop = ''
 		tiles = {"cake_top.png", "cake_bottom.png", "cake_side.png", "cake_inner.png", "cake_side.png", "cake_side.png"}
 	end
-	
+
 	minetest.register_node(name, {
 		description = description,
 		drop = drop,
@@ -73,7 +73,7 @@ if not minetest.get_modpath("food") then
 		inventory_image = "cake_sugar.png",
 		groups = {food_sugar=1}
 	})
-	
+
 	minetest.register_craft({
 		type = "shapeless",
 		output = "cake:sugar",
@@ -89,7 +89,7 @@ minetest.register_craft({
 	recipe = {"farming:flour", "group:water_bucket", "group:food_sugar", "group:food_sugar"},
 	replacements = {
 		{"group:water_bucket", "bucket:bucket_empty"},
-		
+
 		-- Not needed >0.4.13
 		{"bucket:bucket_water", "bucket:bucket_empty"},
 		{"bucket:bucket_river_water", "bucket:bucket_empty"}
@@ -138,7 +138,7 @@ minetest.register_entity("cake:cake_entity", {
 if throwable_cake then
 	minetest.override_item("cake:cake", {
 		on_use = function(itemstack, player, pointed_thing)
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			local playerpos = player:getpos()

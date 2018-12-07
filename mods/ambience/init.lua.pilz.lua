@@ -69,7 +69,7 @@ local splash = {
 	{name="Splash", length=1.5},
 }
 
-local play_music = minetest.settings.get_bool("music") or false
+local play_music = minetest.settings:get_bool("music") or false
 local music = {
 	handler = {},
 	frequency = 1,

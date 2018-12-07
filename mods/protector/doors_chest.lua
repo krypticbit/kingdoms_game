@@ -71,7 +71,7 @@ function register_door(name, def)
 				minetest.get_meta(pt2):set_int("right", 1)
 			end
 
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			return itemstack
@@ -455,9 +455,9 @@ minetest.register_craft({
 minetest.register_craft({
 	output = "protector:trapdoor 2",
         type = "shapeless",
-	recipe = 
+	recipe =
 		{"doors:trapdoor", "default:bronze_ingot", "doors:trapdoor"}
-	
+
 })
 
 -- Protected Steel Trapdoor
@@ -609,7 +609,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					end
 				end
 			end
-	
+
 		elseif fields.todn then
 
 			-- copy contents of chest to players inventory

@@ -7,11 +7,11 @@ irc.config = {}
 local function setting(stype, name, default, required)
 	local value
 	if stype == "bool" then
-		value = minetest.settings.get_bool("irc."..name)
+		value = minetest.settings:get_bool("irc."..name)
 	elseif stype == "string" then
-		value = minetest.settings.get("irc."..name)
+		value = minetest.settings:get("irc."..name)
 	elseif stype == "number" then
-		value = tonumber(minetest.settings.get("irc."..name))
+		value = tonumber(minetest.settings:get("irc."..name))
 	end
 	if value == nil then
 		if required then
@@ -49,4 +49,3 @@ setting("bool",   "debug", false) -- Enable debug output
 setting("bool",   "enable_player_part", true) -- Whether to enable players joining and parting the channel
 setting("bool",   "auto_join", true) -- Whether to automatically show players in the channel when they join
 setting("bool",   "auto_connect", true) -- Whether to automatically connect to the server on mod load
-

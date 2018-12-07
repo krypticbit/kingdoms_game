@@ -281,7 +281,7 @@ xdecor.register("cushion", {
 
 			minetest.set_node(pos, {name="xdecor:cushion_block", param2=node.param2})
 
-			if not minetest.settings.get_bool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			return itemstack
@@ -563,4 +563,3 @@ xdecor.register("woodframed_glass", {
 	groups = {cracky=2, oddly_breakable_by_hand=1},
 	sounds = default.node_sound_glass_defaults()
 })
-
