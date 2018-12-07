@@ -1,3 +1,52 @@
+local r = ctf.setting("flag.nobuild_radius")
+local c_air = minetest.get_content_id("air")
+
+local function can_place_flag(pos)
+	local lpos = pos
+	local pos1 = {x=lpos.x-r+1,y=lpos.y,z=lpos.z-r+1}
+	local pos2 = {x=lpos.x+r-1,y=lpos.y+r-1,z=lpos.z+r-1}
+	
+	local vm = minetest.get_voxel_manip()
+	
+	local emin, emax = vm:read_from_map(pos1, pos2)
+	local a = VoxelArea:new{
+        MinEdge = emin,
+        MaxEdge = emax
+    }
+	
+	local nx = lpos.x
+	local ny = lpos.y
+	local nz = lpos.z
+	
+	local n1x = pos1.x
+	local n1y = pos1.y
+	local n1z = pos1.z
+	
+	local n2x = pos2.x
+	local n2y = pos2.y
+	local n2z = pos2.z
+	
+	local data = vm:get_data()
+	
+	local m_vi = a:index(nx, ny, nz)
+	local myname = minetest.get_name_from_content_id(data[m_vi])
+	
+	for z = n1z, n2z do
+		for y = n1y, n2y do
+			for x = n1x, n2x do
+				if x ~= nx or y ~= ny or z ~= nz then
+					local vi = a:index(x, y, z)
+					local id = data[vi]
+					if id ~= c_air then
+						return false
+					end
+				end
+			end
+		end
+    end
+	return true
+end
+
 local function do_capture(attname, flag, returned)
 	local team = flag.team
 	local attacker = ctf.player(attname)
@@ -191,6 +240,13 @@ ctf_flag = {
 
 		local meta = minetest.get_meta(pos)
 		if not meta then
+			minetest.set_node(pos, {name="air"})
+			return
+		end
+		
+		if not can_place_flag(pos) then
+			minetest.chat_send_player(name,
+			"Too close to the flag to build! Leave at least " .. r .. " blocks around the flag.")
 			minetest.set_node(pos, {name="air"})
 			return
 		end
