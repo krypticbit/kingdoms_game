@@ -6,7 +6,7 @@ irc.config = {}
 
 local function setting(stype, name, default, required)
 	local value
-	if minetest.settings and minetest.settings:get and minetest.settings:get_bool then
+	if minetest.settings and minetest.settings.get and minetest.settings.get_bool then
 		-- The current methods for getting settings
 		if stype == "bool" then
 			value = minetest.settings:get_bool("irc."..name)
