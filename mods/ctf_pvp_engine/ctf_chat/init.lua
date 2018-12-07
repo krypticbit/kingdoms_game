@@ -291,19 +291,20 @@ minetest.register_chatcommand("ctf_ls", {
 minetest.register_chatcommand("team_owner", {
 	params = "player name",
 	description = "Make player team owner",
-	privs = {ctf_admin=true},
 	func = function(name, param)
-		if ctf and ctf.players and ctf.player(param) and ctf.player(param).team and ctf.team(ctf.player(param).team) then
-			if ctf.player(param).auth == true then
-				ctf.player(param).auth = false
-				return true, param.." was downgraded from team admin status"
+		if ctf.player(name).auth or minetest.get_player_privs(name).ctf_admin then
+			if ctf and ctf.players and ctf.player(param) and ctf.player(param).team and ctf.team(ctf.player(param).team) then
+				if ctf.player(param).auth == true then
+					ctf.player(param).auth = false
+					return true, param.." was downgraded from team admin status"
+				else
+					ctf.player(param).auth = true
+					return true, param.." was upgraded to an admin of "..ctf.player(name).team
+				end
+				ctf.needs_save = true
 			else
-				ctf.player(param).auth = true
-				return true, param.." was upgraded to an admin of "..ctf.player(name).team
+				return false, "Unable to do that :/ "..param.." does not exist, or is not part of a valid team."
 			end
-			ctf.needs_save = true
-		else
-			return false, "Unable to do that :/ "..param.." does not exist, or is not part of a valid team."
 		end
 	end
 })
