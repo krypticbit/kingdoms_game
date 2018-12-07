@@ -209,6 +209,7 @@ minetest.register_chatcommand("teamkick", {
 	end
 end
 end})
+
 minetest.register_chatcommand("teamleave", {
 	params = "none",
 	description = "Leave your team",
@@ -219,6 +220,21 @@ minetest.register_chatcommand("teamleave", {
 			ctf.player(name).auth = false
 			ctf.player(name).recuiter = false
 			ctf.team(team).power = ctf.team(team).power - 1
+			-- Disband if there are zero players lefted on team
+			local disband = true
+			local teamdata = ctf.team(team)
+			for username, player in pairs(teamdata.players) do
+				disband = false
+				break
+			end
+			if disband == true then
+				if ctf.remove_team(team) then
+					ctf.needs_save = true
+					minetest.chat_send_all("team '" .. team .. "'" .. " disbanded " .. "from having zero players on team.")
+				else
+					minetest.chat_send_all("Error disbanding team '" .. team .. "'")
+				end
+			end
 			return true, "You have left " .. team .. "!"
 		else 				
 			return false, "Failed to leave " .. team.. "!"
@@ -228,6 +244,77 @@ minetest.register_chatcommand("teamleave", {
 	end
 end
 })
+
+minetest.register_chatcommand("teamdisband", {
+	params = "none",
+	description = "Disband your team",
+	func = function(name, param)
+	if ctf.player(name).auth or minetest.get_player_privs(name).ctf_admin then
+		local team = ctf.player(name).team
+		if ctf.remove_team(team) then
+			ctf.needs_save = true
+			return true, "team '" .. team .. "'" .. " disbanded."
+		else
+			return false, "Error disbanding team '" .. team .. "'"
+		end
+	else
+		return false, "You are not a team_owner!"
+	end
+end
+})
+
+minetest.register_chatcommand("tc", {
+	params = "msg",
+	description = "Send a message to the team channel",
+	func = function(name, param)
+	local tname = ctf.player(name).team
+	if ctf.player(name).team ~= nil then
+		local team = ctf.team(tname)
+		if team then
+			local color, colorHex = ctf_colors.get_color(name,ctf.player(name))
+			local playerslist = minetest.get_connected_players()
+			for i in pairs(playerslist) do
+				local realplayer = playerslist[i]
+				if team.players[realplayer:get_player_name()] then
+					minetest.chat_send_player(realplayer:get_player_name(),
+							minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+				end
+			end
+		end
+	else
+		return false, "You're not in a team, so you have no team to talk to."
+	end
+end
+})
+
+minetest.register_chatcommand("ac", {
+	params = "msg",
+	description = "Send a message to the alliance channel",
+	func = function(name, param)
+	local tname = ctf.player(name).team
+	if ctf.player(name).team ~= nil then
+		local team = ctf.team(tname)
+		if team then
+			local color, colorHex = ctf_colors.get_color(name,ctf.player(name))
+			local playerslist = minetest.get_connected_players()
+			for i in pairs(playerslist) do
+				local realplayer = playerslist[i]
+				local ot = ctf.player(realplayer:get_player_name()).team
+				if ot then
+					local diplo = ctf.diplo.get(team,ot)
+					if team.players[realplayer:get_player_name()] or diplo == "alliance" then
+						minetest.chat_send_player(realplayer:get_player_name(),
+								minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+					end
+				end
+			end
+		end
+	else
+		return false, "You're not in a team, so you have no team to talk to."
+	end
+end
+})
+
 --[[
 minetest.register_chatcommand("join", {
 	params = "player name",
@@ -291,19 +378,20 @@ minetest.register_chatcommand("ctf_ls", {
 minetest.register_chatcommand("team_owner", {
 	params = "player name",
 	description = "Make player team owner",
-	privs = {ctf_admin=true},
 	func = function(name, param)
-		if ctf and ctf.players and ctf.player(param) and ctf.player(param).team and ctf.team(ctf.player(param).team) then
-			if ctf.player(param).auth == true then
-				ctf.player(param).auth = false
-				return true, param.." was downgraded from team admin status"
+		if ctf.player(name).auth or minetest.get_player_privs(name).ctf_admin then
+			if ctf and ctf.players and ctf.player(param) and ctf.player(param).team and ctf.team(ctf.player(param).team) then
+				if ctf.player(param).auth == true then
+					ctf.player(param).auth = false
+					return true, param.." was downgraded from team admin status"
+				else
+					ctf.player(param).auth = true
+					return true, param.." was upgraded to an admin of "..ctf.player(name).team
+				end
+				ctf.needs_save = true
 			else
-				ctf.player(param).auth = true
-				return true, param.." was upgraded to an admin of "..ctf.player(name).team
+				return false, "Unable to do that :/ "..param.." does not exist, or is not part of a valid team."
 			end
-			ctf.needs_save = true
-		else
-			return false, "Unable to do that :/ "..param.." does not exist, or is not part of a valid team."
 		end
 	end
 })

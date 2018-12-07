@@ -202,6 +202,9 @@ function ctf.decide_application(applicant_name, acceptor_name, team_name, decisi
 			minetest.chat_send_player(acceptor_name, "Player " .. applicant_name .. " already a member of team " .. applicant.team)
 		else
 			ctf.join(applicant_name, team_name, true, acceptor_name)
+			if not ctf.teams[team_name].log then
+				ctf.teams[team_name].log = {}
+			end
 			table.insert(ctf.teams[team_name].log,{msg=applicant_name .. " was recruited " .. acceptor_name .. "!"})
 		end
 	end
