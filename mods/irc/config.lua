@@ -18,11 +18,11 @@ local function setting(stype, name, default, required)
 	else
 		-- The old methods for getting settings for backward compatibility. Deprecated on 0.4.16+
 		if stype == "bool" then
-			value = minetest.setting_getbool("irc."..name)
+			value = minetest.settings.get_bool("irc."..name)
 		elseif stype == "string" then
-			value = minetest.setting_get("irc."..name)
+			value = minetest.settings.get("irc."..name)
 		elseif stype == "number" then
-			value = tonumber(minetest.setting_get("irc."..name))
+			value = tonumber(minetest.settings.get("irc."..name))
 		end
 	end
 	if value == nil then

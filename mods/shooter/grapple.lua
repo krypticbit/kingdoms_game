@@ -4,7 +4,7 @@ local function throw_hook(itemstack, user, vel)
 	local dir = user:get_look_dir()
 	local yaw = user:get_look_yaw()
 	if pos and dir and yaw then
-		if not minetest.setting_getbool("creative_mode") then
+		if not minetest.settings.get_bool("creative_mode") then
 			itemstack:add_wear(65535/100)
 		end
 		pos.y = pos.y + 1.5

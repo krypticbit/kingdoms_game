@@ -270,7 +270,7 @@ minetest.register_abm({
 
 -- Enable the following ABMs according to 'disable fire' setting
 
-if minetest.setting_getbool("disable_fire") then
+if minetest.settings.get_bool("disable_fire") then
 
 	-- Remove basic flames only
 
