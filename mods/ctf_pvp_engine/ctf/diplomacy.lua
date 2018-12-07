@@ -41,7 +41,7 @@ function ctf.diplo.set(one, two, state)
 	else
 		ctf.diplo.diplo = {}
 	end
-
+	ctf.needs_save = true
 	table.insert(ctf.diplo.diplo,{one=one,two=two,state=state})
 end
 
@@ -78,6 +78,6 @@ function ctf.diplo.cancel_requests(one, two)
 			return
 		end
 	end
-
+	ctf.needs_save = true
 	return
 end
