@@ -4,6 +4,8 @@ minetest.register_node("ctf_flag:flag", {
 	drawtype="nodebox",
 	paramtype = "light",
 	walkable = false,
+	inventory_image = "flag_graphic.png",
+	wield_image = "flag_graphic.png",
 	tiles = {
 		"default_wood.png",
 		"default_wood.png",

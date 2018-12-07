@@ -18,8 +18,9 @@ function minetest.is_protected(pos, name)
 	if not team or not ctf.team(team) then
 		return old_is_protected(pos, name)
 	end
-
-	if ctf.player(name).team == team then
+	local player_team = ctf.player(name).team
+	local diplo = ctf.diplo.get(team,player_team)
+	if player_team == team or diplo == "alliance" then
 		return old_is_protected(pos, name)
 	else
 		local player = minetest.get_player_by_name(name)
