@@ -43,7 +43,7 @@ settings = {}
 --         value is nil, the default value is returned or nil.
 function settings.get(name, default_value, cast_function)
 	local value = minetest.settings:get(name)
-
+	
 	if value ~= nil and cast_function ~= nil then
 		value = cast_function(value)
 	end
@@ -64,11 +64,6 @@ end
 --         or nil.
 function settings.get_bool(name, default_value)
 	local value = minetest.settings:get_bool(name)
-<<<<<<< HEAD
-
-=======
-	
->>>>>>> 316debdfa967a6285be3ddbe9c2b9ca6b114ee9e
 	if value ~= nil then
 		return value
 	else
@@ -115,11 +110,6 @@ end
 --         or nil.
 function settings.get_pos2d(name, default_value)
 	local value = minetest.settings:get(name)
-<<<<<<< HEAD
-
-=======
-	
->>>>>>> 316debdfa967a6285be3ddbe9c2b9ca6b114ee9e
 	if value ~= nil then
 		local splitted_value = stringutil.split(value, ",")
 
