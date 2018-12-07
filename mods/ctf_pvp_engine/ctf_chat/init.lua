@@ -263,7 +263,7 @@ minetest.register_chatcommand("teamdisband", {
 end
 })
 
-minetest.register_chatcommand("t", {
+minetest.register_chatcommand("tc", {
 	params = "msg",
 	description = "Send a message to the team channel",
 	func = function(name, param)
@@ -287,7 +287,7 @@ minetest.register_chatcommand("t", {
 end
 })
 
-minetest.register_chatcommand("a", {
+minetest.register_chatcommand("ac", {
 	params = "msg",
 	description = "Send a message to the alliance channel",
 	func = function(name, param)
