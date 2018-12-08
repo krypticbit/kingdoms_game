@@ -244,6 +244,13 @@ ctf_flag = {
 			return true
 		end
 		
+		if pos.y < -50 then
+			minetest.chat_send_player(name,
+				"Max flag depth is 50 blocks.")
+			minetest.set_node(pos, {name="air"})
+			return true
+		end
+		
 		if not can_place_flag(pos) then
 			minetest.chat_send_player(name,
 			"Too close to the flag to build! Leave at least " .. r .. " blocks around the flag.")
