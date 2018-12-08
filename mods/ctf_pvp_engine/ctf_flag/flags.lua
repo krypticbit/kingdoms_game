@@ -24,7 +24,7 @@ minetest.register_node("ctf_flag:flag", {
 	on_punch = ctf_flag.on_punch,
 	on_rightclick = ctf_flag.on_rightclick,
 	on_construct = ctf_flag.on_construct,
-	after_place_node = ctf_flag.after_place_node,
+	on_place = ctf_flag.on_place,
 	on_timer = ctf_flag.flag_tick
 })
 
