@@ -7,8 +7,12 @@ minetest.register_chatcommand("mrkr", {
 	func = function(name, param)
 		local x, y, z = string.match(param, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
 		local player = minetest.get_player_by_name(name)
+		local pos = player:get_pos()
+
 		if not x or not y or not z then
-			return false, "You must provide 3 coordinates!"
+			x = pos.x
+			y = pos.y
+			z = pos.z
 		end
 
 		if marker[name] then
