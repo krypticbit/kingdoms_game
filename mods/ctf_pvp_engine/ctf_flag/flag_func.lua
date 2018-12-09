@@ -5,32 +5,32 @@ local function can_place_flag(pos)
 	local lpos = pos
 	local pos1 = {x=lpos.x-r+1,y=lpos.y,z=lpos.z-r+1}
 	local pos2 = {x=lpos.x+r-1,y=lpos.y+r-1,z=lpos.z+r-1}
-	
+
 	local vm = minetest.get_voxel_manip()
-	
+
 	local emin, emax = vm:read_from_map(pos1, pos2)
 	local a = VoxelArea:new{
-        MinEdge = emin,
-        MaxEdge = emax
-    }
-	
+		MinEdge = emin,
+		MaxEdge = emax
+	}
+
 	local nx = lpos.x
 	local ny = lpos.y
 	local nz = lpos.z
-	
+
 	local n1x = pos1.x
 	local n1y = pos1.y
 	local n1z = pos1.z
-	
+
 	local n2x = pos2.x
 	local n2y = pos2.y
 	local n2z = pos2.z
-	
+
 	local data = vm:get_data()
-	
+
 	local m_vi = a:index(nx, ny, nz)
 	local myname = minetest.get_name_from_content_id(data[m_vi])
-	
+
 	for z = n1z, n2z do
 		for y = n1y, n2y do
 			for x = n1x, n2x do
@@ -158,8 +158,8 @@ ctf_flag = {
 
 		if flag.claimed then
 			if ctf.setting("flag.capture_take") then
-				minetest.chat_send_player(name, "This flag has been taken by "..flag.claimed.player)
-				minetest.chat_send_player(name, "who is a member of team "..flag.claimed.team)
+				minetest.chat_send_player(name, "This flag has been taken by " .. flag.claimed.player)
+				minetest.chat_send_player(name, "who is a member of team " .. flag.claimed.team)
 				return
 			else
 				minetest.chat_send_player(name, "Oops! This flag should not be captured. Reverting...")
@@ -231,65 +231,79 @@ ctf_flag = {
 		meta:set_string("infotext", "Unowned flag")
 		minetest.get_node_timer(pos):start(5)
 	end,
-	after_place_node = function(pos, placer)
+	on_place = function(itemstack, placer, pointed_thing)
+		if not placer then
+			return itemstack
+		end
+
 		local name = placer:get_player_name()
-		if not pos or not name then
-			minetest.set_node(pos, {name="air"})
-			return true
+		local node = minetest.get_node(pointed_thing.under)
+		local nodedef = minetest.registered_nodes[node.name]
+
+		if nodedef and nodedef.on_rightclick and
+				not placer:get_player_control().sneak then
+			return nodedef.on_rightclick(pointed_thing.under,
+					node, placer, itemstack, pointed_thing)
+		end
+
+		local pos
+		if nodedef and nodedef.buildable_to then
+			pos = pointed_thing.under
+		else
+			pos = pointed_thing.above
+			node = minetest.get_node(pos)
+			nodedef = minetest.registered_nodes[node.name]
+			if not nodedef or not nodedef.buildable_to then
+				return itemstack
+			end
 		end
 
 		local meta = minetest.get_meta(pos)
 		if not meta then
-			minetest.set_node(pos, {name="air"})
-			return true
+			return itemstack
 		end
-		
+
 		if pos.y < -50 then
-			minetest.chat_send_player(name,
-				"Max flag depth is 50 blocks.")
-			minetest.set_node(pos, {name="air"})
-			return true
+			minetest.chat_send_player(name, "Max flag depth is 50 blocks.")
+			return itemstack
 		end
-		
+
 		if not can_place_flag(pos) then
-			minetest.chat_send_player(name,
-			"Too close to the flag to build! Leave at least " .. r .. " blocks around the flag.")
-			minetest.set_node(pos, {name="air"})
-			return true
+			minetest.chat_send_player(name, "Too close to the flag to build!"
+						.. " Leave at least " .. r .. " blocks around the flag.")
+			return itemstack
 		end
 
 		local tplayer = ctf.player_or_nil(name)
 		if tplayer and ctf.team(tplayer.team) then
 			if ctf.player(name).auth == false then
 				minetest.chat_send_player(name, "You're not allowed to place flags!")
-				minetest.set_node(pos, {name="air"})
-				return true
+				return itemstack
 			end
-			
+
 			if ctf.team(tplayer.team).power and ctf.team(tplayer.team).power < 1 then
 				minetest.chat_send_player(name, "You need more members to be-able to place more flags.")
-				minetest.set_node(pos, {name="air"})
-				return true
+				return itemstack
 			end
 
 			local tname = tplayer.team
 			local team = ctf.team(tplayer.team)
-			meta:set_string("infotext", tname.."'s flag")
+			meta:set_string("infotext", tname .. "'s flag")
 
 			-- add flag
 			ctf_flag.add(tname, pos)
 
 			-- TODO: fix this hackiness
 			if team.spawn and not ctf.setting("flag.allow_multiple") and
-					minetest.get_node(team.spawn).name == "ctf_flag:flag"  then
+					minetest.get_node(team.spawn).name == "ctf_flag:flag" then
 				-- send message
 				minetest.chat_send_all(tname .. "'s flag has been moved")
 				minetest.set_node(team.spawn, {name="air"})
 				minetest.set_node({
 					x = team.spawn.x,
-					y = team.spawn.y+1,
+					y = team.spawn.y + 1,
 					z = team.spawn.z
-				}, {name="air"})
+				}, {name = "air"})
 				team.spawn = pos
 			end
 
@@ -306,19 +320,21 @@ ctf_flag = {
 				ctf.needs_save = true
 			end
 
-			minetest.set_node(pos2, {name="ctf_flag:flag_top_"..team.data.color})
+			minetest.set_node(pos, {name = "ctf_flag:flag"})
+			minetest.set_node(pos2, {name = "ctf_flag:flag_top_" .. team.data.color})
 
 			local meta2 = minetest.get_meta(pos2)
-
 			meta2:set_string("infotext", tname.."'s flag")
-			
+
 			if ctf.team(tplayer.team).power then
 				ctf.team(tplayer.team).power = ctf.team(tplayer.team).power - 1
 			end
+
+			itemstack:take_item()
+			return itemstack
 		else
 			minetest.chat_send_player(name, "You are not part of a team!")
-			minetest.set_node(pos, {name="air"})
-			return true
+			return itemstack
 		end
 	end
 }
