@@ -15,7 +15,7 @@ local function team_console_help(name)
 	minetest.chat_send_player(name, "/team <name> - get which team 'player' is in")
 	minetest.chat_send_player(name, "/team player <name> - get which team 'player' is in")
 	minetest.chat_send_player(name, "/team add <team> - add a team called name")
-	
+
 	local privs = minetest.get_player_privs(name)
 	if privs and privs.ctf_admin == true then
 		minetest.chat_send_player(name, "/team remove <team> - add a team called name (ctf_admin only)")
@@ -159,30 +159,123 @@ minetest.register_chatcommand("apply", {
 		end
 	end
 })
+
+minetest.register_chatcommand("accept", {
+	params = "<applicant name>",
+	description = "Accept an application",
+	func = function(name, aname)
+		local tplayer = ctf.player(name)
+		if not tplayer.auth and not tplayer.recruit then
+			return false, "You are not a team owner/recruiter!"
+		end
+
+		aname = aname:trim()
+		if aname == "" then
+			return false, "You must provide a player name!"
+		end
+
+		if not minetest.player_exists(aname) then
+			return false, "Player '" .. aname .. "' doesn't exist!"
+		end
+
+		local aplayer = ctf.player(aname)
+		if aplayer.team then
+			return false, aname .. " is already in a team!"
+		end
+
+		if ctf.decide_application(aname, name, tplayer.team, "Accept") then
+			return true, "Successfully recruited " .. aname ..
+								" to " .. tplayer.team .. "!"
+		else
+			return false, "Failed to recruit " .. aname .. "!"
+		end
+	end
+})
+
+minetest.register_chatcommand("reject", {
+	params = "<applicant name>",
+	description = "Reject an application",
+	func = function(name, aname)
+		local tplayer = ctf.player(name)
+		if not tplayer.auth and not tplayer.recruit then
+			return false, "You are not a team owner/recruiter!"
+		end
+
+		aname = aname:trim()
+		if aname == "" then
+			return false, "You must provide a player name!"
+		end
+
+		if not minetest.player_exists(aname) then
+			return false, "Player '" .. aname .. "' doesn't exist!"
+		end
+
+		local aplayer = ctf.player(aname)
+		if aplayer.team then
+			return false, aname .. " is already in a team!"
+		end
+
+		if ctf.decide_application(aname, name, tplayer.team) then
+			return true, "Rejected " .. aname .. "'s application" ..
+								" to join " .. tplayer.team .. "!"
+		else
+			return false, "Failed to reject " .. aname .. "'s application!"
+		end
+	end
+})
+
+minetest.register_chatcommand("list_applications", {
+	description = "List all applications",
+	func = function(name)
+		local tplayer = ctf.player(name)
+
+		if not tplayer.team then
+			return false, "You are not in a team!"
+		end
+
+		if not tplayer.auth and not tplayer.recruit then
+			return false, "You are not a team owner/recruiter!"
+		end
+
+		local team = ctf.team(tplayer.team)
+		if #team.applications == 0 then
+			return true, "No pending applications!"
+		else
+			local ret = "List of applicants for " .. tplayer.team .. ":\n"
+			for i, aname in pairs(team.applications) do
+				ret = ret .. "  " .. i .. ") " .. aname .. "\n"
+			end
+			ret = ret .. "(Use /accept <name> to accept, and /reject <name> to reject)"
+			return true, ret
+		end
+	end
+})
+
 --[[
 minetest.register_chatcommand("join", {
 	params = "player name",
 	description = "Add to team",
 	func = function(name, param)
-	local team = ctf.player(name).team
-	if minetest.get_auth_handler().get_auth(param) == nil then
-		return false, "Player '" .. param .. "' dosn't exist!"
-	elseif ctf.player(param).team then
-		return false, param .. " is already in a team!"
-	else
-	if ctf.player(name).auth or ctf.player(name).recruit then
-			if ctf.join(param, team, false, name) then
-				return true, "Joined " .. param .. " to " .. team .. "!"
-			else 
-				return false, "Failed to join team!"
-			end
+		local team = ctf.player(name).team
+		if minetest.get_auth_handler().get_auth(param) == nil then
+			return false, "Player '" .. param .. "' doesn't exist!"
+		elseif ctf.player(param).team then
+			return false, param .. " is already in a team!"
 		else
-			return false, "You are not a team owner/recuiter!"
+		if ctf.player(name).auth or ctf.player(name).recruit then
+				if ctf.join(param, team, false, name) then
+					return true, "Joined " .. param .. " to " .. team .. "!"
+				else
+					return false, "Failed to join team!"
+				end
+			else
+				return false, "You are not a team owner/recruiter!"
+			end
 		end
 	end
-end
 })
 --]]
+
 minetest.register_chatcommand("teamkick", {
 	params = "player name",
 	description = "Kick player from your team",
@@ -200,7 +293,7 @@ minetest.register_chatcommand("teamkick", {
 				ctf.player(param).recuiter = false
 				ctf.team(team).power = ctf.team(team).power - 1
 				return true, "Kicked " .. param .. " from " .. team .. "!"
-			else 
+			else
 				return false, "Failed to kick " .. param.. "!"
 			end
 		end
@@ -236,7 +329,7 @@ minetest.register_chatcommand("teamleave", {
 				end
 			end
 			return true, "You have left " .. team .. "!"
-		else 				
+		else
 			return false, "Failed to leave " .. team.. "!"
 		end
 	else
