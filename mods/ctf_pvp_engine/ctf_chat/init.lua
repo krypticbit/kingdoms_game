@@ -394,7 +394,10 @@ minetest.register_chatcommand("ac", {
 				local realplayer = playerslist[i]
 				local ot = ctf.player(realplayer:get_player_name()).team
 				if ot then
-					local diplo = ctf.diplo.get(team,ot)
+					local diplo = ""
+					if tname ~= ot then
+						diplo = ctf.diplo.get(tname,ot)
+					end
 					if team.players[realplayer:get_player_name()] or diplo == "alliance" then
 						minetest.chat_send_player(realplayer:get_player_name(),
 								minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
