@@ -209,6 +209,9 @@ function ctf.load()
 			ctf.teams = table.teams
 			ctf.players = table.players
 
+			for i = 1, #ctf.registered_on_load do
+				ctf.registered_on_load[i](table)
+			end
 			-- Convert old data
 			for teamname,unused in pairs(ctf.teams) do
 				if not ctf.teams[teamname].power then
