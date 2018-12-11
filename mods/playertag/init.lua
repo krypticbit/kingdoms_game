@@ -85,7 +85,8 @@ minetest.after(10, step)
 minetest.register_globalstep(function(player)
 	for _, player in pairs(minetest.get_connected_players()) do
 		player:set_nametag_attributes({
-			color = {a = 0, r = 0, g = 0, b = 0}
+			color = {a = 0, r = 0, g = 0, b = 0},
+			text = " ",
 		})
 	end
 end)
@@ -93,7 +94,8 @@ end)
 minetest.register_on_joinplayer(function(player)
 	if not player.tag then
 		player:set_nametag_attributes({
-			color = {a = 0, r = 0, g = 0, b = 0}
+			color = {a = 0, r = 0, g = 0, b = 0},
+			text = " ",
 		})
 	end
 	add_tag(player)
