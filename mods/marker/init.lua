@@ -17,7 +17,7 @@ minetest.register_chatcommand("mrkr", {
 			y = pos.y
 			z = pos.z
 		end
-		
+
 		if marker[name] then
 			player:hud_remove(marker[name])
 			marker[name] = nil
