@@ -59,4 +59,3 @@ minetest.register_chatcommand("clearmarker",
 minetest.register_on_leaveplayer(function(player)
 	marker[player:get_player_name()] = nil
 end)
-
