@@ -24,10 +24,20 @@ local function team_console_help(name)
 	end
 end
 
+local function access_console_help(name)
+	minetest.chat_send_player(name, [[Try:
+	/access add <all/flag> <team/player> - Allows either a whole team or player to interact with your protection
+	/access remove <all/flag> <team/player> - Removes a team or player from your protection
+	/access clear <all/flag> <all/teams/players> - Clears players, teams ,or all from your protection
+	/access list <all/flag> - List who has access to your protection
+	/access open <all/flag> - allow all or the inputed flag access to all members
+	/access close <all/flag> - Make all or the inputed flag white list only]])
+end
+
 minetest.register_chatcommand("team", {
 	description = "Open the team console, or run team command (see /team help)",
 	func = function(name, param)
-		local test   = string.match(param, "^player ([%a%d_-]+)")
+		local test = string.match(param, "^player ([%a%d_-]+)")
 		local create = string.match(param, "^add ([%a%d_-]+)")
 		local remove = string.match(param, "^remove ([%a%d_-]+)")
 		local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
@@ -145,6 +155,66 @@ minetest.register_chatcommand("team", {
 			end
 		end
 		return false, "Nothing could be done"
+	end
+})
+
+minetest.register_chatcommand("access", {
+	description = "Access command to modify the team's protection (see /access help)",
+	func = function(name, param)
+		local a_flag, a_team_or_player = string.match(param, "^add ([%a%d_-]+) ([%a%d_]+)")
+		local r_flag, r_team_or_player = string.match(param, "^remove ([%a%d_-]+) ([%a%d_]+)")
+		local c_flag, c_team_or_player = string.match(param, "^clear ([%a%d_-]+) ([%a%d_]+)")
+		local l_flag = string.match(param, "^list ([%a%d_-]+)")
+		local o_flag = string.match(param, "^open ([%a%d_-]+)")
+		local cl_flag = string.match(param, "^close ([%a%d_-]+)")
+		if not ctf.player(name).auth or not minetest.get_player_privs(name).ctf_admin then
+			return false, "You are not the team owner!"
+		end
+		if a_flag and a_team_or_player then
+			if ctf.access_add(ctf.player(name).team,a_flag,a_team_or_player) then
+				return true, "Successfully added " .. a_team_or_player .. " to " .. a_flag .. "'s protection"
+			else
+				return false, "Failed to add to access!"
+			end
+		elseif r_flag and r_team_or_player then
+			if ctf.access_remove(ctf.player(name).team,r_flag,r_team_or_player) then
+				return true, "Successfully removed " .. r_team_or_player .. " from " .. r_flag .. "'s protection"
+			else
+				return false, "Failed to remove from access!"
+			end
+		elseif c_flag and c_team_or_player then
+			if ctf.access_clear(ctf.player(name).team,c_flag,c_team_or_player) then
+				return true, "Successfully cleared " .. a_flag
+			else
+				return false, "Failed to clear access!"
+			end
+		elseif l_flag then
+			if ctf.access_list(name,ctf.player(name).team,l_flag) then
+				return
+			else
+				return false, "Failed to list access!"
+			end
+		elseif o_flag then
+			if ctf.access_open(ctf.player(name).team,o_flag) then
+				return true, o_flag .. " is open now."
+			else
+				return false, "Failed to open access!"
+			end
+		elseif cl_flag then
+			if ctf.access_close(ctf.player(name).team,cl_flag) then
+				return true, cl_flag .. " is set to white list only."
+			else
+				return false, "Failed to close access!"
+			end
+		elseif param=="help" then
+			access_console_help(name)
+		elseif param ~= "" and param ~= nil then
+			minetest.chat_send_player(name, "'"..param.."' is an invalid parameter to /access")
+			access_console_help(name)
+		else 
+			access_console_help(name)
+			return true, "Showing access help"
+		end
 	end
 })
 
@@ -322,7 +392,6 @@ minetest.register_chatcommand("teamleave", {
 			end
 			if disband == true then
 				if ctf.remove_team(team) then
-					ctf.needs_save = true
 					minetest.chat_send_all("team '" .. team .. "'" .. " disbanded " .. "from having zero players on team.")
 				else
 					minetest.chat_send_all("Error disbanding team '" .. team .. "'")
@@ -345,7 +414,6 @@ minetest.register_chatcommand("teamdisband", {
 	if ctf.player(name).auth or minetest.get_player_privs(name).ctf_admin then
 		local team = ctf.player(name).team
 		if ctf.remove_team(team) then
-			ctf.needs_save = true
 			return true, "team '" .. team .. "'" .. " disbanded."
 		else
 			return false, "Error disbanding team '" .. team .. "'"
