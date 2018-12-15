@@ -19,16 +19,16 @@ minetest.register_chatcommand("mrkr", {
 		end
 
 		if marker[name] then
-			player:hud_change(marker[name], "name", x .. ", " .. y .. ", " .. z)
-			player:hud_change(marker[name], "world_pos", {x = x, y = y, z = z})
-		else
-			marker[name] = player:hud_add({
-				hud_elem_type = "waypoint",
-				name = x .. ", " .. y .. ", " .. z,
-				number = 0xFF0000,
-				world_pos = {x = x, y = y, z = z}
-			})
+			player:hud_remove(marker[name])
+			marker[name] = nil
 		end
+
+		marker[name] = player:hud_add({
+			hud_elem_type = "waypoint",
+			name = x .. ", " .. y .. ", " .. z,
+			number = 0xFF0000,
+			world_pos = {x = x, y = y, z = z}
+		})
 
 		minetest.chat_send_player(name, "Marker set to: "..x..", "..y..", "..z)
 		return true
@@ -55,3 +55,7 @@ minetest.register_chatcommand("marker",
 								minetest.registered_chatcommands["mrkr"])
 minetest.register_chatcommand("clearmarker",
 								minetest.registered_chatcommands["clrmrkr"])
+
+minetest.register_on_leaveplayer(function(player)
+	marker[player:get_player_name()] = nil
+end)
