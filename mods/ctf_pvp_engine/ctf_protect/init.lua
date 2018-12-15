@@ -13,18 +13,29 @@ function minetest.is_protected(pos, name)
 		return old_is_protected(pos, name)
 	end
 
-	local team = ctf.get_territory_owner(pos)
+	local team, index = ctf.get_territory_owner(pos)
 
 	if not team or not ctf.team(team) then
 		return old_is_protected(pos, name)
 	end
+	
 	local player_team = ctf.player(name).team
-	local diplo = ctf.diplo.get(team,player_team)
-	if player_team == team or diplo == "alliance" then
-		return old_is_protected(pos, name)
+	if player_team == team then
+		local t = ctf.team(team)
+		local f = t.flags[index]
+		if not f.access or f.access.teams[player_team] or f.access.players[name] or f.access.open == true or not t.access or t.access.teams[player_team] or t.access.players[name] then
+			return old_is_protected(pos, name)
+		end
+		minetest.chat_send_player(name, "You need to be white listed in-order to build on flag " .. f.name .. "'s land")
+		return true
 	else
 		local player = minetest.get_player_by_name(name)
 		if player then
+			local t = ctf.team(team)
+			local f = t.flags[index]
+			if (t.access and (t.access.teams[player_team] or t.access.players[name])) or (f.access and (f.access.teams[player_team] or f.access.players[name])) then
+				return old_is_protected(pos, name)
+			end
 			--[[ yaw + 180°
 			local yaw = player:get_look_horizontal() + math.pi
 			if yaw > 2 * math.pi then

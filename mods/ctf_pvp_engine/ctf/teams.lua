@@ -15,7 +15,7 @@ function ctf.team(name)
 		if team then
 			--Migration to version with applications
 			if not team.applications then
-			    team.applications = {}
+				team.applications = {}
 			end
 			if not team.data or not team.players then
 				ctf.warning("team", "Assertion failed, data{} or players{} not " ..
@@ -39,6 +39,7 @@ function ctf.create_team(name, data)
 		spawn = nil,
 		players = {},
 		applications = {},
+		access = {},
 		power = 0
 	}
 
@@ -61,6 +62,8 @@ function ctf.remove_team(name)
 			team.flags[i].team = nil
 		end
 		ctf.teams[name] = nil
+		ctf.access_remove_team_all(name)
+		ctf.needs_save = true
 		return true
 	else
 		return false
@@ -209,7 +212,7 @@ function ctf.decide_application(applicant_name, acceptor_name, team_name, decisi
 		end
 	end
 	for key, field in pairs(ctf.teams) do
-	    ctf.delete_application(applicant_name, key)
+		ctf.delete_application(applicant_name, key)
 	end
 	remove_application_log_entry(team_name, applicant_name)
 end
@@ -231,6 +234,256 @@ function ctf.delete_application(name, tname)
 		end
 	end
 	return false
+end
+
+function ctf.gen_access_table(t)
+	if not t.access then
+		t.access = {}
+	end
+	if not t.access.players then
+		t.access.players = {}
+	end
+	if not t.access.teams then
+		t.access.teams = {}
+	end
+	if t.access.open == nil then
+		t.access.open = false
+	end
+	return t
+end
+
+function ctf.access_add(team,flag,team_or_player)
+	local t = ctf.team(team)
+	if flag == "all" then
+		t = ctf.gen_access_table(t)
+		if team_or_player ~= team and ctf.team(team_or_player) then
+			t.access.teams[team_or_player] = 1
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		end
+		if ctf.players[team_or_player] then
+			t.access.players[team_or_player] = 1
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		end
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				if team_or_player ~= team and ctf.team(team_or_player) then
+					t.flags[i].access.teams[team_or_player] = 1
+					ctf.needs_save = true
+					return true
+				end
+				if ctf.players[team_or_player] then
+					t.flags[i].access.players[team_or_player] = 1
+					ctf.needs_save = true
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_remove(team,flag,team_or_player)
+	local t = ctf.team(team)
+	if flag == "all" then
+		t = ctf.gen_access_table(t)
+		if team_or_player ~= team and ctf.team(team_or_player) then
+			t.access.teams[team_or_player] = nil
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		end
+		if ctf.players[team_or_player] then
+			t.access.players[team_or_player] = nil
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		end
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+				if team_or_player ~= team and ctf.team(team_or_player) then
+					t.flags[i].access.teams[team_or_player] = nil
+					ctf.needs_save = true
+					return true
+				end
+				if ctf.players[team_or_player] then
+					t.flags[i].access.players[team_or_player] = nil
+					ctf.needs_save = true
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_clear(team,flag,team_or_player)
+	local t = ctf.team(team)
+	if flag == "all" then
+		t = ctf.gen_access_table(t)
+		if team_or_player == "all" then
+			t.access.teams = {}
+			t.access.players = {}
+			for i = 1, #t.flags do
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				t.flags[i].access.teams = {}
+				t.flags[i].access.players = {}
+			end
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		elseif team_or_player == "teams" then
+			t.access.teams = {}
+			for i = 1, #t.flags do
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				t.flags[i].access.teams = {}
+			end
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		elseif team_or_player == "players" then
+			t.access.players = {}
+			for i = 1, #t.flags do
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				t.flags[i].access.players = {}
+			end
+			ctf.teams[team] = t
+			ctf.needs_save = true
+			return true
+		end
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				if team_or_player == "all" then
+					t.flags[i].access.teams = {}
+					t.flags[i].access.players = {}
+					ctf.needs_save = true
+					return true
+				elseif team_or_player == "teams" then
+					t.flags[i].access.teams = {}
+					ctf.needs_save = true
+					return true
+				elseif team_or_player == "players" then
+					t.flags[i].access.players = {}
+					ctf.needs_save = true
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_list(name,team,flag)
+	local t = ctf.team(team)
+	if flag == "all" then
+		t = ctf.gen_access_table(t)
+		minetest.chat_send_player(name,"Teams:")
+		for i in pairs(t.access.teams) do
+			minetest.chat_send_player(name,i .. " (all)")
+		end
+		for i = 1, #t.flags do
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+			for l in pairs(t.flags[i].access.teams) do
+				minetest.chat_send_player(name, l .. " (" .. t.flags[i].name .. ")")
+			end
+		end
+		minetest.chat_send_player(name,"Players:")
+		for i in pairs(t.access.players) do
+			minetest.chat_send_player(name, i .. " (all)")
+		end
+		for i = 1, #t.flags do
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+			for l in pairs(t.flags[i].access.players) do
+				minetest.chat_send_player(name,l .. " (" .. t.flags[i].name .. ")")
+			end
+		end
+		return true
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				minetest.chat_send_player(name,"Teams:")
+				for l in pairs(t.flags[i].access.teams) do
+					minetest.chat_send_player(name,l .. " (" .. t.flags[i].name .. ")")
+				end
+				minetest.chat_send_player(name,"Players:")
+				for l in pairs(t.flags[i].access.players) do
+					minetest.chat_send_player(name,l .. " (" .. t.flags[i].name .. ")")
+				end
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_open(team,flag)
+	local t = ctf.team(team)
+	if flag == "all" then
+		for i = 1, #t.flags do
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+			t.flags[i].access.open = true
+			ctf.teams[team] = t
+			ctf.needs_save = true
+		end
+		return true
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				t.flags[i].access.open = true
+				ctf.needs_save = true
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_close(team,flag)
+	local t = ctf.team(team)
+	if flag == "all" then
+		for i = 1, #t.flags do
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+			t.flags[i].access.open = false
+			ctf.teams[team] = t
+			ctf.needs_save = true
+		end
+		return true
+	else
+		for i = 1, #t.flags do
+			if t.flags[i].name == flag then
+				t.flags[i] = ctf.gen_access_table(t.flags[i])
+				t.flags[i].access.open = false
+				ctf.needs_save = true
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function ctf.access_remove_team_all(name)
+	for i in pairs(ctf.teams) do
+		local t = ctf.teams[i]
+		t = ctf.gen_access_table(t)
+		t.access.teams[name] = nil
+		for i = 1, #t.flags do
+			t.flags[i] = ctf.gen_access_table(t.flags[i])
+			t.flags[i].access.teams[name] = nil
+		end
+		ctf.teams[i] = t
+	end
+	ctf.needs_save = true
 end
  
 -- Player joins team
@@ -320,7 +573,7 @@ function ctf.can_mod(player,team)
 
 	if privs then
 		if privs.ctf_admin == true then
-		 	return true
+			return true
 		end
 	end
 
@@ -483,7 +736,7 @@ function ctf.get_territory_owner(pos)
 			local diffZ = fPos.z - pos.z
 			local distSQ = diffX * diffX + diffZ * diffZ
 			if distSQ < pdSQ then
-				return tname
+				return tname, f
 			end
 		end
 	end
