@@ -167,7 +167,7 @@ minetest.register_chatcommand("access", {
 		local l_flag = string.match(param, "^list ([%a%d_-]+)")
 		local o_flag = string.match(param, "^open ([%a%d_-]+)")
 		local cl_flag = string.match(param, "^close ([%a%d_-]+)")
-		if not ctf.player(name).auth or not minetest.get_player_privs(name).ctf_admin then
+		if not ctf.player(name).auth and not minetest.get_player_privs(name).ctf_admin then
 			return false, "You are not the team owner!"
 		end
 		if a_flag and a_team_or_player then
