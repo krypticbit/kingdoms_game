@@ -1,4 +1,5 @@
 default
+player_physics
 player_monoids?
 armor_monoid?
 pova?
