@@ -23,10 +23,14 @@ function minetest.is_protected(pos, name)
 	if player_team == team then
 		local t = ctf.team(team)
 		local f = t.flags[index]
-		if not f.access or f.access.teams[player_team] or f.access.players[name] or f.access.open == true or not t.access or t.access.teams[player_team] or t.access.players[name] then
+		if true or not f.access or f.access.teams[player_team] or f.access.players[name] or f.access.open == true or not t.access or t.access.teams[player_team] or t.access.players[name] then
 			return old_is_protected(pos, name)
 		end
-		minetest.chat_send_player(name, "You need to be white listed in-order to build on flag " .. f.name .. "'s land")
+		if f.name then 
+			minetest.chat_send_player(name, "You need to be white listed in-order to build on flag " .. f.name .. "'s land")
+		else
+			minetest.chat_send_player(name, "You need to be white listed in-order to build on this flag's land")
+		end
 		return true
 	else
 		local player = minetest.get_player_by_name(name)
