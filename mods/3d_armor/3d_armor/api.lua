@@ -276,28 +276,7 @@ armor.set_player_armor = function(self, player)
 	for _, phys in pairs(self.physics) do
 		self.def[name][phys] = physics[phys]
 	end
-	if use_armor_monoid then
-		armor_monoid.monoid:add_change(player, change, "3d_armor:armor")
-	else
-		player:set_armor_groups(groups)
-	end
-	if use_player_monoids then
-		player_monoids.speed:add_change(player, physics.speed,
-			"3d_armor:physics")
-		player_monoids.jump:add_change(player, physics.jump,
-			"3d_armor:physics")
-		player_monoids.gravity:add_change(player, physics.gravity,
-			"3d_armor:physics")
-	elseif use_pova_mod then
-		-- only add the changes, not the default 1.0 for each physics setting
-		pova.add_override(name, "3d_armor", {
-			speed = physics.speed - 1,
-			jump = physics.jump - 1,
-			gravity = physics.gravity - 1,
-		})
-		pova.do_override(player)
-	else
-		player:set_physics_override(physics)
+		set_player_physics(player, physics, 5, "armor")
 	end
 	self.textures[name].armor = texture
 	self.textures[name].preview = preview
