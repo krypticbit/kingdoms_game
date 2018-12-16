@@ -7,9 +7,8 @@ if use_old_code == nil then
 end
 
 minetest.register_on_joinplayer(function(player)
-	player:set_physics_override({
+	set_player_physics(player, {
 		sneak_glitch = true,
 		sneak = true,
-		new_move = not use_old_code
-	})
+		new_move = not use_old_code}, 10, "enable sneak glitch")
 end)
