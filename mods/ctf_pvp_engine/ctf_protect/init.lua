@@ -6,6 +6,28 @@ ctf.register_on_init(function()
 	ctf._set("node_ownership",          true)
 end)
 
+players_glitching = {}
+
+local function step()
+	for _, player in pairs(minetest.get_connected_players()) do
+		local name = player:get_player_name()
+		local info = minetest.get_player_information(name)
+		-- 2.0 seconds.
+		if info.avg_jitter > 2.0 and not players_glitching[name] then
+			players_glitching[name] = player:get_pos()
+		elseif info.avg_jitter < 2.0 and players_glitching[name] then
+			minetest.after(0.5, function() players_glitching[name] = nil end)
+		end
+	end
+	minetest.after(1, step)
+end
+
+minetest.register_on_leaveplayer(function(player)
+	players_glitching[player:get_player_name()] = nil
+end)
+
+minetest.after(5, step)
+
 local old_is_protected = minetest.is_protected
 
 function minetest.is_protected(pos, name)
@@ -13,6 +35,12 @@ function minetest.is_protected(pos, name)
 		return old_is_protected(pos, name)
 	end
 	
+	local g_pos = players_glitching[name]
+	if g_pos then
+		minetest.get_player_by_name(name):set_pos(g_pos)
+		return true
+	end
+
 	local team, index = ctf.get_territory_owner(pos)
 
 	if not team or not ctf.team(team) then
@@ -62,13 +90,13 @@ function minetest.is_protected(pos, name)
 			local pla_pos = player:get_pos()
 
 			if pos.y < pla_pos.y then
-				player:setpos({
+				player:set_pos({
 					x = pla_pos.x,
 					y = pla_pos.y + 0.8,
 					z = pla_pos.z
 				})
 			else
-				player:setpos(pla_pos)
+				player:set_pos(pla_pos)
 			end
 		end
 		minetest.chat_send_player(name, "You cannot dig on team "..team.."'s land")
