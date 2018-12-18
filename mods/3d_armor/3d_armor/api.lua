@@ -276,8 +276,7 @@ armor.set_player_armor = function(self, player)
 	for _, phys in pairs(self.physics) do
 		self.def[name][phys] = physics[phys]
 	end
-		set_player_physics(player, physics, 5, "armor")
-	end
+	set_player_physics(player, physics, 5, "armor")
 	self.textures[name].armor = texture
 	self.textures[name].preview = preview
 	self.def[name].level = self.def[name].groups.fleshy or 0

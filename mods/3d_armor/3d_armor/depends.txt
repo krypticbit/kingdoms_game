@@ -1,5 +1,5 @@
 default
-player_physics
+physics_manager
 player_monoids?
 armor_monoid?
 pova?
