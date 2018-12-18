@@ -21,7 +21,7 @@ local function get_highest_priority(t, element)
 	local highestPriority = -1
 	local highest = nil
 	for id, pTable in pairs(t) do
-		if pTable.physics[element] then
+		if pTable.physics[element] ~= nil then
 			if pTable.priority > highestPriority then
 				highestPriority = pTable.priority
 				highest = pTable.physics[element]
@@ -33,7 +33,7 @@ end
 
 local function apply_physics_override(t, element, to, targetP)
 	for id, pTable in pairs(t) do
-		if pTable.mults[element] then
+		if pTable.mults[element] ~= nil then
 			if pTable.priority >= targetP then
 				to = pTable.mults[element] * to
 			end
@@ -51,9 +51,9 @@ local function update_physics(player)
 	local speed, speedP = get_highest_priority(requests, "speed")
 	local jump, jumpP = get_highest_priority(requests, "jump")
 	local gravity, gravityP = get_highest_priority(requests, "gravity")
-	local sneak = get_highest_priority(requests, "sneak")
-	local sneak_glitch = get_highest_priority(requests, "sneak_glitch")
-	local new_move = get_highest_priority(requests, "new_move")
+	local sneak, _ = get_highest_priority(requests, "sneak")
+	local sneak_glitch, _ = get_highest_priority(requests, "sneak_glitch")
+	local new_move, _ = get_highest_priority(requests, "new_move")
 	-- Apply multipliers
 	local mults = player_physics_multipliers[n]
 	if mults then
@@ -68,7 +68,7 @@ local function update_physics(player)
 	gravity = gravity,
 	sneak = sneak,
 	sneak_glitch = sneak_glitch,
-	new_move = new_move
+	new_move = new_move,
 	}
 	player:set_physics_override(highest)
 end
