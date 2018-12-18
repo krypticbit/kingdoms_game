@@ -247,12 +247,12 @@ function ctf.gen_access_table(t)
 		t.access.teams = {}
 	end
 	if t.access.open == nil then
-		t.access.open = false
+		t.access.open = true
 	end
 	return t
 end
 
-function ctf.access_add(team,flag,team_or_player)
+function ctf.access_add(team, flag, team_or_player)
 	local t = ctf.team(team)
 	if flag == "all" then
 		t = ctf.gen_access_table(t)
@@ -288,7 +288,7 @@ function ctf.access_add(team,flag,team_or_player)
 	return false
 end
 
-function ctf.access_remove(team,flag,team_or_player)
+function ctf.access_remove(team, flag, team_or_player)
 	local t = ctf.team(team)
 	if flag == "all" then
 		t = ctf.gen_access_table(t)
@@ -324,7 +324,7 @@ function ctf.access_remove(team,flag,team_or_player)
 	return false
 end
 
-function ctf.access_clear(team,flag,team_or_player)
+function ctf.access_clear(team, flag, team_or_player)
 	local t = ctf.team(team)
 	if flag == "all" then
 		t = ctf.gen_access_table(t)
@@ -382,7 +382,7 @@ function ctf.access_clear(team,flag,team_or_player)
 	return false
 end
 
-function ctf.access_list(name,team,flag)
+function ctf.access_list(name, team, flag)
 	local t = ctf.team(team)
 	if flag == "all" then
 		t = ctf.gen_access_table(t)
@@ -426,7 +426,7 @@ function ctf.access_list(name,team,flag)
 	return false
 end
 
-function ctf.access_open(team,flag)
+function ctf.access_open(team, flag)
 	local t = ctf.team(team)
 	if flag == "all" then
 		for i = 1, #t.flags do
@@ -449,7 +449,7 @@ function ctf.access_open(team,flag)
 	return false
 end
 
-function ctf.access_close(team,flag)
+function ctf.access_close(team, flag)
 	local t = ctf.team(team)
 	if flag == "all" then
 		for i = 1, #t.flags do

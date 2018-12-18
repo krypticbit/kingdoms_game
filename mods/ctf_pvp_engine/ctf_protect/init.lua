@@ -12,7 +12,7 @@ function minetest.is_protected(pos, name)
 	if not ctf.setting("node_ownership") then
 		return old_is_protected(pos, name)
 	end
-
+	
 	local team, index = ctf.get_territory_owner(pos)
 
 	if not team or not ctf.team(team) then
@@ -23,7 +23,11 @@ function minetest.is_protected(pos, name)
 	if player_team == team then
 		local t = ctf.team(team)
 		local f = t.flags[index]
-		if true or not f.access or f.access.teams[player_team] or f.access.players[name] or f.access.open == true or not t.access or t.access.teams[player_team] or t.access.players[name] then
+		t = ctf.gen_access_table(t)
+		f = ctf.gen_access_table(f)
+		ctf.teams[team] = t
+		t.flags[index] = f
+		if not f.access or f.access.teams[player_team] or f.access.players[name] or f.access.open == true or not t.access or t.access.teams[player_team] or t.access.players[name] then
 			return old_is_protected(pos, name)
 		end
 		if f.name then 
@@ -37,6 +41,10 @@ function minetest.is_protected(pos, name)
 		if player then
 			local t = ctf.team(team)
 			local f = t.flags[index]
+			t = ctf.gen_access_table(t)
+			f = ctf.gen_access_table(f)
+			ctf.teams[team] = t
+			t.flags[index] = f
 			if (t.access and (t.access.teams[player_team] or t.access.players[name])) or (f.access and (f.access.teams[player_team] or f.access.players[name])) then
 				return old_is_protected(pos, name)
 			end
