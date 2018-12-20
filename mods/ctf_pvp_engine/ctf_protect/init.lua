@@ -31,9 +31,9 @@ function minetest.is_protected(pos, name)
 			return old_is_protected(pos, name)
 		end
 		if f.name then 
-			minetest.chat_send_player(name, "You need to be white listed in-order to build on flag " .. f.name .. "'s land")
+			minetest.chat_send_player(name, "You need to be white listed in-order to interact on flag " .. f.name .. "'s land")
 		else
-			minetest.chat_send_player(name, "You need to be white listed in-order to build on this flag's land")
+			minetest.chat_send_player(name, "You need to be white listed in-order to interact on this flag's land")
 		end
 		return true
 	else
@@ -71,7 +71,7 @@ function minetest.is_protected(pos, name)
 				player:setpos(pla_pos)
 			end
 		end
-		minetest.chat_send_player(name, "You cannot dig on team "..team.."'s land")
+		minetest.chat_send_player(name, "You cannot interact on team "..team.."'s land")
 		return true
 	end
 end
