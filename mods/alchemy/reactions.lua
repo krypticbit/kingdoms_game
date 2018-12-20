@@ -64,8 +64,8 @@ end
 
 local function register_basic_reactions(potion, with, to, itemNum)
    register_basic_reaction("1", potion, with, to, itemNum)
-   register_basic_reaction("2", potion, with, to, itemNum)
-   register_basic_reaction("3", potion, with, to, itemNum)
+   register_basic_reaction("2", potion, with, to, itemNum * 2)
+   register_basic_reaction("3", potion, with, to, itemNum * 3)
 end
 
 alchemy.register_basic_reactions = register_basic_reactions
