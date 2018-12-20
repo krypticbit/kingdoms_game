@@ -1,10 +1,10 @@
-local function check_move_protection(pos, player, stack)
+local function check_move_protection(pos, player)
    local pName = player:get_player_name()
    if minetest.is_protected(pos, pName) then
       minetest.record_protection_violation(pos, pName)
-      return 0
+      return false
    end
-   return stack:get_count()
+   return true
 end
 
 minetest.register_node("alchemy:plant_processor", {
@@ -63,13 +63,22 @@ minetest.register_node("alchemy:plant_processor", {
       return nil
    end,
    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-      return check_move_protection(pos, player, stack)
+      if check_move_protection(pos, player) then
+         return stack:get_count()
+      end
+      return 0
    end,
    allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-      return check_move_protection(pos, player, stack)
+      if check_move_protection(pos, player) then
+         return count
+      end
+      return 0
    end,
    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-      return check_move_protection(pos, player, stack)
+      if check_move_protection(pos, player) then
+         return stack:get_count()
+      end
+      return 0
    end,
    on_metadata_inventory_move = function(pos)
       local meta = minetest.get_meta(pos)
