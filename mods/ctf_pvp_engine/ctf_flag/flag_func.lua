@@ -210,6 +210,13 @@ ctf_flag = {
 					minetest.chat_send_player(name, "You are at peace with this team!")
 					return
 				end
+				
+				local g_pos = players_glitching[name]
+				if g_pos then
+					minetest.get_player_by_name(name):set_pos(g_pos)
+					minetest.chat_send_player(name, "You can't capture the flag by glitching!")
+					return
+				end
 
 				do_capture(name, flag)
 			end
