@@ -1,15 +1,53 @@
--- Effect duration system
 active_effects = {}
+hud_nums = {}
 
+-- Potion HUD handling
+local function remove_potions_hud(n, effect)
+   local effect_table = active_effects[n][effect]
+   local id = effect_table.hud_id
+   local p = minetest.get_player_by_name(n)
+   if id and p then
+      p:hud_remove(id)
+   end
+   effect_table.hud_id = nil
+end
+
+local function update_potions_hud(n, effect)
+   local player = minetest.get_player_by_name(n)
+   if player == nil then
+      return
+   end
+   local effect_table = active_effects[n][effect]
+   local text = effect_table.name .. ": " .. tostring(effect_table.time)
+   if effect_table.hud_id then
+      player:hud_change(effect_table.hud_id, "text", text)
+   else
+      local id = player:hud_add({
+         hud_elem_type = "text",
+         position  = {x = 1, y = 0.3},
+         offset = {x = -120, y = effect_table.HUD_num * 20},
+         text = text
+      })
+      effect_table.hud_id = id
+   end
+end
+
+-- Effect duration system
 local function decrease_effect_timer()
    for p, eList in pairs(active_effects) do
       for e, t in pairs(eList) do
          active_effects[p][e].time = t.time - 1
-         if t.time < 0 then
+         if t.time <= 0 then
+            remove_potions_hud(p, e)
             if t.on_end then
                t.on_end(t.target)
             end
             active_effects[p][e] = nil
+            if alchemy.helpers.table_length(active_effects[p]) == 0 then
+               hud_nums[p] = -1
+            end
+         else
+            update_potions_hud(p, e)
          end
       end
    end
@@ -19,13 +57,12 @@ end
 -- Start timer
 decrease_effect_timer()
 
-
 -- Effect registering
 local function register_effect(name, effect)
    alchemy.effects["alchemy:beaker_" .. name] = effect
 end
 
-local function register_timed_effect(e, time, on_start, on_end)
+local function register_timed_effect(e, eName, time, on_start, on_end)
    alchemy.effects["alchemy:beaker_" .. e] = function(p, pos)
       if on_start then
          on_start(p, pos)
@@ -33,19 +70,41 @@ local function register_timed_effect(e, time, on_start, on_end)
       local n = p:get_player_name()
       if not active_effects[n] then
          active_effects[n] = {}
+         hud_nums[n] = -1
       end
       if active_effects[n][e] then
          active_effects[n][e].time = active_effects[n][e].time + time
       else
          active_effects[n][e] = {}
          active_effects[n][e].time = time
+         local newnum = hud_nums[n] + 1
+         active_effects[n][e].HUD_num = newnum
+         hud_nums[n] = newnum
       end
       active_effects[n][e].on_end = on_end
-      active_effects[n][e].target = p
+      active_effects[n][e].target = n
+      active_effects[n][e].name = eName
    end
 end
 
 alchemy.register_effect = register_effect
+
+-- Energized base (some things shouldnt be drunk)
+register_effect("energized_base", function(p, pos)
+   -- Work-around because of how TNT protection checking works
+   local ignore_protection = not minetest.is_protected(pos, p:get_player_name())
+   tnt.boom(p:get_pos(), {
+      radius = 6,
+      damage_radius = 7,
+      ignore_protection = ignore_protection,
+   })
+   p:set_hp(0)
+end)
+
+-- Drinking slime is just dumb
+register_effect("slime", function(p, pos)
+   p:set_hp(p:get_hp() - 2)
+end)
 
 -- Healing brew
 register_effect("healing_brew", function(p, pos)
@@ -55,7 +114,7 @@ register_effect("healing_brew", function(p, pos)
 end)
 
 -- Fire resistance
-register_timed_effect("fire_resistance", 300)
+register_timed_effect("fire_resistance", "Fire Resistance", 30)
 minetest.register_on_player_hpchange(function(p, change)
    if change > 0 then return change end
    local n = p:get_player_name()
@@ -86,17 +145,23 @@ minetest.register_on_player_hpchange(function(p, change)
 end, true)
 
 -- Jump brew
-register_timed_effect("jump_boost", 50, function(player, pos)
+register_timed_effect("jump_boost", "Jump Boost", 20, function(player, pos)
    set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
 end,
-function(player)
-   remove_player_physics_multiplier(player, "potions jump boost")
+function(n)
+   local player = minetest.get_player_by_name(n)
+   if player then
+      remove_player_physics_multiplier(player, "potions jump boost")
+   end
 end)
 
 -- Speed brew
-register_timed_effect("speed_boost", 500, function(player, pos)
+register_timed_effect("speed_boost", "Speed Boost", 120, function(player, pos)
    set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
 end,
-function(player)
-   remove_player_physics_multiplier(player, "potions speed boost")
+function(n)
+   local player = minetest.get_player_by_name(n)
+   if player then
+      remove_player_physics_multiplier(player, "potions speed boost")
+   end
 end)

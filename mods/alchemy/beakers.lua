@@ -44,9 +44,10 @@ minetest.register_node("alchemy:beaker_empty", {
 local function register_beaker(name, description, texture)
 
    local bname = "alchemy:beaker_" .. name
+   local desc = "Beaker of " .. description
 
    minetest.register_node(bname, {
-      description = "Beaker of " .. description,
+      description = desc,
       drawtype = "mesh",
       groups = {}, -- Unbreakable but picked up on punch - no particles
       paramtype = "light",
@@ -69,6 +70,11 @@ local function register_beaker(name, description, texture)
       },
 
       mesh = "beaker.x",
+
+      on_construct = function(pos)
+         local meta = minetest.get_meta(pos)
+         meta:set_string("infotext", desc)
+      end,
 
       on_punch = function(pos, node, puncher)
          local pName = puncher:get_player_name()

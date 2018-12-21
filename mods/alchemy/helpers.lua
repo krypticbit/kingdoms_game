@@ -27,3 +27,11 @@ alchemy.helpers.get_number_of_items_in_inv = function(inv, list, itemname)
    end
    return 0
 end
+
+alchemy.helpers.table_length = function(t)
+   local num = 0
+   for _ in pairs(t) do
+      num = num + 1
+   end
+   return num
+end

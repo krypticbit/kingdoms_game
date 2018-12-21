@@ -12,14 +12,17 @@ local function register_solution(shortname, desc, tex)
    alchemy.register_cauldron(shortname .. "1", {
       texture = tex,
       mesh = "cauldron_one_third.x",
+      description = "Cauldron of " .. desc
    })
    alchemy.register_cauldron(shortname .. "2", {
       texture = tex,
       mesh = "cauldron_two_thirds.x",
+      description = "Cauldron of " .. desc
    })
    alchemy.register_cauldron(shortname .. "3", {
       texture = tex,
       mesh = "cauldron_three_thirds.x",
+      description = "Cauldron of " .. desc
    })
    -- Register put-take reactions
    alchemy.register_put_take_reactions(shortname)

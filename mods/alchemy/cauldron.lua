@@ -7,6 +7,7 @@ local function register_cauldron(itemname, def)
    local texture = def.texture
    local mesh = def.mesh
    local breakable = def.breakable or false
+   local desc = def.description or ""
 
    -- Full name
    local fullname = "alchemy:cauldron_" .. itemname
@@ -30,7 +31,7 @@ local function register_cauldron(itemname, def)
             -- Clear inv
             minetest.get_meta(pos):get_inventory():set_list("main", {})
             -- Swap node
-            minetest.swap_node(pos, {name = swap_to})
+            minetest.set_node(pos, {name = swap_to})
             -- Modify player inv
             wielded:take_item()
             puncher:set_wielded_item(wielded)
@@ -71,7 +72,7 @@ local function register_cauldron(itemname, def)
    end
 
    minetest.register_node(fullname, {
-      description = "Empty Cauldron",
+      description = desc,
       drawtype = "mesh",
       groups = breakable and {oddly_breakable_by_hand = 3, cauldron = 1} or {not_in_creative_inventory = 1, cauldron = 1},
       diggable = breakable,
@@ -98,6 +99,7 @@ local function register_cauldron(itemname, def)
       on_construct = function(pos)
          local meta = minetest.get_meta(pos)
          meta:get_inventory():set_size("main", cauldron_inv_size)
+         meta:set_string("infotext", desc)
       end,
 
       on_punch = on_cauldron_punch
@@ -139,7 +141,7 @@ minetest.register_abm({
                if reaction then
                   local itemCountStr = le.itemstring:gsub("[%w_:]*%s", "")
                   local itemCount = tonumber(itemCountStr) or 1
-                  swap_to = reaction(pos, itemCount, cInv)
+                  local swap_to = reaction(pos, itemCount, cInv)
                   if swap_to then
                      minetest.swap_node(pos, {name = swap_to})
                   elseif swap_to == nil then
@@ -160,7 +162,8 @@ minetest.register_abm({
 register_cauldron("empty", {
    texture = nil,
    mesh = "cauldron_empty.x",
-   breakable = true
+   breakable = true,
+   description = "Empty Cauldron"
 })
 
 alchemy.register_cauldron = register_cauldron
