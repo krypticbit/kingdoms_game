@@ -43,7 +43,8 @@ local colors = {
 	"Orange", "Dark Grey",
 	"Dark Green", "Cyan",
 	"Pink", "Magenta",
-	"Violet", "Brown"
+	"Violet", "Brown",
+	"Blue"
 }
 
 minetest.register_alias("xtraarmor:helmet_leather", "xtraarmor:helmet_wool")
@@ -177,35 +178,35 @@ minetest.register_craft({
 })
 
 minetest.register_tool("xtraarmor:helmet_chainmail", {
-	description = "chainmail Helmet",
+	description = "Chainmail Helmet",
 	inventory_image = "xtraarmor_inv_helmet_chainmail.png",
 	groups = {armor_head = 7, armor_heal = 0, armor_use = 750, physics_speed = -0.02},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:chestplate_chainmail", {
-	description = "chainmail Chestplate",
+	description = "Chainmail Chestplate",
 	inventory_image = "xtraarmor_inv_chestplate_chainmail.png",
 	groups = {armor_torso = 10, armor_heal = 0, armor_use = 750, physics_speed = -0.05},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:leggings_chainmail", {
-	description = "chainmail Leggings",
+	description = "Chainmail Leggings",
 	inventory_image = "xtraarmor_inv_leggings_chainmail.png",
 	groups = {armor_legs = 10, armor_heal = 0, armor_use = 750, physics_speed = -0.05},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:boots_chainmail", {
-	description = "chainmail Boots",
+	description = "Chainmail Boots",
 	inventory_image = "xtraarmor_inv_boots_chainmail.png",
 	groups = {armor_feet = 7, armor_heal = 0, armor_use = 750, physics_speed = -0.02},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:shield_chainmail", {
-	description = "chainmail shield",
+	description = "Chainmail Shield",
 	inventory_image = "xtraarmor_inv_shield_chainmail.png",
 	groups = {armor_shield = 7, armor_heal = 0, armor_use = 750},
 	wear = 0,
@@ -257,35 +258,35 @@ minetest.register_craft({
 })
 
 minetest.register_tool("xtraarmor:helmet_studded", {
-	description = "studded Helmet",
+	description = "Studded Helmet",
 	inventory_image = "xtraarmor_inv_helmet_studded.png",
 	groups = {armor_head = 8, armor_heal = 0, armor_use = 400, physics_speed = -0.03},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:chestplate_studded", {
-	description = "studded Chestplate",
+	description = "Studded Chestplate",
 	inventory_image = "xtraarmor_inv_chestplate_studded.png",
 	groups = {armor_torso = 14, armor_heal = 0, armor_use = 400, physics_speed = -0.06},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:leggings_studded", {
-	description = "studded Leggings",
+	description = "Studded Leggings",
 	inventory_image = "xtraarmor_inv_leggings_studded.png",
 	groups = {armor_legs = 14, armor_heal = 0, armor_use = 400, physics_speed = -0.06},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:boots_studded", {
-	description = "studded Boots",
+	description = "Studded Boots",
 	inventory_image = "xtraarmor_inv_boots_studded.png",
 	groups = {armor_feet = 8, armor_heal = 0, armor_use = 400, physics_speed = -0.03},
 	wear = 0,
 })
 
 minetest.register_tool("xtraarmor:shield_studded", {
-	description = "studded shield",
+	description = "Studded Shield",
 	inventory_image = "xtraarmor_inv_shield_studded.png",
 	groups = {armor_shield = 8, armor_heal = 0, armor_use = 400},
 	wear = 0,
