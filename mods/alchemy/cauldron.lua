@@ -143,7 +143,7 @@ minetest.register_abm({
                   local itemCount = tonumber(itemCountStr) or 1
                   local swap_to = reaction(pos, itemCount, cInv)
                   if swap_to then
-                     minetest.swap_node(pos, {name = swap_to})
+                     minetest.set_node(pos, {name = swap_to})
                   elseif swap_to == nil then
                      alchemy.disasters.to_slime(pos, node.name)
                   end

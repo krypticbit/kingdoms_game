@@ -46,6 +46,8 @@ register_solution("iceweed_brew", "Iceweed Brew", "iceweed_brew_solution.png")
 register_solution("shal_stalk_brew", "Shal Stalk Brew", "shal_stalk_brew_solution.png")
 -- Boost solution
 register_solution("boost", "Boost Solution", "boost_solution.png")
+-- Mese solution
+register_solution("mese", "Mese Solution", "mese_solution.png")
 
 --
 -- Potions
@@ -55,3 +57,4 @@ register_solution("healing_brew", "Healing Brew", "healing_brew_solution.png")
 register_solution("fire_resistance", "Fire Resistance", "fire_resistance_solution.png")
 register_solution("jump_boost", "Jump Boost", "jump_boost_solution.png")
 register_solution("speed_boost", "Speed Boost", "speed_boost_solution.png")
+register_solution("invisibility_brew", "Invisibility Brew", "invisibility_brew_solution.png")

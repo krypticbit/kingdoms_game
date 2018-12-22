@@ -108,7 +108,7 @@ end)
 
 -- Healing brew
 register_effect("healing_brew", function(p, pos)
-   local hp = p:get_hp() + 10
+   local hp = p:get_hp() + 5
    if hp > 20 then hp = 20 end
    p:set_hp(hp)
 end)
@@ -163,5 +163,16 @@ function(n)
    local player = minetest.get_player_by_name(n)
    if player then
       remove_player_physics_multiplier(player, "potions speed boost")
+   end
+end)
+
+-- Invisibility potion
+register_timed_effect("invisibility_brew", "Invisibility", 20, function(player, pos)
+   player:set_properties({visual_size = {x = 0, y = 0}})
+end,
+function(n)
+   local player = minetest.get_player_by_name(n)
+   if player then
+      player:set_properties({visual_size = {x = 1, y = 1}})
    end
 end)

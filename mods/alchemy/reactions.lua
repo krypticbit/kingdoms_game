@@ -38,15 +38,6 @@ end
 
 alchemy.register_mix_reaction = register_mix_reaction
 
--- Put-take reactions
-register_put_take_reactions("base")
-register_put_take_reactions("slime")
-register_put_take_reactions("energized_base")
-register_put_take_reactions("glycon_brew")
-register_put_take_reactions("healing_brew")
-
-
-
 -----
 -- Cauldron-item reations
 -----
@@ -77,6 +68,9 @@ register_basic_reactions("energized_base", "alchemy:herb_celros", "celros_brew",
 register_basic_reactions("energized_base", "alchemy:herb_iceweed", "iceweed_brew", 2)
 register_basic_reactions("energized_base", "alchemy:herb_shal_stalk", "shal_stalk_brew", 2)
 
+-- Advanced brews
+register_basic_reactions("energized_base", "default:mese", "mese", 2)
+
 -- Reaction for healing potion
 register_mix_reaction("glycon_brew", 2, "celros_brew", "healing_brew")
 
@@ -87,5 +81,8 @@ register_basic_reactions("iceweed_brew", "default:snow", "fire_resistance", 5)
 register_basic_reactions("shal_stalk_brew", "default:mese_crystal", "boost", 1)
 register_mix_reaction("boost", 1, "celros_brew", "jump_boost")
 
--- Reactions for speed boost potion
+-- Reaction for speed boost potion
 register_mix_reaction("boost", 1, "glycon_brew", "speed_boost")
+
+-- Reaction for Invisibility brew
+register_basic_reactions("mese", "alchemy:herb_parleaf", "invisibility_brew", 2)
