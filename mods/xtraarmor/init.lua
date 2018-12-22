@@ -37,20 +37,13 @@ minetest.register_craft({
 -------------------------------------------------------
 
 local colors = {
-	["Green"] = "^[colorize:#00FF00:120",
-	["Red"] = "^[colorize:#FF1900:120",
-	["Yellow"] = "^[colorize:#FFF400:120",
-	["White"] = "^[colorize:#FFFFFF:120",
-	["Black"] = "^[colorize:#000000:120",
-	["Grey"] = "^[colorize:#9E9E9E:120",
-	["Orange"] = "^[colorize:#FFA400:120",
-	["Dark Grey"] = "^[colorize:#5F5F5F:120",
-	["Dark Green"] = "^[colorize:#297B27:120", 
-	["Cyan"] = "^[colorize:#00FFE6:120",
-	["Pink"] = "^[colorize:#FFA3E7:120",
-	["Magenta"] = "^[colorize:#C31692:120",
-	["Violet"] = "^[colorize:#7F00FF:120",
-	["Brown"] = "^[colorize:#734021:120"
+	"Green", "Red",
+	"Yellow", "White",
+	"Black", "Grey",
+	"Orange", "Dark Grey",
+	"Dark Green", "Cyan",
+	"Pink", "Magenta",
+	"Violet", "Brown"
 }
 
 minetest.register_alias("xtraarmor:helmet_leather", "xtraarmor:helmet_wool")
@@ -58,65 +51,65 @@ minetest.register_alias("xtraarmor:chestplate_leather", "xtraarmor:chestplate_wo
 minetest.register_alias("xtraarmor:leggings_leather", "xtraarmor:leggings_wool")
 minetest.register_alias("xtraarmor:boots_leather", "xtraarmor:boots_wool")
 
-for colorname, color in pairs(colors) do
-	local itemcolor = string.lower(colorname):gsub(' ', '_')
+for _, colorname in ipairs(colors) do
+	local color = string.gsub(string.lower(colorname), ' ', '_')
 
-	minetest.register_tool("xtraarmor:helmet_wool_" .. itemcolor, {
+	minetest.register_tool("xtraarmor:helmet_wool_" .. color, {
 		description = colorname .. " Cap",
-		inventory_image = "xtraarmor_inv_helmet_wool.png" .. color,
+		inventory_image = "xtraarmor_inv_helmet_wool_" .. color .. ".png",
 		groups = {wool_helmet = 1, armor_head = 7,  armor_use = 1000},
 		wear = 0,
 	})
 
-	minetest.register_tool("xtraarmor:chestplate_wool_" .. itemcolor, {
+	minetest.register_tool("xtraarmor:chestplate_wool_" .. color, {
 		description = colorname .. " Tunic",
-		inventory_image = "xtraarmor_inv_chestplate_wool.png" .. color,
+		inventory_image = "xtraarmor_inv_chestplate_wool_" .. color .. ".png",
 		groups = {wool_chestplate = 1, armor_torso = 12,  armor_use = 1000},
 		wear = 0,
 	})
 
-	minetest.register_tool("xtraarmor:leggings_wool_"..itemcolor, {
+	minetest.register_tool("xtraarmor:leggings_wool_"..color, {
 		description = colorname .. " Trousers",
-		inventory_image = "xtraarmor_inv_leggings_wool.png" .. color,
+		inventory_image = "xtraarmor_inv_leggings_wool_" .. color .. ".png",
 		groups = {wool_leggings = 1, armor_legs = 7,  armor_use = 150},
 		wear = 0,
 	})
 
-	minetest.register_tool("xtraarmor:boots_wool_"..itemcolor, {
+	minetest.register_tool("xtraarmor:boots_wool_"..color, {
 		description = colorname .. " Boots",
-		inventory_image = "xtraarmor_inv_boots_wool.png" .. color,
+		inventory_image = "xtraarmor_inv_boots_wool_" .. color .. ".png",
 		groups = {wool_boots = 1, armor_feet = 7, physics_speed = 0.15, armor_use = 1000},
 		wear = 0,
 	})
 
 	minetest.register_craft({
 		type = "shapeless",
-		output = "xtraarmor:helmet_wool_" .. itemcolor,
-		recipe = {"xtraarmor:helmet_wool", "dye:" .. itemcolor},
+		output = "xtraarmor:helmet_wool_" .. color,
+		recipe = {"xtraarmor:helmet_wool", "dye:" .. color},
 	})
 
 	minetest.register_craft({
 		type = "shapeless",
-		output = "xtraarmor:chestplate_wool_" .. itemcolor,
-		recipe = {"xtraarmor:chestplate_wool", "dye:" .. itemcolor},
+		output = "xtraarmor:chestplate_wool_" .. color,
+		recipe = {"xtraarmor:chestplate_wool", "dye:" .. color},
 	})
 
 	minetest.register_craft({
 		type = "shapeless",
-		output = "xtraarmor:leggings_wool_" .. itemcolor,
-		recipe = {"xtraarmor:leggings_wool", "dye:" .. itemcolor},
+		output = "xtraarmor:leggings_wool_" .. color,
+		recipe = {"xtraarmor:leggings_wool", "dye:" .. color},
 	})
 
 	minetest.register_craft({
 		type = "shapeless",
-		output = "xtraarmor:boots_wool_" .. itemcolor,
-		recipe = {"xtraarmor:boots_wool", "dye:" .. itemcolor},
+		output = "xtraarmor:boots_wool_" .. color,
+		recipe = {"xtraarmor:boots_wool", "dye:" .. color},
 	})
 
-	minetest.register_alias("xtraarmor:helmet_leather_" .. itemcolor, "xtraarmor:helmet_wool_" .. itemcolor)
-	minetest.register_alias("xtraarmor:chestplate_leather_" .. itemcolor, "xtraarmor:chestplate_wool_" .. itemcolor)
-	minetest.register_alias("xtraarmor:leggings_leather_" .. itemcolor, "xtraarmor:chestplate_wool_" .. itemcolor)
-	minetest.register_alias("xtraarmor:boots_leather_" .. itemcolor, "xtraarmor:boots_wool_" .. itemcolor)
+	minetest.register_alias("xtraarmor:helmet_leather_" .. color, "xtraarmor:helmet_wool_" .. color)
+	minetest.register_alias("xtraarmor:chestplate_leather_" .. color, "xtraarmor:chestplate_wool_" .. color)
+	minetest.register_alias("xtraarmor:leggings_leather_" .. color, "xtraarmor:chestplate_wool_" .. color)
+	minetest.register_alias("xtraarmor:boots_leather_" .. color, "xtraarmor:boots_wool_" .. color)
 end
 
 minetest.register_tool("xtraarmor:helmet_wool", {
