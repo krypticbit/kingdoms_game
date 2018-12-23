@@ -11,6 +11,7 @@ minetest.register_node("alchemy:beaker_empty", {
    groups = {}, -- Unbreakable but picked up on punch - no particles
    paramtype = "light",
    sunlight_propagates = true,
+   inventory_image = "beaker_empty.png",
 
    tiles = {
       "beaker.png"

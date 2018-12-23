@@ -40,6 +40,8 @@ register_solution("energized_base", "Energized Base", "energized_base_solution.p
 register_solution("glycon_brew", "Glycon Brew", "glycon_brew_solution.png")
 -- Celros brew
 register_solution("celros_brew", "Celros Brew", "celros_brew_solution.png")
+-- Firus brew
+register_solution("firus_brew", "Firus Brew", "firus_brew_solution.png")
 -- Iceweed brew
 register_solution("iceweed_brew", "Iceweed Brew", "iceweed_brew_solution.png")
 -- Shal stalk brew
@@ -58,3 +60,4 @@ register_solution("fire_resistance", "Fire Resistance", "fire_resistance_solutio
 register_solution("jump_boost", "Jump Boost", "jump_boost_solution.png")
 register_solution("speed_boost", "Speed Boost", "speed_boost_solution.png")
 register_solution("invisibility_brew", "Invisibility Brew", "invisibility_brew_solution.png")
+register_solution("water_breathing_brew", "Water Breathing Brew", "water_breathing_brew_solution.png")

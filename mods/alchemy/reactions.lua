@@ -65,6 +65,7 @@ alchemy.register_basic_reactions = register_basic_reactions
 register_basic_reactions("base", "default:mese_crystal", "energized_base", 1)
 register_basic_reactions("energized_base", "alchemy:herb_glycon", "glycon_brew", 5)
 register_basic_reactions("energized_base", "alchemy:herb_celros", "celros_brew", 8)
+register_basic_reactions("energized_base", "alchemy:herb_firus", "firus_brew", 2)
 register_basic_reactions("energized_base", "alchemy:herb_iceweed", "iceweed_brew", 2)
 register_basic_reactions("energized_base", "alchemy:herb_shal_stalk", "shal_stalk_brew", 2)
 
@@ -86,3 +87,6 @@ register_mix_reaction("boost", 1, "glycon_brew", "speed_boost")
 
 -- Reaction for Invisibility brew
 register_basic_reactions("mese", "alchemy:herb_parleaf", "invisibility_brew", 2)
+
+-- Reaction for Water Breathing Brew
+register_mix_reaction("firus_brew", 1, "iceweed_brew", "water_breathing_brew")

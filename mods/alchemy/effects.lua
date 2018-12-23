@@ -14,7 +14,10 @@ local function decrease_effect_timer()
             alchemy.active_effects[p][e] = nil
          else
             if player then
+               -- Update the HUD
                alchemy.hud.update_effect(player, t.number, t)
+               -- Run on_tick function
+               if t.on_tick then t.on_tick(player) end
             end
          end
       end
@@ -30,7 +33,12 @@ local function register_effect(name, effect)
    alchemy.effects["alchemy:beaker_" .. name] = effect
 end
 
-local function register_timed_effect(e, eName, time, on_start, on_end)
+local function register_timed_effect(e, def)
+   local eName = def.effect_name
+   local time = def.duration
+   local on_start = def.on_start
+   local on_tick = def.on_tick
+   local on_end = def.on_end
    alchemy.effects["alchemy:beaker_" .. e] = function(p, pos)
       local new_effect = false
       if on_start then
@@ -47,6 +55,7 @@ local function register_timed_effect(e, eName, time, on_start, on_end)
          alchemy.active_effects[n][e].time = time
          new_effect = true
       end
+      alchemy.active_effects[n][e].on_tick = on_tick
       alchemy.active_effects[n][e].on_end = on_end
       alchemy.active_effects[n][e].target = n
       alchemy.active_effects[n][e].name = eName
@@ -85,7 +94,10 @@ register_effect("healing_brew", function(p, pos)
 end)
 
 -- Fire resistance
-register_timed_effect("fire_resistance", "Fire Resistance", 30)
+register_timed_effect("fire_resistance", {
+   effect_name = "Fire Resistance",
+   duration = 30
+})
 minetest.register_on_player_hpchange(function(p, change)
    if change > 0 then return change end
    local n = p:get_player_name()
@@ -116,34 +128,55 @@ minetest.register_on_player_hpchange(function(p, change)
 end, true)
 
 -- Jump brew
-register_timed_effect("jump_boost", "Jump Boost", 20, function(player, pos)
-   set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
-end,
-function(n)
-   local player = minetest.get_player_by_name(n)
-   if player then
-      remove_player_physics_multiplier(player, "potions jump boost")
+register_timed_effect("jump_boost", {
+   effect_name = "Jump Boost",
+   duration = 20,
+   on_start = function(player, pos)
+      set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
+   end,
+   on_end = function(n)
+      local player = minetest.get_player_by_name(n)
+      if player then
+         remove_player_physics_multiplier(player, "potions jump boost")
+      end
    end
-end)
+})
 
 -- Speed brew
-register_timed_effect("speed_boost", "Speed Boost", 120, function(player, pos)
-   set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
-end,
-function(n)
-   local player = minetest.get_player_by_name(n)
-   if player then
-      remove_player_physics_multiplier(player, "potions speed boost")
+register_timed_effect("speed_boost", {
+   effect_name = "Speed Boost",
+   duration = 120,
+   on_start = function(player, pos)
+      set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
+   end,
+   on_end = function(n)
+      local player = minetest.get_player_by_name(n)
+      if player then
+         remove_player_physics_multiplier(player, "potions speed boost")
+      end
    end
-end)
+})
 
 -- Invisibility potion
-register_timed_effect("invisibility_brew", "Invisibility", 20, function(player, pos)
-   player:set_properties({visual_size = {x = 0, y = 0}})
-end,
-function(n)
-   local player = minetest.get_player_by_name(n)
-   if player then
-      player:set_properties({visual_size = {x = 1, y = 1}})
+register_timed_effect("invisibility_brew", {
+   effect_name = "Invisibility",
+   duration = 20,
+   on_start = function(player, pos)
+      player:set_properties({visual_size = {x = 0, y = 0}})
+   end,
+   on_end = function(n)
+      local player = minetest.get_player_by_name(n)
+      if player then
+         player:set_properties({visual_size = {x = 1, y = 1}})
+      end
    end
-end)
+})
+
+-- Water-breathing potion
+register_timed_effect("water_breathing_brew", {
+   effect_name = "Water Breathing",
+   duration = 120,
+   on_tick = function(player)
+      player:set_breath(20)
+   end
+})
