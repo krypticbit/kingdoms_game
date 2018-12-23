@@ -97,7 +97,7 @@ end)
 -- Fire resistance
 register_timed_effect("fire_resistance", {
    effect_name = "Fire Resistance",
-   duration = 30
+   duration = 40
 })
 minetest.register_on_player_hpchange(function(p, change)
    if change > 0 then return change end
@@ -131,7 +131,7 @@ end, true)
 -- Jump brew
 register_timed_effect("jump_boost", {
    effect_name = "Jump Boost",
-   duration = 20,
+   duration = 70,
    on_start = function(player, pos)
       set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
    end,
@@ -146,7 +146,7 @@ register_timed_effect("jump_boost", {
 -- Speed brew
 register_timed_effect("speed_boost", {
    effect_name = "Speed Boost",
-   duration = 120,
+   duration = 200,
    on_start = function(player, pos)
       set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
    end,
@@ -161,7 +161,7 @@ register_timed_effect("speed_boost", {
 -- Invisibility potion
 register_timed_effect("invisibility_brew", {
    effect_name = "Invisibility",
-   duration = 20,
+   duration = 60,
    on_start = function(player, pos)
       player:set_properties({visual_size = {x = 0, y = 0}})
    end,

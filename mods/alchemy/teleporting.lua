@@ -68,6 +68,10 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
                minetest.chat_send_player(n, "You have not placed a type " .. stonetype .. " warp stone!")
                return
             else
+               if minetest.is_protected(pos, n) then
+                  minetest.chat_send_player(n "This warpstone is in a protected area!")
+                  return
+               end
                p:set_pos(pos)
             end
          end
