@@ -25,3 +25,5 @@ register_herb("parleaf", "Parleaf Herb", "herb_parleaf.png", {["default:leaves"]
 
 register_herb("shal_stalk", "Shal Stalk", "herb_shal_stalk.png", {["default:grass_1"] = 5})
 register_herb("iceweed", "Iceweed Herb", "herb_iceweed.png", {["default:grass_1"] = 50})
+
+register_herb("emen", "Emen Herb", "herb_emen.png", {["default:pine_needles"] = 40})

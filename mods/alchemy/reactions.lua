@@ -68,6 +68,7 @@ register_basic_reactions("energized_base", "alchemy:herb_celros", "celros_brew",
 register_basic_reactions("energized_base", "alchemy:herb_firus", "firus_brew", 2)
 register_basic_reactions("energized_base", "alchemy:herb_iceweed", "iceweed_brew", 2)
 register_basic_reactions("energized_base", "alchemy:herb_shal_stalk", "shal_stalk_brew", 2)
+register_basic_reactions("energized_base", "alchemy:herb_emen", "emen_brew", 3)
 
 -- Advanced brews
 register_basic_reactions("energized_base", "default:mese", "mese", 2)

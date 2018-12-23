@@ -46,6 +46,8 @@ register_solution("firus_brew", "Firus Brew", "firus_brew_solution.png")
 register_solution("iceweed_brew", "Iceweed Brew", "iceweed_brew_solution.png")
 -- Shal stalk brew
 register_solution("shal_stalk_brew", "Shal Stalk Brew", "shal_stalk_brew_solution.png")
+-- Emen brew
+register_solution("emen_brew", "Emen Brew", "emen_brew_solution.png")
 -- Boost solution
 register_solution("boost", "Boost Solution", "boost_solution.png")
 -- Mese solution

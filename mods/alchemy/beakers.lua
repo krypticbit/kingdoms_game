@@ -8,7 +8,7 @@ local box = {
 minetest.register_node("alchemy:beaker_empty", {
    description = "Empty Beaker",
    drawtype = "mesh",
-   groups = {}, -- Unbreakable but picked up on punch - no particles
+   groups = {vessel = 1}, -- Unbreakable but picked up on punch - no particles
    paramtype = "light",
    sunlight_propagates = true,
    inventory_image = "beaker_empty.png",
@@ -50,7 +50,7 @@ local function register_beaker(name, description, texture)
    minetest.register_node(bname, {
       description = desc,
       drawtype = "mesh",
-      groups = {}, -- Unbreakable but picked up on punch - no particles
+      groups = {vessel = 1}, -- Unbreakable but picked up on punch - no particles
       paramtype = "light",
       stack_max = 1,
       sunlight_propagates = true,

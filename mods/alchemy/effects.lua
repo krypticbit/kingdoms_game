@@ -68,6 +68,7 @@ local function register_timed_effect(e, def)
 end
 
 alchemy.register_effect = register_effect
+alchemy.register_timed_effect = register_timed_effect
 
 -- Energized base (some things shouldnt be drunk)
 register_effect("energized_base", function(p, pos)
