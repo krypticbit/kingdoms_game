@@ -53,6 +53,7 @@ local function register_beaker(name, description, texture)
       paramtype = "light",
       stack_max = 1,
       sunlight_propagates = true,
+      inventory_image = texture .. "^beaker_mask.png^[makealpha:0,0,0^beaker_empty.png",
 
       tiles = {
          "beaker.png",
