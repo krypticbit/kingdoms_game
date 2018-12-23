@@ -14,11 +14,21 @@ end
 
 local function generate_effect_hud(player, num, text)
    local ids = {}
+   ids["bck"] = player:hud_add({
+      hud_elem_type = "image",
+      position = {x = 1, y = 0.3},
+      offset = {x = 0, y = num * 20},
+      text = "effect_hud_background.png",
+      scale = {x = 1, y = 1},
+      alignment = {x = -1, y = 0}
+   })
    ids["main"] = player:hud_add({
       hud_elem_type = "text",
       position = {x = 1, y = 0.3},
-      offset = {x = -100, y = num * 15},
-      text = text
+      offset = {x = -140, y = num * 20},
+      text = text,
+      alignment = {x = 1, y = 0},
+      number = 0xFFFFFF
    })
    return ids
 end
