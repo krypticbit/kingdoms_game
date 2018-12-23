@@ -1,53 +1,21 @@
-active_effects = {}
-hud_nums = {}
-
--- Potion HUD handling
-local function remove_potions_hud(n, effect)
-   local effect_table = active_effects[n][effect]
-   local id = effect_table.hud_id
-   local p = minetest.get_player_by_name(n)
-   if id and p then
-      p:hud_remove(id)
-   end
-   effect_table.hud_id = nil
-end
-
-local function update_potions_hud(n, effect)
-   local player = minetest.get_player_by_name(n)
-   if player == nil then
-      return
-   end
-   local effect_table = active_effects[n][effect]
-   local text = effect_table.name .. ": " .. tostring(effect_table.time)
-   if effect_table.hud_id then
-      player:hud_change(effect_table.hud_id, "text", text)
-   else
-      local id = player:hud_add({
-         hud_elem_type = "text",
-         position  = {x = 1, y = 0.3},
-         offset = {x = -120, y = effect_table.HUD_num * 20},
-         text = text
-      })
-      effect_table.hud_id = id
-   end
-end
-
 -- Effect duration system
 local function decrease_effect_timer()
-   for p, eList in pairs(active_effects) do
+   for p, eList in pairs(alchemy.active_effects) do
+      local player = minetest.get_player_by_name(p)
       for e, t in pairs(eList) do
-         active_effects[p][e].time = t.time - 1
+         alchemy.active_effects[p][e].time = t.time - 1
          if t.time <= 0 then
-            remove_potions_hud(p, e)
             if t.on_end then
                t.on_end(t.target)
             end
-            active_effects[p][e] = nil
-            if alchemy.helpers.table_length(active_effects[p]) == 0 then
-               hud_nums[p] = -1
+            if player then
+               alchemy.hud.remove_effect(player, t.number, t)
             end
+            alchemy.active_effects[p][e] = nil
          else
-            update_potions_hud(p, e)
+            if player then
+               alchemy.hud.update_effect(player, t.number, t)
+            end
          end
       end
    end
@@ -64,26 +32,29 @@ end
 
 local function register_timed_effect(e, eName, time, on_start, on_end)
    alchemy.effects["alchemy:beaker_" .. e] = function(p, pos)
+      local new_effect = false
       if on_start then
          on_start(p, pos)
       end
       local n = p:get_player_name()
-      if not active_effects[n] then
-         active_effects[n] = {}
-         hud_nums[n] = -1
+      if not alchemy.active_effects[n] then
+         alchemy.active_effects[n] = {}
       end
-      if active_effects[n][e] then
-         active_effects[n][e].time = active_effects[n][e].time + time
+      if alchemy.active_effects[n][e] then
+         alchemy.active_effects[n][e].time = alchemy.active_effects[n][e].time + time
       else
-         active_effects[n][e] = {}
-         active_effects[n][e].time = time
-         local newnum = hud_nums[n] + 1
-         active_effects[n][e].HUD_num = newnum
-         hud_nums[n] = newnum
+         alchemy.active_effects[n][e] = {}
+         alchemy.active_effects[n][e].time = time
+         new_effect = true
       end
-      active_effects[n][e].on_end = on_end
-      active_effects[n][e].target = n
-      active_effects[n][e].name = eName
+      alchemy.active_effects[n][e].on_end = on_end
+      alchemy.active_effects[n][e].target = n
+      alchemy.active_effects[n][e].name = eName
+      -- Add to HUD if its a new effect
+      if new_effect then
+         local eNum = alchemy.hud.add_effect(p, alchemy.active_effects[n][e])
+         alchemy.active_effects[n][e].number = eNum
+      end
    end
 end
 
@@ -118,7 +89,7 @@ register_timed_effect("fire_resistance", "Fire Resistance", 30)
 minetest.register_on_player_hpchange(function(p, change)
    if change > 0 then return change end
    local n = p:get_player_name()
-   if active_effects[n] and active_effects[n]["fire_resistance"] then
+   if alchemy.active_effects[n] and alchemy.active_effects[n]["fire_resistance"] then
       local pos = p:get_pos()
       -- Check bottom node
       local node = minetest.get_node(pos)

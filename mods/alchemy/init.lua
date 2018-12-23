@@ -13,9 +13,14 @@ alchemy.disasters = {}
 alchemy.herbs = {}
 alchemy.helpers = {}
 alchemy.effects = {}
+alchemy.active_effects = {}
+alchemy.effect_hud = {}
+alchemy.hud = {}
 
 -- Load helper functions
 dofile(mp .. "/helpers.lua")
+-- Load HUD system
+dofile(mp .. "/hud.lua")
 -- Load registering functions
 dofile(mp .. "/beakers.lua")
 dofile(mp .. "/cauldron.lua")
