@@ -292,7 +292,7 @@ local function draw_input(self, name, x,y, as_line)
                         end
                 end
         else    -- Draw just single point.
-                if self.grid then
+                if self.grid and self.grid[x] and self.grid[x][y] then
                         self.grid[x][y] = colors[name]
                 end
         end
