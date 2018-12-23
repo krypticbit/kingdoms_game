@@ -12,11 +12,13 @@ local function step()
 	for _, player in pairs(minetest.get_connected_players()) do
 		local name = player:get_player_name()
 		local info = minetest.get_player_information(name)
-		-- 2.0 seconds.
-		if info.avg_jitter > 2.0 and not players_glitching[name] then
-			players_glitching[name] = player:get_pos()
-		elseif info.avg_jitter < 2.0 and players_glitching[name] then
-			minetest.after(0.5, function() players_glitching[name] = nil end)
+		if info ~= nil then
+			-- 2.0 seconds.
+			if info.avg_jitter > 2.0 and not players_glitching[name] then
+				players_glitching[name] = player:get_pos()
+			elseif info.avg_jitter < 2.0 and players_glitching[name] then
+				minetest.after(0.5, function() players_glitching[name] = nil end)
+			end
 		end
 	end
 	minetest.after(1, step)
