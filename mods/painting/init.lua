@@ -281,6 +281,7 @@ local function figure_paint_pos(self, puncher)
 end
 
 local function draw_input(self, name, x,y, as_line)
+	if x == nil or y == nil then return end
         local x0 = self.x0
         if as_line and x0 then -- Draw line if requested *and* have a previous position.
                 local y0 = self.y0
