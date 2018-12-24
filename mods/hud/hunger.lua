@@ -241,6 +241,7 @@ if minetest.get_modpath("creatures") ~= nil then
         overwritefood("creatures:chicken_meat", 5)
 	overwritefood("creatures:chicken_flesh", 2)
 	overwritefood("creatures:rotten_flesh", 3, "", 3)
+	overwritefood("creatures:fried_egg", 2)
 end
 
 if minetest.get_modpath("ethereal") then
