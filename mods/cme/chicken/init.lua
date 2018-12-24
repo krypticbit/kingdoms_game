@@ -22,7 +22,7 @@
 
 
 -- Egg
-dofile(core.get_modpath("chicken") .. "/egg.lua")
+dofile(minetest.get_modpath("chicken") .. "/egg.lua")
 local function dropEgg(obj)
   local pos = obj:getpos()
   if pos then
@@ -31,26 +31,26 @@ local function dropEgg(obj)
 end
 
 -- Flesh
-core.register_craftitem(":creatures:chicken_flesh", {
+minetest.register_craftitem(":creatures:chicken_flesh", {
 	description = "Raw Chicken Flesh",
 	inventory_image = "creatures_chicken_flesh.png",
-	on_use = core.item_eat(1)
+	on_use = minetest.item_eat(1)
 })
 
-core.register_craftitem(":creatures:chicken_meat", {
+minetest.register_craftitem(":creatures:chicken_meat", {
 	description = "Chicken Meat",
 	inventory_image = "creatures_chicken_meat.png",
-	on_use = core.item_eat(3)
+	on_use = minetest.item_eat(3)
 })
 
-core.register_craft({
+minetest.register_craft({
 	type = "cooking",
 	output = "creatures:chicken_meat",
 	recipe = "creatures:chicken_flesh",
 })
 
 -- Feather
-core.register_craftitem(":creatures:feather", {
+minetest.register_craftitem(":creatures:feather", {
 	description = "Feather",
 	inventory_image = "creatures_feather.png",
 })
@@ -139,7 +139,7 @@ local def = {
 
 					-- play eat sound?
 					item:take_item()
-					if not core.setting_getbool("creative_mode") then
+					if not minetest.setting_getbool("creative_mode") then
 						clicker:set_wielded_item(item)
 					end
 				end

@@ -21,12 +21,12 @@
 
 
 -- shears
-core.register_tool(":creatures:shears", {
+minetest.register_tool(":creatures:shears", {
 	description = "Shears",
 	inventory_image = "creatures_shears.png",
 })
 
-core.register_craft({
+minetest.register_craft({
 	output = 'creatures:shears',
 	recipe = {
 		{'', 'default:steel_ingot'},
@@ -50,7 +50,7 @@ local function shear(self, drop_count, sound)
 		self.has_wool = false
 		local pos = self.object:getpos()
 		if sound then
-			core.sound_play("creatures_shears", {pos = pos, gain = 1, max_hear_distance = 10})
+			minetest.sound_play("creatures_shears", {pos = pos, gain = 1, max_hear_distance = 10})
 		end
 
 		setColor(self)
@@ -189,7 +189,7 @@ local def = {
 					shear(self, math.random(2, 3), true)
 					item:add_wear(65535/100)
 				end
-				if not core.setting_getbool("creative_mode") then
+				if not minetest.setting_getbool("creative_mode") then
 					clicker:set_wielded_item(item)
 				end
 			end

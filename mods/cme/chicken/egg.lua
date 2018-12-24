@@ -29,12 +29,12 @@ local function timer(step, entity)
 	if entity.physical_state == false then
 		if entity.ref then
 			if math.random(1, 20) == 5 then
-				core.add_entity(entity.ref:getpos(), "creatures:chicken")
+				minetest.add_entity(entity.ref:getpos(), "creatures:chicken")
 			end
 			entity.ref:remove()
 		end
 	else
-		core.after(step, timer, step, entity)
+		minetest.after(step, timer, step, entity)
 	end
 end
 
@@ -57,7 +57,7 @@ function throw_egg(player, strength)
 	return false
 end
 
-core.register_craftitem(":creatures:egg", {
+minetest.register_craftitem(":creatures:egg", {
 	description = "Egg",
 	inventory_image = "creatures_egg.png",
 	on_use = function(itemstack, user, pointed_thing)
@@ -71,13 +71,13 @@ core.register_craftitem(":creatures:egg", {
 	end,
 })
 
-core.register_craftitem(":creatures:fried_egg", {
+minetest.register_craftitem(":creatures:fried_egg", {
 	description = "Fried Egg",
 	inventory_image = "creatures_fried_egg.png",
-	on_use = core.item_eat(2)
+	on_use = minetest.item_eat(2)
 })
 
-core.register_craft({
+minetest.register_craft({
 	type = "cooking",
 	output = "creatures:fried_egg",
 	recipe = "creatures:egg",

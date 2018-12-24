@@ -20,7 +20,7 @@
 --
 
 
-local allow_hostile = core.setting_getbool("only_peaceful_mobs") ~= true
+local allow_hostile = minetest.setting_getbool("only_peaceful_mobs") ~= true
 
 local function translate_def(def)
   local new_def = {
@@ -98,7 +98,7 @@ local function translate_def(def)
     end
 
     -- return data serialized
-    return core.serialize(main_tab)
+    return minetest.serialize(main_tab)
   end
 
   new_def.on_activate = function(self, staticdata)
@@ -153,7 +153,7 @@ local function translate_def(def)
 
 
     if staticdata then
-      local tab = core.deserialize(staticdata)
+      local tab = minetest.deserialize(staticdata)
       if tab and type(tab) == "table" then
         for s,w in pairs(tab) do
           self[tostring(s)] = w
@@ -179,7 +179,7 @@ local function translate_def(def)
 
     self.object:set_hp(self.hp)
 
-    if not core.setting_getbool("enable_damage") then
+    if not minetest.setting_getbool("enable_damage") then
       self.hostile = false
     end
 
@@ -227,7 +227,7 @@ function creatures.register_mob(def) -- returns true if sucessfull
 
   local mob_def = translate_def(def)
 
-  core.register_entity(":" .. def.name, mob_def)
+  minetest.register_entity(":" .. def.name, mob_def)
 
   -- register spawn
   if def.spawning and not (def.stats.hostile and not allow_hostile) then
@@ -271,7 +271,7 @@ end
 
 local function checkSpace(pos, height)
   for i = 0, height do
-    local n = core.get_node_or_nil({x = pos.x, y = pos.y + i, z = pos.z})
+    local n = minetest.get_node_or_nil({x = pos.x, y = pos.y + i, z = pos.z})
     if not n or n.name ~= "air" then
       return false
     end
@@ -281,7 +281,7 @@ end
 
 local time_taker = 0
 local function step(tick)
-  core.after(tick, step, tick)
+  minetest.after(tick, step, tick)
   time_taker = time_taker + tick
 end
 step(0.5)
@@ -297,7 +297,7 @@ local function groupSpawn(pos, mob, group, nodes, range, max_loops)
   local cnt = 0
   local cnt2 = 0
 
-  local nodes = core.find_nodes_in_area({x = pos.x - range, y = pos.y - range, z = pos.z - range},
+  local nodes = minetest.find_nodes_in_area({x = pos.x - range, y = pos.y - range, z = pos.z - range},
     {x = pos.x + range, y = pos.y, z = pos.z + range}, nodes)
   local number = #nodes - 1
   if max_loops and type(max_loops) == "number" then
@@ -309,7 +309,7 @@ local function groupSpawn(pos, mob, group, nodes, range, max_loops)
     p.y = p.y + 1
     if checkSpace(p, mob.size) == true then
       cnt = cnt + 1
-      core.add_entity(p, mob.name)
+      minetest.add_entity(p, mob.name)
     end
   end
   if cnt < group then
@@ -328,7 +328,7 @@ function creatures.register_spawn(spawn_def)
   end
   table.insert(spawn_def.abm_nodes.neighbors, "air")
 
-  core.register_abm({
+  minetest.register_abm({
     nodenames = spawn_def.abm_nodes.spawn_on,
     neighbors = spawn_def.abm_nodes.neighbors,
     interval = spawn_def.abm_interval or 44,
@@ -341,7 +341,7 @@ function creatures.register_spawn(spawn_def)
       end
 
       -- time check
-      local tod = core.get_timeofday() * 24000
+      local tod = minetest.get_timeofday() * 24000
       if spawn_def.time_range then
         local wanted_res = false
         local range = table.copy(spawn_def.time_range)
@@ -360,7 +360,7 @@ function creatures.register_spawn(spawn_def)
 
       -- light check
       pos.y = pos.y + 1
-      local llvl = core.get_node_light(pos)
+      local llvl = minetest.get_node_light(pos)
       if spawn_def.light and not inRange(spawn_def.light, llvl) then
         return
       end
@@ -397,7 +397,7 @@ function creatures.register_spawn(spawn_def)
         if not checkSpace(pos, height_min) then
           return
         end
-        core.add_entity(pos, spawn_def.mob_name)
+        minetest.add_entity(pos, spawn_def.mob_name)
       end
     end,
   })
@@ -411,8 +411,8 @@ local function eggSpawn(itemstack, placer, pointed_thing, egg_def)
     pos.y = pos.y + 0.5
     local height = (egg_def.box[5] or 2) - (egg_def.box[2] or 0)
     if checkSpace(pos, height) == true then
-      core.add_entity(pos, egg_def.mob_name)
-      if core.setting_getbool("creative_mode") ~= true then
+      minetest.add_entity(pos, egg_def.mob_name)
+      if minetest.setting_getbool("creative_mode") ~= true then
         itemstack:take_item()
       end
     end
@@ -426,7 +426,7 @@ function creatures.register_egg(egg_def)
     return false
   end
 
-  core.register_craftitem(":" .. egg_def.mob_name .. "_spawn_egg", {
+  minetest.register_craftitem(":" .. egg_def.mob_name .. "_spawn_egg", {
     description = egg_def.description or egg_def.mob_name .. " spawn egg",
     inventory_image = egg_def.texture or "creatures_spawn_egg.png",
     liquids_pointable = false,
@@ -439,7 +439,7 @@ end
 
 
 local function makeSpawnerEntiy(mob_name, model)
-  core.register_entity(":" .. mob_name .. "_spawner_dummy", {
+  minetest.register_entity(":" .. mob_name .. "_spawner_dummy", {
     hp_max = 1,
     physical = false,
     collide_with_objects = false,
@@ -464,7 +464,7 @@ local function makeSpawnerEntiy(mob_name, model)
        self.timer = self.timer + dtime
        if self.timer > 30 then
          self.timer = 0
-         local n = core.get_node_or_nil(self.object:getpos())
+         local n = minetest.get_node_or_nil(self.object:getpos())
          if n and n.name and n.name ~= mob_name .. "_spawner" then
            self.object:remove()
          end
@@ -493,15 +493,15 @@ local function spawnerSpawn(pos, spawner_def)
       break
     end
     local p = {x = math.random(area.min.x, area.max.x), y = area.min.y + i, z = math.random(area.min.z, area.max.z)}
-    local n = core.get_node_or_nil(p)
+    local n = minetest.get_node_or_nil(p)
     if n and n.name then
-      local walkable = core.registered_nodes[n.name].walkable or false
+      local walkable = minetest.registered_nodes[n.name].walkable or false
       p.y = p.y + 1
       if walkable and checkSpace(p, spawner_def.height) == true then
-        local llvl = core.get_node_light(p)
+        local llvl = minetest.get_node_light(p)
         if not spawner_def.light or (spawner_def.light and inRange(spawner_def.light, llvl)) then
           cnt = cnt + 1
-          core.add_entity(p, spawner_def.mob_name)
+          minetest.add_entity(p, spawner_def.mob_name)
         end
       end
     end
@@ -518,7 +518,7 @@ function creatures.register_spawner(spawner_def)
 
   makeSpawnerEntiy(spawner_def.mob_name, spawner_def.model)
 
-  core.register_node(":" .. spawner_def.mob_name .. "_spawner", {
+  minetest.register_node(":" .. spawner_def.mob_name .. "_spawner", {
     description = spawner_def.description or spawner_def.mob_name .. " spawner",
   	paramtype = "light",
   	tiles = {"creatures_spawner.png"},
@@ -528,10 +528,10 @@ function creatures.register_spawner(spawner_def)
   	drop = "",
   	on_construct = function(pos)
   			pos.y = pos.y - 0.3
-  			core.add_entity(pos, spawner_def.mob_name .. "_spawner_dummy")
+  			minetest.add_entity(pos, spawner_def.mob_name .. "_spawner_dummy")
   	end,
   	on_destruct = function(pos)
-  		for _,obj in ipairs(core.get_objects_inside_radius(pos, 1)) do
+  		for _,obj in ipairs(minetest.get_objects_inside_radius(pos, 1)) do
         local entity = obj:get_luaentity()
   			if obj and entity and entity.mob_name == "_" .. spawner_def.mob_name .. "_dummy" then
   				obj:remove()
@@ -545,13 +545,13 @@ function creatures.register_spawner(spawner_def)
   spawner_def.height = height
 
   if spawner_def.player_range and type(spawner_def.player_range) == "number" then
-    core.register_abm({
+    minetest.register_abm({
       nodenames = {spawner_def.mob_name .. "_spawner"},
 		  interval = 2,
 		  chance = 1,
 		  catch_up = false,
 		  action = function(pos)
-        local id = core.pos_to_string(pos)
+        local id = minetest.pos_to_string(pos)
         if not spawner_timers[id] then
           spawner_timers[id] = os.time()
         end
@@ -565,7 +565,7 @@ function creatures.register_spawner(spawner_def)
       end
     })
   else
-    core.register_abm({
+    minetest.register_abm({
       nodenames = {spawner_def.mob_name .. "_spawner"},
 		  interval = 10,
 		  chance = 3,

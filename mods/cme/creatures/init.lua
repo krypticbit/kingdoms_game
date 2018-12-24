@@ -22,7 +22,7 @@
 
 creatures = {}
 
-local modpath = core.get_modpath("creatures")
+local modpath = minetest.get_modpath("creatures")
 
 -- API and common functions
 dofile(modpath .."/common.lua")

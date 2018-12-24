@@ -47,7 +47,7 @@ function creatures.rnd(table, errval)
 end
 
 function throw_error(msg)
-  core.log("error", "#Creatures: ERROR: " .. msg)
+  minetest.log("error", "#Creatures: ERROR: " .. msg)
 end
 
 function creatures.compare_pos(pos1, pos2)
@@ -63,9 +63,9 @@ end
 function creatures.findTarget(search_obj, pos, radius, search_type, ignore_mob, xray, no_count)
 	local player_near = false
 	local mobs = {}
-	for  _,obj in ipairs(core.get_objects_inside_radius(pos, radius)) do
+	for  _,obj in ipairs(minetest.get_objects_inside_radius(pos, radius)) do
     if obj ~= search_obj then
-      if xray or core.line_of_sight(pos, obj:getpos()) == true then
+      if xray or minetest.line_of_sight(pos, obj:getpos()) == true then
 				local is_player = obj:is_player()
 				if is_player then
 					player_near = true
@@ -139,7 +139,7 @@ function creatures.dropItems(pos, drops)
       end
     end
     if name then
-      local obj = core.add_item(pos, name .. amount)
+      local obj = minetest.add_item(pos, name .. amount)
       if not obj then
         throw_error("Could not drop item '" .. name .. amount .. "'")
       end

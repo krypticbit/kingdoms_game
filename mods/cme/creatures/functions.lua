@@ -33,7 +33,7 @@ local function knockback(selfOrObject, dir, old_dir, strengh)
   object:set_properties({automatic_face_movement_dir = false})
   object:setvelocity(vector.add(old_dir, {x = dir.x * strengh, y = 3.5, z = dir.z * strengh}))
   old_dir.y = 0
-  core.after(0.4, function()
+  minetest.after(0.4, function()
     object:set_properties({automatic_face_movement_dir = current_fmd})
     object:setvelocity(old_dir)
     selfOrObject.falltimer = nil
@@ -49,10 +49,10 @@ local function knockback(selfOrObject, dir, old_dir, strengh)
 end
 
 local function on_hit(me)
-  core.after(0.1, function()
+  minetest.after(0.1, function()
     me:settexturemod("^[colorize:#c4000099")
   end)
-  core.after(0.5, function()
+  minetest.after(0.5, function()
 		me:settexturemod("")
 	end)
 end
@@ -126,13 +126,13 @@ local function killMob(me, def)
 
   if def.sounds and def.sounds.on_death then
     local death_snd = def.sounds.on_death
-    core.sound_play(death_snd.name, {pos = pos, max_hear_distance = death_snd.distance or 5, gain = death_snd.gain or 1})
+    minetest.sound_play(death_snd.name, {pos = pos, max_hear_distance = death_snd.distance or 5, gain = death_snd.gain or 1})
   end
 
   if def.model.animations.death then
     local dur = def.model.animations.death.duration or 0.5
     update_animation(me, "death", def.model.animations["death"])
-    core.after(dur, function()
+    minetest.after(dur, function()
       me:remove()
     end)
   else
@@ -171,7 +171,7 @@ end
 
 local function onDamage(self, hp)
   local me = self.object
-  local def = core.registered_entities[self.mob_name]
+  local def = minetest.registered_entities[self.mob_name]
   hp = hp or me:get_hp()
 
   if hp <= 0 then
@@ -181,7 +181,7 @@ local function onDamage(self, hp)
     on_hit(me) -- red flashing
     if def.sounds and def.sounds.on_damage then
       local dmg_snd = def.sounds.on_damage
-      core.sound_play(dmg_snd.name, {pos = me:getpos(), max_hear_distance = dmg_snd.distance or 5, gain = dmg_snd.gain or 1})
+      minetest.sound_play(dmg_snd.name, {pos = me:getpos(), max_hear_distance = dmg_snd.distance or 5, gain = dmg_snd.gain or 1})
     end
   end
 end
@@ -207,7 +207,7 @@ end
 
 local tool_uses = {0, 30, 110, 150, 280, 300, 500, 1000}
 local function addWearout(player, tool_def)
-	if not core.setting_getbool("creative_mode") then
+	if not minetest.setting_getbool("creative_mode") then
 		local item = player:get_wielded_item()
 		if tool_def and tool_def.damage_groups and tool_def.damage_groups.fleshy then
 			local uses = tool_uses[tool_def.damage_groups.fleshy] or 0
@@ -222,11 +222,11 @@ end
 
 local function spawnParticles(...)
 end
-if core.setting_getbool("creatures_enable_particles") == true then
+if minetest.setting_getbool("creatures_enable_particles") == true then
   spawnParticles = function(pos, velocity, texture_str)
     local vel = vector.multiply(velocity, 0.5)
     vel.y = 0
-    core.add_particlespawner({
+    minetest.add_particlespawner({
       amount = 8,
       time = 1,
       minpos = vector.add(pos, -0.7),
@@ -286,7 +286,7 @@ end
 
 creatures.on_step = function(self, dtime)
   -- first get the relevant specs; exit if we don't know anything (1-3ms)
-  local def = core.registered_entities[self.mob_name]
+  local def = minetest.registered_entities[self.mob_name]
   if not def then
     throw_error("Can't load creature-definition")
     return
@@ -353,11 +353,11 @@ creatures.on_step = function(self, dtime)
     self.last_pos = current_pos
     if self.nodetimer > 0.2 then
       self.nodetimer = 0
-      local current_node = core.get_node_or_nil(current_pos)
+      local current_node = minetest.get_node_or_nil(current_pos)
       self.last_node = current_node
       if def.stats.light then
-        local wtime = core.get_timeofday()
-        local llvl = core.get_node_light({x = current_pos.x, y = current_pos.y + 0.5, z = current_pos.z}) or 0
+        local wtime = minetest.get_timeofday()
+        local llvl = minetest.get_node_light({x = current_pos.x, y = current_pos.y + 0.5, z = current_pos.z}) or 0
         self.last_llvl = llvl
       end
     end
@@ -417,7 +417,7 @@ creatures.on_step = function(self, dtime)
       -- attack
       if self.attacktimer > def.combat.attack_speed then
         self.attacktimer = 0
-        if core.line_of_sight(current_pos, p2) == true then
+        if minetest.line_of_sight(current_pos, p2) == true then
           self.target:punch(me, 1.0,  {
             full_punch_interval = def.combat.attack_speed,
             damage_groups = {fleshy = def.combat.attack_damage}
@@ -477,7 +477,7 @@ creatures.on_step = function(self, dtime)
   if current_mode == "eat" and not self.eat_node then
     local nodes = modes[current_mode].nodes
     local p = {x = current_pos.x, y = current_pos.y - 1, z = current_pos.z}
-    local sn = core.get_node_or_nil(p)
+    local sn = minetest.get_node_or_nil(p)
     local eat_node
     for _,name in pairs(nodes) do
       if self.last_node_name and name == self.last_node.name then
@@ -518,9 +518,9 @@ creatures.on_step = function(self, dtime)
 
     -- change eaten node when mode changes
     if self.eat_node then
-      local n = core.get_node_or_nil(self.eat_node)
+      local n = minetest.get_node_or_nil(self.eat_node)
       local nnn = n.name
-      local def = core.registered_nodes[n.name]
+      local def = minetest.registered_nodes[n.name]
       local sounds
       if def then
          if def.drop and type(def.drop) == "string" then
@@ -529,13 +529,13 @@ creatures.on_step = function(self, dtime)
            nnn = "air"
          end
       end
-      if nnn and nnn ~= n.name and core.registered_nodes[nnn] then
-        core.set_node(self.eat_node, {name = nnn})
+      if nnn and nnn ~= n.name and minetest.registered_nodes[nnn] then
+        minetest.set_node(self.eat_node, {name = nnn})
         if not sounds then
           sounds = def.sounds
         end
         if sounds and sounds.dug then
-          core.sound_play(sounds.dug, {pos = self.eat_node, max_hear_distance = 5, gain = 1})
+          minetest.sound_play(sounds.dug, {pos = self.eat_node, max_hear_distance = 5, gain = 1})
         end
       end
       self.eat_node = nil
@@ -607,7 +607,7 @@ creatures.on_step = function(self, dtime)
         -- play swimming sounds
         if def.sounds and def.sounds.swim then
           local swim_snd = def.sounds.swim
-          core.sound_play(swim_snd.name, {pos = current_pos, gain = swim_snd.gain or 1, max_hear_distance = swim_snd.distance or 10})
+          minetest.sound_play(swim_snd.name, {pos = current_pos, gain = swim_snd.gain or 1, max_hear_distance = swim_snd.distance or 10})
         end
         spawnParticles(current_pos, vel, "bubble.png")
       else
@@ -635,7 +635,7 @@ creatures.on_step = function(self, dtime)
     end
 
     -- add damage when light is too bright or too dark
-    local tod = core.get_timeofday() * 24000
+    local tod = minetest.get_timeofday() * 24000
     if self.last_llvl and self.can_burn and self.last_llvl > (def.stats.light.max or 15) and tod < 18000 then
       changeHP(self, -1)
     elseif self.last_llvl and self.last_llvl < (def.stats.light.min or 0) then
@@ -652,7 +652,7 @@ creatures.on_step = function(self, dtime)
     if rnd_sound and self.soundtimer > self.snd_rnd_time + rnd() then
       self.soundtimer = 0
       self.snd_rnd_time = nil
-      core.sound_play(rnd_sound.name, {pos = current_pos, gain = rnd_sound.gain or 1, max_hear_distance = rnd_sound.distance or 30})
+      minetest.sound_play(rnd_sound.name, {pos = current_pos, gain = rnd_sound.gain or 1, max_hear_distance = rnd_sound.distance or 30})
     end
   end
 

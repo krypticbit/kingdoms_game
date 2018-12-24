@@ -20,19 +20,19 @@
 --
 
 
-core.register_craftitem("creatures:flesh", {
+minetest.register_craftitem("creatures:flesh", {
 	description = "Flesh",
 	inventory_image = "creatures_flesh.png",
-	on_use = core.item_eat(2),
+	on_use = minetest.item_eat(2),
 })
 
-core.register_craftitem("creatures:meat", {
+minetest.register_craftitem("creatures:meat", {
 	description = "Cooked Meat",
 	inventory_image = "creatures_meat.png",
-	on_use = core.item_eat(4),
+	on_use = minetest.item_eat(4),
 })
 
-core.register_craft({
+minetest.register_craft({
 	type = "cooking",
 	output = "creatures:meat",
 	recipe = "creatures:flesh",
