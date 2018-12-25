@@ -43,6 +43,10 @@ minetest.register_chatcommand("team", {
 		local j_name, j_tname = string.match(param, "^join ([%a%d_-]+) ([%a%d_]+)")
 		local l_name = string.match(param, "^removeplr ([%a%d_-]+)")
 		if create then
+			local privs = minetest.get_player_privs(name)
+			if not (privs and privs.ctf_admin) then
+				return false, "You are not a ctf_admin!"
+			end
 			if ctf and ctf.players and ctf.players[name] and not ctf.players[name].team and not ctf.team(create) then
 				if (
 					string.match(create, "([%a%b_]-)")
