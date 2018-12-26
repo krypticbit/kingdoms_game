@@ -66,6 +66,8 @@ minetest.register_entity("grapple:hook", {
 	end,
 })
 
+minetest.register_alias("shooter:grapple_hook", "grapple:grapple_hook")
+
 minetest.register_tool("grapple:grapple_hook", {
 	description = "Grappling Hook",
 	inventory_image = "grapple_hook.png",
