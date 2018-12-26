@@ -396,6 +396,9 @@ end
 armor.get_player_skin = function(self, name)
 	-- Modified by BillyS to work with my skins mod
 	local skinNum = skins.players[name]
+	if skinNum == nil then
+		return armor.default_skin..".png"
+	end
 	local tex = skins.skins[skinNum].texture
 	return tex
 end

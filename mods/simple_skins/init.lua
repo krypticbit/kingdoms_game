@@ -32,7 +32,6 @@ skins.set_player_skin = function(player)
    local skinNum = skins.players[n]
    if skinNum == nil then return end
    local skinTex = skins.skins[skinNum].texture
-   minetest.chat_send_all(skinTex)
    -- Use functions from 3d_armor to prevent conflicts
    armor.textures[n].skin = skinTex
    armor:update_player_visuals(player)
