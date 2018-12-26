@@ -33,8 +33,6 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
          end
          -- Create a teleport stone at the current position
          minetest.item_place(itemstack, placer, pointed_thing)
-         alchemy.teleport_stones[name][shortname] = pointed_thing.above
-         alchemy.save()
       end,
       after_place_node = function(pos, placer)
          -- Set up node metadata
@@ -42,6 +40,9 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
          local name = placer:get_player_name()
          meta:set_string("placer", name)
          meta:set_string("infotext", name .. "'s teleport stone (Type " .. stonetype .. ")")
+         -- Save into teleport stone table
+         alchemy.teleport_stones[name][shortname] = pos
+         alchemy.save()
       end,
       after_dig_node = function(pos, oldnode, oldmetadata, digger)
          local placerName = oldmetadata["fields"]["placer"]
