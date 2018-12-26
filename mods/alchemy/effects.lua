@@ -72,14 +72,18 @@ alchemy.register_timed_effect = register_timed_effect
 
 -- Energized base (some things shouldnt be drunk)
 register_effect("energized_base", function(p, pos)
-   -- Work-around because of how TNT protection checking works
-   local ignore_protection = not minetest.is_protected(pos, p:get_player_name())
-   tnt.boom(p:get_pos(), {
-      radius = 6,
-      damage_radius = 7,
-      ignore_protection = ignore_protection,
-   })
-   p:set_hp(0)
+   local function explode(p, pos)
+      -- Work-around because of how TNT protection checking works
+      local ignore_protection = not minetest.is_protected(pos, p:get_player_name())
+      tnt.boom(p:get_pos(), {
+         radius = 6,
+         damage_radius = 7,
+         ignore_protection = ignore_protection,
+      })
+      p:set_hp(0)
+   end
+   -- Slight delay so that the beaker is correctly dropped
+   minetest.after(0.1, explode, p, pos)
 end)
 
 -- Drinking slime is just dumb
