@@ -1,0 +1,5 @@
+Source Code licensed under LGPL v2.1
+Written by Stuart Jones, slightly edited by BillyS
+
+PilzAdam [throwing] for the throwing physics
+License Textures: Stuart Jones - WTFPL
