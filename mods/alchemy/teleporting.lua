@@ -33,6 +33,7 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
          end
          -- Create a teleport stone at the current position
          minetest.item_place(itemstack, placer, pointed_thing)
+         return itemstack
       end,
       after_place_node = function(pos, placer)
          -- Set up node metadata
