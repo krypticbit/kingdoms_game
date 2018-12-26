@@ -39,8 +39,7 @@ function ctf.create_team(name, data)
 		spawn = nil,
 		players = {},
 		applications = {},
-		access = {},
-		power = 0
+		access = {}
 	}
 
 	for i = 1, #ctf.registered_on_new_team do
@@ -166,18 +165,18 @@ function ctf.application_join(name, tname)
 		ctf.log("teams", "Missing parameters to ctf.request_join")
 	end
 	local player = ctf.player(name)
-	
+
 	if player.team and player.team == tname then
 		minetest.chat_send_player(name, "You are already a member of team " .. tname)
 		return false
 	end
-	
+
 	if not ctf.setting("players_can_change_team") and player.team and ctf.team(player.team) then
 		ctf.action("teams", name .. " requested to change to " .. tname)
 		minetest.chat_send_player(name, "You are not allowed to switch teams, traitor!")
 		return false
 	end
-	
+
 	local team_data = ctf.team(tname)
 	if not team_data then
 		minetest.chat_send_player(name, "No such team.")
@@ -185,7 +184,7 @@ function ctf.application_join(name, tname)
 		minetest.log("action", name .. " requested to join to " .. tname .. ", which doesn't exist")
 		return false
 	end
-	
+
 	table.insert(team_data.applications,name)
 	--ctf.post(tname, {msg = name .. " has applied to join!" })
 	ctf.needs_save = true
@@ -485,7 +484,7 @@ function ctf.access_remove_team_all(name)
 	end
 	ctf.needs_save = true
 end
- 
+
 -- Player joins team
 -- Called by /join, /team join, auto allocate or by response of the team manager.
 function ctf.join(name, team, force, by)
@@ -540,9 +539,7 @@ function ctf.join(name, team, force, by)
 
 	player.team = team
 	team_data.players[player.name] = player
-	
-	ctf.team(team).power = ctf.team(team).power + 1
-	
+
 	ctf.needs_save = true
 
 	minetest.log("action", name .. " joined team " .. team)

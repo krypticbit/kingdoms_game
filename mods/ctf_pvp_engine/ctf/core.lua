@@ -212,15 +212,6 @@ function ctf.load()
 			for i = 1, #ctf.registered_on_load do
 				ctf.registered_on_load[i](table)
 			end
-			-- Convert old data
-			for teamname,unused in pairs(ctf.teams) do
-				if not ctf.teams[teamname].power then
-					ctf.teams[teamname].power = 0
-					for player,unused in pairs(ctf.teams[teamname].players) do
-						ctf.teams[teamname].power = ctf.teams[teamname].power + 1
-					end
-				end
-			end
 			return
 		end
 		ctf._loaddata = table

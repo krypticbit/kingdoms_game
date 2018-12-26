@@ -1,6 +1,12 @@
 local r = ctf.setting("flag.nobuild_radius")
 local c_air = minetest.get_content_id("air")
 
+local function elementsInTable(t)
+   local n = 0
+   for _ in pairs(t) do n = n + 1 end
+   return n
+end
+
 local function can_place_flag(pos)
 	local lpos = pos
 	local pos1 = {x=lpos.x-r+1,y=lpos.y,z=lpos.z-r+1}
@@ -210,7 +216,7 @@ ctf_flag = {
 					minetest.chat_send_player(name, "You are at peace with this team!")
 					return
 				end
-				
+
 				local g_pos = players_glitching[name]
 				if g_pos then
 					minetest.get_player_by_name(name):set_pos(g_pos)
@@ -288,13 +294,14 @@ ctf_flag = {
 				return itemstack
 			end
 
-			if ctf.team(tplayer.team).power and ctf.team(tplayer.team).power < 1 then
-				minetest.chat_send_player(name, "You need more members to be-able to place more flags.")
+         local tname = tplayer.team
+			local team = ctf.team(tplayer.team)
+
+			if elementsInTable(team.players) <= elementsInTable(team.flags) then
+				minetest.chat_send_player(name, "You need more members to be able to place more flags.")
 				return itemstack
 			end
 
-			local tname = tplayer.team
-			local team = ctf.team(tplayer.team)
 			meta:set_string("infotext", tname .. "'s flag")
 
 			-- add flag
@@ -332,10 +339,6 @@ ctf_flag = {
 
 			local meta2 = minetest.get_meta(pos2)
 			meta2:set_string("infotext", tname.."'s flag")
-
-			if ctf.team(tplayer.team).power then
-				ctf.team(tplayer.team).power = ctf.team(tplayer.team).power - 1
-			end
 
 			itemstack:take_item()
 			return itemstack

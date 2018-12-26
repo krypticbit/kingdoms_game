@@ -215,7 +215,7 @@ minetest.register_chatcommand("access", {
 		elseif param ~= "" and param ~= nil then
 			minetest.chat_send_player(name, "'"..param.."' is an invalid parameter to /access")
 			access_console_help(name)
-		else 
+		else
 			access_console_help(name)
 			return true, "Showing access help"
 		end
@@ -365,7 +365,6 @@ minetest.register_chatcommand("teamkick", {
 			if ctf.remove_player(param) then
 				ctf.player(param).auth = false
 				ctf.player(param).recuiter = false
-				ctf.team(team).power = ctf.team(team).power - 1
 				return true, "Kicked " .. param .. " from " .. team .. "!"
 			else
 				return false, "Failed to kick " .. param.. "!"
@@ -386,7 +385,6 @@ minetest.register_chatcommand("teamleave", {
 		if ctf.remove_player(name) then
 			ctf.player(name).auth = false
 			ctf.player(name).recuiter = false
-			ctf.team(team).power = ctf.team(team).power - 1
 			-- Disband if there are zero players lefted on team
 			local disband = true
 			local teamdata = ctf.team(team)

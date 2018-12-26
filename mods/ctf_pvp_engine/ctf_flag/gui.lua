@@ -158,10 +158,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 
 		ctf_flag.delete(team,pos)
-		
-		if ctf.team(team).power then
-			ctf.team(team).power = ctf.team(team).power + 1
-		end
 
 		minetest.set_node(pos,{name="air"})
 		pos.y=pos.y+1
