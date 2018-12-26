@@ -281,24 +281,7 @@ armor.set_player_armor = function(self, player)
 	else
 		player:set_armor_groups(groups)
 	end
-	if use_player_monoids then
-		player_monoids.speed:add_change(player, physics.speed,
-			"3d_armor:physics")
-		player_monoids.jump:add_change(player, physics.jump,
-			"3d_armor:physics")
-		player_monoids.gravity:add_change(player, physics.gravity,
-			"3d_armor:physics")
-	elseif use_pova_mod then
-		-- only add the changes, not the default 1.0 for each physics setting
-		pova.add_override(name, "3d_armor", {
-			speed = physics.speed - 1,
-			jump = physics.jump - 1,
-			gravity = physics.gravity - 1,
-		})
-		pova.do_override(player)
-	else
-		player:set_physics_override(physics)
-	end
+	set_player_physics(player, physics, 5, "3d_armor:armor")
 	self.textures[name].armor = texture
 	self.textures[name].preview = preview
 	self.def[name].level = self.def[name].groups.fleshy or 0
