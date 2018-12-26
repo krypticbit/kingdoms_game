@@ -42,7 +42,7 @@ for color, _ in pairs(ctf.flag_colors) do
 		description = "You are not meant to have this! - flag top",
 		drawtype="nodebox",
 		paramtype = "light",
-		walkable = false,
+		walkable = true,
 		tiles = {
 			"default_wood.png",
 			"default_wood.png",
@@ -68,7 +68,7 @@ minetest.register_node("ctf_flag:flag_captured_top",{
 	description = "You are not meant to have this! - flag captured",
 	drawtype = "nodebox",
 	paramtype = "light",
-	walkable = false,
+	walkable = true,
 	tiles = {
 		"default_wood.png",
 		"default_wood.png",
