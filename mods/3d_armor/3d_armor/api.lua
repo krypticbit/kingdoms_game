@@ -74,7 +74,7 @@ armor = {
 		on_destroy = {},
 	},
 	migrate_old_inventory = true,
-	version = "0.4.11",
+	version = "0.4.12",
 }
 
 armor.config = {
@@ -276,7 +276,29 @@ armor.set_player_armor = function(self, player)
 	for _, phys in pairs(self.physics) do
 		self.def[name][phys] = physics[phys]
 	end
-	set_player_physics(player, physics, 5, "armor")
+	if use_armor_monoid then
+		armor_monoid.monoid:add_change(player, change, "3d_armor:armor")
+	else
+		player:set_armor_groups(groups)
+	end
+	if use_player_monoids then
+		player_monoids.speed:add_change(player, physics.speed,
+			"3d_armor:physics")
+		player_monoids.jump:add_change(player, physics.jump,
+			"3d_armor:physics")
+		player_monoids.gravity:add_change(player, physics.gravity,
+			"3d_armor:physics")
+	elseif use_pova_mod then
+		-- only add the changes, not the default 1.0 for each physics setting
+		pova.add_override(name, "3d_armor", {
+			speed = physics.speed - 1,
+			jump = physics.jump - 1,
+			gravity = physics.gravity - 1,
+		})
+		pova.do_override(player)
+	else
+		player:set_physics_override(physics)
+	end
 	self.textures[name].armor = texture
 	self.textures[name].preview = preview
 	self.def[name].level = self.def[name].groups.fleshy or 0
@@ -365,20 +387,17 @@ armor.damage = function(self, player, index, stack, use)
 	self:run_callbacks("on_damage", player, index, stack)
 	self:set_inventory_stack(player, index, stack)
 	if stack:get_count() == 0 then
+		self:run_callbacks("on_unequip", player, index, old_stack)
 		self:run_callbacks("on_destroy", player, index, old_stack)
 		self:set_player_armor(player)
 	end
 end
 
 armor.get_player_skin = function(self, name)
-	if (self.skin_mod == "skins" or self.skin_mod == "simple_skins") and skins.skins[name] then
-		return skins.skins[name]..".png"
-	elseif self.skin_mod == "u_skins" and u_skins.u_skins[name] then
-		return u_skins.u_skins[name]..".png"
-	elseif self.skin_mod == "wardrobe" and wardrobe.playerSkins and wardrobe.playerSkins[name] then
-		return wardrobe.playerSkins[name]
-	end
-	return armor.default_skin..".png"
+	-- Modified by BillyS to work with my skins mod
+	local skinNum = skins.players[name]
+	local tex = skins.skins[skinNum].texture
+	return tex
 end
 
 armor.add_preview = function(self, preview)
@@ -441,64 +460,23 @@ armor.deserialize_inventory_list = function(self, list_string)
 end
 
 armor.load_armor_inventory = function(self, player)
-	local name, inv = self:get_valid_player(player, "[load_armor_inventory]")
-	if not name then
-		return
-	end
-	local armor_list_string = player:get_attribute("3d_armor_inventory")
-	if armor_list_string then
-		inv:set_list("armor",
-			self:deserialize_inventory_list(armor_list_string))
-		return true
+	local _, inv = self:get_valid_player(player, "[load_armor_inventory]")
+	if inv then
+		local armor_list_string = player:get_attribute("3d_armor_inventory")
+		if armor_list_string then
+			inv:set_list("armor",
+				self:deserialize_inventory_list(armor_list_string))
+			return true
+		end
 	end
 end
 
 armor.save_armor_inventory = function(self, player)
-	local name, inv = self:get_valid_player(player, "[save_armor_inventory]")
-	if not name then
-		return
+	local _, inv = self:get_valid_player(player, "[save_armor_inventory]")
+	if inv then
+		player:set_attribute("3d_armor_inventory",
+			self:serialize_inventory_list(inv:get_list("armor")))
 	end
-	-- Workaround for detached inventory swap exploit
-	local armor_prev = {}
-	local armor_list_string = player:get_attribute("3d_armor_inventory")
-	if armor_list_string then
-		local armor_list = self:deserialize_inventory_list(armor_list_string)
-		for i, stack in ipairs(armor_list) do
-			if stack:get_count() > 0 then
-				armor_prev[stack:get_name()] = i
-			end
-		end
-	end
-	local elements = {}
-	local player_inv = player:get_inventory()
-	for i = 1, 6 do
-		local stack = inv:get_stack("armor", i)
-		if stack:get_count() > 0 then
-			local item = stack:get_name()
-			local element = self:get_element(item)
-			if element and not elements[element] then
-				if armor_prev[item] then
-					armor_prev[item] = nil
-				else
-					-- Item was not in previous inventory
-					armor:run_callbacks("on_equip", player, i, stack)
-				end
-				elements[element] = true;
-			else
-				inv:remove_item("armor", stack)
-				if player_inv and player_inv:room_for_item("main", stack) then
-					player_inv:add_item("main", stack)
-				end
-			end
-		end
-	end
-	for item, i in pairs(armor_prev) do
-		local stack = ItemStack(item)
-		-- Previous item is not in current inventory
-		armor:run_callbacks("on_unequip", player, i, stack)
-	end
-	player:set_attribute("3d_armor_inventory",
-		self:serialize_inventory_list(inv:get_list("armor")))
 end
 
 armor.update_inventory = function(self, player)
@@ -506,7 +484,7 @@ armor.update_inventory = function(self, player)
 end
 
 armor.set_inventory_stack = function(self, player, i, stack)
-	local name, inv = self:get_valid_player(player, "[set_inventory_stack]")
+	local _, inv = self:get_valid_player(player, "[set_inventory_stack]")
 	if inv then
 		inv:set_stack("armor", i, stack)
 		self:save_armor_inventory(player)

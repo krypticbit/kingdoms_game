@@ -1,19 +1,17 @@
--- support for i18n
-armor_i18n = { }
-local MP = minetest.get_modpath(minetest.get_current_modname())
-armor_i18n.gettext, armor_i18n.ngettext = dofile(MP.."/intllib.lua")
--- escaping formspec
-armor_i18n.fgettext = function(...) return minetest.formspec_escape(armor_i18n.gettext(...)) end
--- local functions
-local S = armor_i18n.gettext
-local F = armor_i18n.fgettext
-
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 local worldpath = minetest.get_worldpath()
 local last_punch_time = {}
 local pending_players = {}
 local timer = 0
+
+-- support for i18n
+armor_i18n = { }
+armor_i18n.gettext, armor_i18n.ngettext = dofile(modpath.."/intllib.lua")
+
+-- local functions
+local S = armor_i18n.gettext
+local F = minetest.formspec_escape
 
 dofile(modpath.."/api.lua")
 
@@ -68,7 +66,7 @@ end
 
 if minetest.get_modpath("technic") then
 	armor.formspec = armor.formspec..
-		"label[5,2.5;"..F("Radiation")..":  armor_group_radiation]"
+		"label[5,2.5;"..F(S("Radiation"))..":  armor_group_radiation]"
 	armor:register_armor_group("radiation")
 end
 local skin_mods = {"skins", "u_skins", "simple_skins", "wardrobe"}
@@ -96,10 +94,10 @@ dofile(modpath.."/armor.lua")
 -- Armor Initialization
 
 armor.formspec = armor.formspec..
-	"label[5,1;"..F("Level")..": armor_level]"..
-	"label[5,1.5;"..F("Heal")..":  armor_attr_heal]"
+	"label[5,1;"..F(S("Level"))..": armor_level]"..
+	"label[5,1.5;"..F(S("Heal"))..":  armor_attr_heal]"
 if armor.config.fire_protect then
-	armor.formspec = armor.formspec.."label[5,2;"..F("Fire")..":  armor_fire]"
+	armor.formspec = armor.formspec.."label[5,2;"..F(S("Fire"))..":  armor_attr_fire]"
 end
 armor:register_on_destroy(function(player, index, stack)
 	local name = player:get_player_name()
@@ -109,6 +107,57 @@ armor:register_on_destroy(function(player, index, stack)
 	end
 end)
 
+local function validate_armor_inventory(player)
+	-- Workaround for detached inventory swap exploit
+	local _, inv = armor:get_valid_player(player, "[validate_armor_inventory]")
+	if not inv then
+		return
+	end
+	local armor_prev = {}
+	local armor_list_string = player:get_attribute("3d_armor_inventory")
+	if armor_list_string then
+		local armor_list = armor:deserialize_inventory_list(armor_list_string)
+		for i, stack in ipairs(armor_list) do
+			if stack:get_count() > 0 then
+				armor_prev[stack:get_name()] = i
+			end
+		end
+	end
+	local elements = {}
+	local player_inv = player:get_inventory()
+	for i = 1, 6 do
+		local stack = inv:get_stack("armor", i)
+		if stack:get_count() > 0 then
+			local item = stack:get_name()
+			local element = armor:get_element(item)
+			if element and not elements[element] then
+				if armor_prev[item] then
+					armor_prev[item] = nil
+				else
+					-- Item was not in previous inventory
+					armor:run_callbacks("on_equip", player, i, stack)
+				end
+				elements[element] = true;
+			else
+				inv:remove_item("armor", stack)
+				-- The following code returns invalid items to the player's main
+				-- inventory but could open up the possibity for a hacked client
+				-- to receive items back they never really had. I am not certain
+				-- so remove the is_singleplayer check at your own risk :]
+				if minetest.is_singleplayer() and player_inv and
+						player_inv:room_for_item("main", stack) then
+					player_inv:add_item("main", stack)
+				end
+			end
+		end
+	end
+	for item, i in pairs(armor_prev) do
+		local stack = ItemStack(item)
+		-- Previous item is not in current inventory
+		armor:run_callbacks("on_unequip", player, i, stack)
+	end
+end
+
 local function init_player_armor(player)
 	local name = player:get_player_name()
 	local pos = player:getpos()
@@ -117,14 +166,17 @@ local function init_player_armor(player)
 	end
 	local armor_inv = minetest.create_detached_inventory(name.."_armor", {
 		on_put = function(inv, listname, index, stack, player)
+			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 		end,
 		on_take = function(inv, listname, index, stack, player)
+			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 		end,
 		on_move = function(inv, from_list, from_index, to_list, to_index, count, player)
+			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 		end,
@@ -190,16 +242,6 @@ local function init_player_armor(player)
 		wielditem = "3d_armor_trans.png",
 		preview = armor.default_skin.."_preview.png",
 	}
-	local texture_path = minetest.get_modpath("player_textures")
-	if texture_path then
-		local dir_list = minetest.get_dir_list(texture_path.."/textures")
-		for _, fn in pairs(dir_list) do
-			if fn == "player_"..name..".png" then
-				armor.textures[name].skin = fn
-				break
-			end
-		end
-	end
 	armor:set_player_armor(player)
 	return true
 end
@@ -268,6 +310,7 @@ if armor.config.drop == true or armor.config.destroy == true then
 			local stack = armor_inv:get_stack("armor", i)
 			if stack:get_count() > 0 then
 				table.insert(drop, stack)
+				armor:run_callbacks("on_unequip", player, i, stack)
 				armor_inv:set_stack("armor", i, nil)
 			end
 		end

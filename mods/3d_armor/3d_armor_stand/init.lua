@@ -107,7 +107,7 @@ local function has_locked_armor_stand_privilege(meta, player)
 		end
 		name = player:get_player_name()
 	end
-	if name ~= meta:get_string("owner") and meta:get_string("owner") ~= "" then
+	if name ~= meta:get_string("owner") then
 		return false
 	end
 	return true
