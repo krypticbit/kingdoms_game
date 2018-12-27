@@ -441,6 +441,7 @@ minetest.register_chatcommand("tc", {
 				if team.players[realplayer:get_player_name()] then
 					minetest.chat_send_player(realplayer:get_player_name(),
 							minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+					minetest.log("[" .. tname .. "Team Chat] <" .. name .. "> " .. param)
 				end
 			end
 		end
@@ -471,6 +472,7 @@ minetest.register_chatcommand("ac", {
 					if team.players[realplayer:get_player_name()] or diplo == "alliance" then
 						minetest.chat_send_player(realplayer:get_player_name(),
 								minetest.colorize("#" .. colorHex:sub(3, 8), "<" .. name .. "> ** " .. param .. " **"))
+						minetest.log("[" .. tname .. "Ally Chat] <" .. name .. "> " .. param)
 					end
 				end
 			end
