@@ -1,6 +1,6 @@
 local maxpowerPerFlag = 2
 local powerIncreasePerActivePlayer = 0.1
-local powerDecreaseWhenInactivePerFlag = 0.001
+local powerDecreaseWhenInactivePerFlag = 0.01
 
 local function elementsInTable(t)
    local n = 0
