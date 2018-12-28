@@ -132,9 +132,9 @@ end)
 ctf.gui.register_tab("applications","Applications", function(name, tname)
 	local result = ""
 	local data = {}
-	
+
 	result = result .. "label[0.5,1;Applicants to join " .. tname .. "]"
-	
+
 	for key, value in pairs(ctf.teams) do
 		if key == tname then
 			local height = 1.5
@@ -150,14 +150,14 @@ ctf.gui.register_tab("applications","Applications", function(name, tname)
 			end
 		end
 	end
-	
+
 	minetest.show_formspec(name, "ctf:applications",
 		"size[10,7]" ..
 		ctf.gui.get_tabs(name, tname) ..
 		result
 	)
 end)
- 
+
 local scroll_diplomacy = 0
 local scroll_max = 0
 -- Team interface
@@ -179,24 +179,24 @@ ctf.gui.register_tab("diplo", "Diplomacy", function(name, tname)
 	end
 
 	result = result .. "label[1,1;Diplomacy from the perspective of " .. tname .. "]"
-	
+
 	scroll_max = 0
 	for i = 1, #data do
 		scroll_max = i
 		end
 	scroll_max = scroll_max - 4
-	
+
 	if scroll_diplomacy > (scroll_max+4) then
 		scroll_diplomacy = (scroll_max+4)
 		end
-		
+
 	if scroll_diplomacy > 0 then
 		result = result .. "button[9.2,0.44;1,3;scroll_up;Up]"
 	end
 	if scroll_diplomacy < scroll_max then
 		result = result .. "button[9.2,3.8;1,3;scroll_down;Down]"
 	end
-		
+
 	for i = 1, #data do
 		amount = i
 		local height = (i*1)+0.5
@@ -267,7 +267,7 @@ function remove_application_log_entry(tname, pname)
 		end
 	end
 end
- 
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if not formspec_is_ctf_tab(formname) then
 		return false
@@ -354,11 +354,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local acceptor_name = player:get_player_name()
 	local team_name = ctf.player(acceptor_name).team
 	local team = ctf.team(team_name)
-	
+
 	if not team or formname ~= "ctf:applications" then
 		return false
 	end
-	
+
 	for key, field in pairs(fields) do
 		if ctf.player(acceptor_name).auth or ctf.player(acceptor_name).recruit then
 			local applicant_name = string.match(key, "player_(.+)")
@@ -386,7 +386,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		cur_team = nil
 		return false
 	end
-	
+
 	if cur_team == nil then
 		cur_team = tname
 		end
@@ -428,7 +428,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					ctf.diplo.set(tname, tname2, "peace")
 					ctf.post(tname, {
 						msg = "You have cancelled the alliance treaty with " .. tname2 })
-						irc:say(tname .. " has cancelled the alliance treaty with " .. tname2 .. "!")
+                  if irc then
+                     irc:say(tname .. " has cancelled the alliance treaty with " .. tname2 .. "!")
+                  end
 						minetest.chat_send_all(tname .. " has cancelled the alliance treaty with " .. tname2 .. "!")
 					ctf.post(tname2, {
 						msg = tname .. " has cancelled the alliance treaty" })
@@ -443,7 +445,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				ctf.diplo.set(tname, tname2, "war")
 				ctf.post(tname, {
 					msg = "You have declared war on " .. tname2 })
-					irc:say(tname .. " has declared war on " .. tname2 .. "!")
+               if irc then
+                  irc:say(tname .. " has declared war on " .. tname2 .. "!")
+               end
 					minetest.chat_send_all(tname .. " has declared war on " .. tname2 .. "!")
 				ctf.post(tname2, {
 					msg = tname .. " has declared war on you" })

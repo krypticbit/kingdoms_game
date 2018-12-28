@@ -7,6 +7,10 @@ local function elementsInTable(t)
    return n
 end
 
+local function recalc_team_maxpower(team)
+   team.power.max_power = ctf.get_team_maxpower(team)
+end
+
 local function can_place_flag(pos)
 	local lpos = pos
 	local pos1 = {x=lpos.x-r+1,y=lpos.y,z=lpos.z-r+1}
@@ -106,9 +110,20 @@ local function do_capture(attname, flag, returned)
 			end
 		end
 
+      -- Check if this team has any power / online memebers
+      local tData = ctf.team(team)
+      if ctf.team_has_online_players(team) == false then
+         if tData.power.power > 0 then
+            minetest.chat_send_player(attname, "You cannot capture this flag right now.")
+            return
+         end
+      end
+
 		minetest.chat_send_all(flag_name.." has been captured "..
 				" by "..attname.." (team "..attacker.team..")")
-		irc:say(flag_name.." has been captured by "..attname.." (team "..attacker.team..")")
+      if irc then
+         irc:say(flag_name.." has been captured by "..attname.." (team "..attacker.team..")")
+      end
 
 		ctf.action("flag", attname .. " captured " .. flag_name)
 
@@ -131,11 +146,15 @@ local function do_capture(attname, flag, returned)
 			ctf_flag.delete(team,pos)
 		end
 
+      -- Recalculate team maxpowers
+      local aTeam = ctf.team(attacker.team)
+      recalc_team_maxpower(tData)
+      recalc_team_maxpower(aTeam)
+
 		for i = 1, #ctf_flag.registered_on_capture do
 			ctf_flag.registered_on_capture[i](attname, flag)
 		end
 	end
-
 	ctf.needs_save = true
 end
 
@@ -333,6 +352,9 @@ ctf_flag = {
 				team.data.color = "red"
 				ctf.needs_save = true
 			end
+
+         -- Recalc team max power
+         recalc_team_maxpower(team)
 
 			minetest.set_node(pos, {name = "ctf_flag:flag"})
 			minetest.set_node(pos2, {name = "ctf_flag:flag_top_" .. team.data.color})

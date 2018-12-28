@@ -84,7 +84,8 @@ minetest.register_chatcommand("team", {
 		elseif ctf.team(param) then
 			minetest.chat_send_player(name, "Team "..param..":")
 			local count = 0
-			for _, value in pairs(ctf.team(param).players) do
+         local t = ctf.team(param)
+			for _, value in pairs(t.players) do
 				count = count + 1
 				if value.auth then
 					minetest.chat_send_player(name, count .. ">> " .. value.name
@@ -96,6 +97,7 @@ minetest.register_chatcommand("team", {
 					minetest.chat_send_player(name, count .. ">> " .. value.name)
 				end
 			end
+         minetest.chat_send_player(name, "Team power: " .. t.power.power .. "/" .. t.power.max_power)
 		elseif ctf.player_or_nil(param) or test then
 			if not test then
 				test = param

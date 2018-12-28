@@ -164,6 +164,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		minetest.set_node(pos,{name="air"})
                 player:get_inventory():add_item('main', 'ctf_flag:flag')
 
+      -- Recalc max power
+      local t = ctf.team(team)
+      t.power.max_power = ctf.get_team_maxpower(t)
+
 		ctf.needs_save = true
 		return true
 	end

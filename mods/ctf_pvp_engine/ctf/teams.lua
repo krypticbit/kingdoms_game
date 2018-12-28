@@ -39,7 +39,11 @@ function ctf.create_team(name, data)
 		spawn = nil,
 		players = {},
 		applications = {},
-		access = {}
+		access = {},
+      power = {
+         max_power = 0,
+         power = 0
+      }
 	}
 
 	for i = 1, #ctf.registered_on_new_team do

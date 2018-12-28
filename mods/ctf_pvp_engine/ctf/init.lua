@@ -27,7 +27,16 @@ dofile(minetest.get_modpath("ctf") .. "/teams.lua")
 dofile(minetest.get_modpath("ctf") .. "/diplomacy.lua")
 dofile(minetest.get_modpath("ctf") .. "/gui.lua")
 dofile(minetest.get_modpath("ctf") .. "/hud.lua")
+dofile(minetest.get_modpath("ctf") .. "/power.lua")
 
 -- Init
 ctf.init()
 ctf.clean_player_lists()
+
+-- Start power ticker
+local power_tick = 300 -- 5 mins
+local function power_tick_func()
+   ctf.on_power_tick()
+   minetest.after(power_tick, power_tick_func)
+end
+minetest.after(power_tick, power_tick_func)

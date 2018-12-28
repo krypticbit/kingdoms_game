@@ -147,7 +147,6 @@ function ctf.init()
 	ctf._set("autoalloc_on_joinplayer",    true)
 	ctf._set("friendly_fire",              true)
 
-
 	for i = 1, #ctf.registered_on_init do
 		ctf.registered_on_init[i]()
 	end
@@ -208,6 +207,16 @@ function ctf.load()
 		if type(table) == "table" then
 			ctf.teams = table.teams
 			ctf.players = table.players
+
+         -- Convert old power format (from Bob12) to new
+         for tName, tData in pairs(ctf.teams) do
+            if type(tData.power) ~= "table" then
+               ctf.teams[tName].power = {
+                  max_power = ctf.get_team_maxpower(tData),
+                  power = 0
+               }
+            end
+         end
 
 			for i = 1, #ctf.registered_on_load do
 				ctf.registered_on_load[i](table)
