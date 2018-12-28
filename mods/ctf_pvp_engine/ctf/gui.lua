@@ -206,38 +206,40 @@ ctf.gui.register_tab("diplo", "Diplomacy", function(name, tname)
 		end
 
 		local L = i + scroll_diplomacy
-		if data[L].state and data[L].team then
-		result = result .. "background[1," .. height .. ";8.2,1;diplo_" ..
-				data[L].state .. ".png]"
-		result = result .. "button[1.25," .. height .. ";2,1;team_" ..
-				data[L].team .. ";" .. data[L].team .. "]"
-		result = result .. "label[3.75," .. height .. ";" .. data[L].state
-				.. "]"
-		end
-		if ctf.can_mod(name, tname) and ctf.player(name).team == tname then
-			if not data[L].from and not data[L].to then
-				if data[L].state == "war" then
-					result = result .. "button[7.5," .. height ..
-							";1.5,1;peace_" .. data[L].team .. ";Peace]"
-				elseif data[L].state == "peace" then
-					result = result .. "button[6," .. height ..
-							";1.5,1;war_" .. data[L].team .. ";War]"
-					result = result .. "button[7.5," .. height ..
-							";1.5,1;alli_" .. data[L].team .. ";Alliance]"
-				elseif data[L].state == "alliance" then
-					result = result .. "button[6," .. height ..
-							";1.5,1;peace_" .. data[L].team .. ";Peace]"
-				end
-			elseif data[L].from ~= nil then
-				result = result .. "label[6," .. height ..
-						";request recieved]"
-			elseif data[L].to ~= nil then
-				result = result .. "label[5.5," .. height ..
-						";request sent]"
-				result = result .. "button[7.5," .. height ..
-						";1.5,1;cancel_" .. data[L].team .. ";Cancel]"
-			end
-		end
+      if data[L] ~= nil then
+         if data[L].state and data[L].team then
+            result = result .. "background[1," .. height .. ";8.2,1;diplo_" ..
+               data[L].state .. ".png]"
+            result = result .. "button[1.25," .. height .. ";2,1;team_" ..
+               data[L].team .. ";" .. data[L].team .. "]"
+            result = result .. "label[3.75," .. height .. ";" .. data[L].state
+               .. "]"
+         end
+   		if ctf.can_mod(name, tname) and ctf.player(name).team == tname then
+   			if not data[L].from and not data[L].to then
+   				if data[L].state == "war" then
+   					result = result .. "button[7.5," .. height ..
+   							";1.5,1;peace_" .. data[L].team .. ";Peace]"
+   				elseif data[L].state == "peace" then
+   					result = result .. "button[6," .. height ..
+   							";1.5,1;war_" .. data[L].team .. ";War]"
+   					result = result .. "button[7.5," .. height ..
+   							";1.5,1;alli_" .. data[L].team .. ";Alliance]"
+   				elseif data[L].state == "alliance" then
+   					result = result .. "button[6," .. height ..
+   							";1.5,1;peace_" .. data[L].team .. ";Peace]"
+   				end
+   			elseif data[L].from ~= nil then
+   				result = result .. "label[6," .. height ..
+   						";request recieved]"
+   			elseif data[L].to ~= nil then
+   				result = result .. "label[5.5," .. height ..
+   						";request sent]"
+   				result = result .. "button[7.5," .. height ..
+   						";1.5,1;cancel_" .. data[L].team .. ";Cancel]"
+   			end
+   		end
+      end
 	end
 
 	minetest.show_formspec(name, "ctf:diplo",
