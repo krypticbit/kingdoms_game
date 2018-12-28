@@ -243,31 +243,6 @@ minetest.register_abm({
 	end,
 })
 
-minetest.register_abm({
-	nodenames = {"fire:basic_flame", "fire:permanent_flame"},
-	interval = 2,
-	chance = 20,
-	catch_up = false,
-	action = function(p0, node, _, _)
-		minetest.remove_node(p0)
-		--minetest.sound_play("fire_extinguish_flame",
-			--{pos = p0, max_hear_distance = 16, gain = 0.25})
-	end,
-})
-
-minetest.register_abm({
-	nodenames = {"fire:basic_flame", "fire:permanent_flame"},
-	interval = 480,
-	chance = 1,
-	catch_up = false,
-	action = function(p0, node, _, _)
-		minetest.remove_node(p0)
-		--minetest.sound_play("fire_extinguish_flame",
-			--{pos = p0, max_hear_distance = 16, gain = 0.25})
-	end,
-})
-
-
 -- Enable the following ABMs according to 'disable fire' setting
 
 if minetest.settings:get_bool("disable_fire") then
