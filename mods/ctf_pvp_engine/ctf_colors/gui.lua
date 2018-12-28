@@ -1,23 +1,28 @@
 
 ctf.gui.register_tab("settings", "Settings", function(name, team)
-	local color = ""
-	if ctf.team(team).data.color then
-		color = ctf.team(team).data.color
+	local tcolor = ctf.team(team).data.color
+	local index = 1
+	local colors = {}
+
+	-- Convert list into numerically-indexed array
+	-- for obtaining it's size and index of matching color
+	for color, _ in pairs(ctf.flag_colors) do
+		table.insert(colors, color)
+		if color == tcolor then
+			index = #colors
+		end
 	end
 
-	local result = "field[3,2;4,1;color;Team Color;" .. color .. "]" ..
-		"button[4,6;2,1;save;Save]"
-
-
+	local fs
 	if not ctf.can_mod(name,team) then
-		result = "label[0.5,1;You do not own this team!"
+		fs = "label[0.5,1;You do not own this team!]"
+	else
+		fs = "label[3,1.5;Team color]"
+			.. "dropdown[3,2;4;color;" .. table.concat(colors, ",")
+			.. ";" .. index .. "]" .. "button[4,6;2,1;save;Save]"
 	end
-
-	minetest.show_formspec(name, "ctf:settings",
-		"size[10,7]" ..
-		ctf.gui.get_tabs(name, team) ..
-		result
-	)
+	fs = "size[10,7]" .. ctf.gui.get_tabs(name, team) .. fs
+	minetest.show_formspec(name, "ctf:settings", fs)
 end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -33,26 +38,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		ctf.gui.show(name, "settings")
 		if team and ctf.can_mod(name, pdata.team) then
-			if ctf.flag_colors[fields.color] then
+			if team.data.color ~= fields.color then
 				team.data.color = fields.color
 				ctf.needs_save = true
-
 				minetest.chat_send_player(name, "Team color set to " .. fields.color)
-			else
-				local colors = ""
-				for color, code in pairs(ctf.flag_colors) do
-					if colors ~= "" then
-						colors = colors .. ", "
-					end
-					colors = colors .. color
-				end
-				minetest.chat_send_player(name, "Color " .. fields.color ..
-						" does not exist! Available: " .. colors)
 			end
 		elseif team then
-			minetest.chat_send_player(name, "You don't have the rights to change settings.")
+			minetest.chat_send_player(name, "You don't have the necessary " ..
+											"privileges to change team settings.")
 		else
-			minetest.chat_send_player(name, "You don't appear to be in a team")
+			minetest.chat_send_player(name, "You are not in a team!")
 		end
 
 		return true
