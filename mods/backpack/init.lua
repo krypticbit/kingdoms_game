@@ -34,7 +34,6 @@ minetest.register_entity("backpack:backpack", {
       inv:set_size("main", 12)
       -- Fill inventory from staticdata
       if sData ~= "" then
-         minetest.chat_send_all("set")
          inv:set_list("main", minetest.deserialize(sData))
       end
    end,
