@@ -3,6 +3,7 @@ local function register_fakeblock(name, node_copy_name)
    -- Register node
    minetest.register_node(name, {
       description = "Fake " .. node.description,
+      drawtype = "liquid",
       tiles = node.tiles,
       groups = node.groups,
       liquid_viscosity = 2,
