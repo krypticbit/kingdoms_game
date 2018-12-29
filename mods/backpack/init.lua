@@ -123,6 +123,16 @@ minetest.register_craftitem("backpack:backpack_empty", {
    end
 })
 
+-- Craft recipe
+minetest.register_craft({
+   output = "backpack:backpack_empty",
+   recipe = {
+      {"", "group:wool", ""},
+      {"group:wool", "", "group:wool"},
+      {"group:wool", "group:wool", "group:wool"},
+   }
+})
+
 -- Drop backpack when inv button is pushed
 minetest.register_on_player_receive_fields(function(player, formname, fields)
    if fields.backpack then
