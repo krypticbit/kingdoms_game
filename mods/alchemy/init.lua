@@ -25,6 +25,7 @@ alchemy.active_effects = {}
 alchemy.effect_hud = {}
 alchemy.hud = {}
 alchemy.teleport_stones = ts
+alchemy.concentrations = {}
 
 alchemy.save = function()
    local ts = minetest.serialize(alchemy.teleport_stones)
@@ -48,5 +49,7 @@ dofile(mp .. "/effects.lua")
 dofile(mp .. "/teleporting.lua")
 -- Load plant processor
 dofile(mp .. "/plant_processor.lua")
+-- Load concentration
+dofile(mp .. "/concentration.lua")
 -- Load crafting recipes
 dofile(mp .. "/crafting.lua")

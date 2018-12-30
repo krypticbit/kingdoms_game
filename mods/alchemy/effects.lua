@@ -1,3 +1,5 @@
+local time_multiplier = 1.3
+
 -- Effect duration system
 local function decrease_effect_timer()
    for p, eList in pairs(alchemy.active_effects) do
@@ -39,20 +41,24 @@ local function register_timed_effect(e, def)
    local on_start = def.on_start
    local on_tick = def.on_tick
    local on_end = def.on_end
-   alchemy.effects["alchemy:beaker_" .. e] = function(p, pos)
+   alchemy.effects["alchemy:beaker_" .. e] = function(p, pos, cLevel)
+      -- Get correct time
+      local cTime = math.floor(time * (time_multiplier ^ (cLevel - 1)))
+      -- Run on_start
       local new_effect = false
       if on_start then
          on_start(p, pos)
       end
+      -- Add effect to array
       local n = p:get_player_name()
       if not alchemy.active_effects[n] then
          alchemy.active_effects[n] = {}
       end
       if alchemy.active_effects[n][e] then
-         alchemy.active_effects[n][e].time = alchemy.active_effects[n][e].time + time
+         alchemy.active_effects[n][e].time = alchemy.active_effects[n][e].time + cTime
       else
          alchemy.active_effects[n][e] = {}
-         alchemy.active_effects[n][e].time = time
+         alchemy.active_effects[n][e].time = cTime
          new_effect = true
       end
       alchemy.active_effects[n][e].on_tick = on_tick
@@ -71,13 +77,14 @@ alchemy.register_effect = register_effect
 alchemy.register_timed_effect = register_timed_effect
 
 -- Energized base (some things shouldnt be drunk)
-register_effect("energized_base", function(p, pos)
+register_effect("energized_base", function(p, pos, cLevel)
    local function explode(p, pos)
       -- Work-around because of how TNT protection checking works
       local ignore_protection = not minetest.is_protected(pos, p:get_player_name())
+      local radius = 5 + cLevel
       tnt.boom(p:get_pos(), {
-         radius = 6,
-         damage_radius = 7,
+         radius = radius,
+         damage_radius = radius + 3,
          ignore_protection = ignore_protection,
       })
       p:set_hp(0)
@@ -87,13 +94,13 @@ register_effect("energized_base", function(p, pos)
 end)
 
 -- Drinking slime is just dumb
-register_effect("slime", function(p, pos)
+register_effect("slime", function(p, pos, cLevel)
    p:set_hp(p:get_hp() - 2)
 end)
 
 -- Healing brew
-register_effect("healing_brew", function(p, pos)
-   local hp = p:get_hp() + 5
+register_effect("healing_brew", function(p, pos, cLevel)
+   local hp = p:get_hp() + 5 + (cLevel - 1) * 2
    if hp > 20 then hp = 20 end
    p:set_hp(hp)
 end)
@@ -110,6 +117,7 @@ minetest.register_on_player_hpchange(function(p, change)
       local pos = p:get_pos()
       -- Check bottom node
       local node = minetest.get_node(pos)
+      if node == nil then return 0 end
       if node.name:find("default:lava_") or
       node.name == "fire:basic_flame" or
       node.name == "fire:permanent_flame" then
@@ -120,6 +128,7 @@ minetest.register_on_player_hpchange(function(p, change)
       end
       -- Check upper node
       local above_node = minetest.get_node({x = pos.x, y = pos.y + 1, z = pos.z})
+      if above_node == nil then return 0 end
       if above_node.name:find("default:lava_") or
       above_node.name == "fire:basic_flame" or
       above_node.name == "fire:permanent_flame" then

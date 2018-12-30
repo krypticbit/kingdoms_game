@@ -81,5 +81,7 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
    })
 end
 
+alchemy.register_teleport_solution = register_teleport_solution
+
 register_teleport_solution("teleport1", "A", "teleport1_solution.png", "default:diamond", 5)
 register_teleport_solution("teleport2", "B", "teleport2_solution.png", "default:mese_crystal", 10)
