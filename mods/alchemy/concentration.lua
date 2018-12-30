@@ -1,4 +1,4 @@
-local max_concentration = 2
+local max_concentration = 8
 
 --
 -- Concentrator
