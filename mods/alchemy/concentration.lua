@@ -112,7 +112,7 @@ minetest.register_node("alchemy:concentrator", {
          local c = alchemy.concentrations[src1n]
          local solutionTex = src1n:sub(16, -1) .. "_solution.png"
          local percent = meta:get_int("percent")
-         percent = percent + 25
+         percent = percent + 1
          if percent >= 100 then
             -- Get levels of source beakers
             local src1Lvl = src1:get_meta():get_int("concentration")
