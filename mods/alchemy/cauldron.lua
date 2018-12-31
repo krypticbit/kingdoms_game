@@ -68,11 +68,14 @@ local function register_cauldron(itemname, def)
             -- Modify player inv
             wielded:take_item()
             puncher:set_wielded_item(wielded)
+            local iStack
             if n == "alchemy:beaker_empty" then
-               return "alchemy:beaker_" .. itemname:sub(0, -2)
+               iStack = ItemStack("alchemy:beaker_" .. itemname:sub(0, -2))
+               alchemy.helpers.set_beaker_descripton(iStack)
             else
-               return "alchemy:beaker_empty"
+               iStack = ItemStack("alchemy:beaker_empty")
             end
+            return iStack
          end
       end
       return nil

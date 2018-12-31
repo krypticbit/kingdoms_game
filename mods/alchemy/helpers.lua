@@ -51,3 +51,14 @@ alchemy.helpers.is_full_beaker = function (iString)
       end
    end
 end
+
+alchemy.helpers.set_beaker_descripton = function(iStack)
+   local name = iStack:get_name()
+   local m = iStack:get_meta()
+   local node = minetest.registered_nodes[name]
+   if node == nil then return end
+   local baseDes = node.description
+   local cLevel = m:get_int("concentration")
+   if cLevel == 0 then cLevel = 1 end
+   m:set_string("description", baseDes .. "\nConcentration: " .. cLevel)
+end
