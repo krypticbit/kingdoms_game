@@ -102,6 +102,7 @@ local function register_beaker(name, description, texture)
             concentration = 1
          end
          stackMeta:set_int("concentration", concentration)
+         stackMeta:set_string("description", desc .. "\nConcentration: " .. concentration)
          minetest.remove_node(pos)
          if playerInv:room_for_item("main", stack) then
             playerInv:add_item("main", stack)

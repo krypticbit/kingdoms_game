@@ -1,3 +1,41 @@
+-- Collision / selection / node box
+local box = {
+   {-0.5, -0.5, -0.5, 0.5, 0.205, 0.5},
+}
+
+-- Ruined cauldron
+minetest.register_node("alchemy:cauldron_ruined", {
+   description = "Ruined Cauldron",
+   drawtype = "mesh",
+   tiles = {"cauldron.png"},
+   mesh = "cauldron_ruined.x",
+   paramtype = "light",
+   sunlight_propagates = true,
+   groups = {oddly_breakable_by_hand = 3, cauldron = 1},
+
+   tiles = {
+      "cauldron.png",
+      texture
+   },
+
+   node_box = {
+      type = "fixed",
+      fixed = box,
+   },
+
+   selection_box = {
+      type = "fixed",
+      fixed = box,
+   },
+
+   drop = "default:steel_ingot 15",
+
+   on_construct = function(pos)
+      local meta = minetest.get_meta(pos)
+      meta:set_string("infotext", "Ruined Cauldron")
+   end
+})
+
 local function register_cauldron(itemname, def)
 
    -- Given params
@@ -11,11 +49,6 @@ local function register_cauldron(itemname, def)
 
    -- Full name
    local fullname = "alchemy:cauldron_" .. itemname
-
-   -- Collision / selection / node box
-   local box = {
-      {-0.5, -0.5, -0.5, 0.5, 0.205, 0.5},
-   }
 
    -- Raise or lower the cauldron level
    local function edit_cauldron_level(pos, puncher)
@@ -65,6 +98,13 @@ local function register_cauldron(itemname, def)
       local w = puncher:get_wielded_item()
       -- Only allow dumping beakers this way
       if w:get_name():find("alchemy:beaker_") == nil then return end
+      -- Concentrated solutions destroy cauldrons
+      if w:get_meta():get_int("concentration") > 1 then
+         minetest.set_node(pos, {name = "alchemy:cauldron_ruined"})
+         w:take_item()
+         puncher:set_wielded_item(w)
+         return
+      end
       local fill_return = edit_cauldron_level(pos, puncher)
       if fill_return then
          return_item(puncher, fill_return)

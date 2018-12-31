@@ -15,10 +15,10 @@ end
 local function get_formspec(percent, brewImage)
    return "size[8,9]" ..
    "list[current_player;main;0,5;8,4;]" ..
-   "list[context;src1;2.1,3.5;1,1;]" ..
-   "list[context;src2;4.95,3.5;1,1;]" ..
-   "list[context;dst;3.55,0.1;1,1;]" ..
-   "image[2.3,0.5;4,4;" .. get_progress_indicator(percent, brewImage) .. "]"
+   "list[context;src1;2.45,3.5;1,1;]" ..
+   "list[context;src2;4.6,3.5;1,1;]" ..
+   "list[context;dst;3.55,0.05;1,1;]" ..
+   "image[2.7,0.9;3,3;" .. get_progress_indicator(percent, brewImage) .. "]"
 end
 
 local function is_full_beaker(iString)
