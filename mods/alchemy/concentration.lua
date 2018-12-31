@@ -21,22 +21,6 @@ local function get_formspec(percent, brewImage)
    "image[2.7,0.9;3,3;" .. get_progress_indicator(percent, brewImage) .. "]"
 end
 
-local function is_full_beaker(iString)
-   if iString == "alchemy:beaker_empty" then
-      return false
-   else
-      local n = minetest.registered_items[iString]
-      if n then
-         if n.groups.beaker then
-            return true
-         end
-         return false
-      else
-         return false
-      end
-   end
-end
-
 local function reset(meta, oc)
    meta:set_int("percent", 0)
    meta:set_string("formspec", get_formspec(0))
@@ -107,7 +91,7 @@ minetest.register_node("alchemy:concentrator", {
          return
       end
       -- Make sure both sources are full beakers, the same, and can be concentrated
-      if is_full_beaker(src1n) and is_full_beaker(src2n) and src1n == src2n and alchemy.concentrations[src1n] then
+      if alchemy.helpers.is_full_beaker(src1n) and alchemy.helpers.is_full_beaker(src2n) and src1n == src2n and alchemy.concentrations[src1n] then
          local oc = false
          local c = alchemy.concentrations[src1n]
          local solutionTex = src1n:sub(16, -1) .. "_solution.png"

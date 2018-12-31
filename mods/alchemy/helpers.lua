@@ -35,3 +35,19 @@ alchemy.helpers.table_length = function(t)
    end
    return num
 end
+
+alchemy.helpers.is_full_beaker = function (iString)
+   if iString == "alchemy:beaker_empty" then
+      return false
+   else
+      local n = minetest.registered_items[iString]
+      if n then
+         if n.groups.beaker then
+            return true
+         end
+         return false
+      else
+         return false
+      end
+   end
+end
