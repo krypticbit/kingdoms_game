@@ -1,12 +1,19 @@
 local marker = {}
 
+local get_player_by_name
+if minetest.get_modpath('cloaking') then
+	get_player_by_name = cloaking.get_player_by_name
+else
+	get_player_by_name = minetest.get_player_by_name
+end
+
 minetest.register_chatcommand("mrkr", {
 	params = "<x> <y> <z>",
 	description = "Adds a waypoint marker at the selected position.",
 	privs = {interact = true},
 	func = function(name, param)
 		local x, y, z = string.match(param, "^([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
-		local player = minetest.get_player_by_name(name)
+		local player = get_player_by_name(name)
 
 		if (not x or not y or not z) and param ~= "" then
 			return false, "You must provide 3 coordinates!"
@@ -40,7 +47,7 @@ minetest.register_chatcommand("clrmrkr", {
 	description = "Removes the marker waypoint.",
 	privs = {},
 	func = function(name)
-		local player = minetest.get_player_by_name(name)
+		local player = get_player_by_name(name)
 
 		if player and marker[name] then
 			player:hud_remove(marker[name])
