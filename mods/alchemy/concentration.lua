@@ -116,7 +116,10 @@ minetest.register_node("alchemy:concentrator", {
             end
             -- Create new dst item stack
             local newDst = ItemStack(c.result)
-            newDst:get_meta():set_int("concentration", newLvl)
+            local newDstMeta = newDst:get_meta()
+            local desc = minetest.registered_nodes[c.result].description
+            newDstMeta:set_int("concentration", newLvl)
+            newDstMeta:set_string("description", desc .. "\nConcentration: " .. newLvl)
             inv:set_stack("dst", 1, newDst)
             -- Create new src item stacks
             inv:set_stack("src1", 1, "alchemy:beaker_empty")
