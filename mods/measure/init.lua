@@ -38,3 +38,13 @@ minetest.register_craftitem("measure:stick", {
 
 		end
 })
+
+minetest.register_craft({
+	type = "shaped",
+	output = "measure:stick",
+	recipe = {
+		{"", "", "group:stick"},
+		{"", "farming:cotton", ""},
+		{"group:stick", "", ""}
+	}
+})
