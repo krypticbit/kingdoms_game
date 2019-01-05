@@ -9,15 +9,15 @@ minetest.register_craftitem("measure:stick", {
 	stack_max = 1,
 
 	on_use = function(itemstack, user, pointed_thing)
-
-		if pointed_thing == nil then
-
-			minetest.chat_send_player(user:get_player_name(), "Punch a valid node!")
-			return -1
-			end
 						       
 		local pos = minetest.get_pointed_thing_position(pointed_thing, above)
 		local meta = itemstack:get_meta()
+
+		if pointed_thing == nil or pos == nil then
+
+			minetest.chat_send_player(user:get_player_name(), "Invalid position! Please try again.")
+			return itemstack
+			end
 						       
 		if meta:get_string("coord1") ~= "" then
 
