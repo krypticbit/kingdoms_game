@@ -21,7 +21,7 @@ minetest.register_craft ({
 -- Warhorn
 
 minetest.register_craftitem ("extrahorns:warhorn", {
-    description     = "War Horn" ,
+    description = "War Horn" ,
     inventory_image = "extrahorns_warhorn.png",
     groups = {instrument=1},	
     on_use = function (itemstack, user)
@@ -44,14 +44,14 @@ minetest.register_craft ({
 
 -- bagpipes
 minetest.register_craftitem ("extrahorns:bagpipes", {
-    description     = "Bagpipes",
+    description = "Bagpipes",
     inventory_image = "extrahorns_bagpipe.png" ,
     groups = {instrument=1},	
     on_use = function (itemstack, user)
         minetest.sound_play ("extrahorns_bagpipe", {
             pos = user:getpos(),
             max_hear_distance = 200,
-            gain              = 1,
+            gain = 1,
         })
     end,
 })
