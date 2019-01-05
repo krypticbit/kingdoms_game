@@ -50,7 +50,7 @@ minetest.register_craftitem ("extrahorns:bagpipes", {
 	on_use = function (itemstack, user)
 		minetest.sound_play ("extrahorns_bagpipe", {
 		pos = user:getpos(),
-		max_hear_distance = 200,
+		max_hear_distance = 350,
 		gain = 1,
 		})
 	end,
