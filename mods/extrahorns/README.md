@@ -4,6 +4,6 @@ https://forum.minetest.net/viewtopic.php?t=16619
 The sound used in the item "warhorn" was a modified version of the sound made by newagesoup on freesound and can be found here
 https://freesound.org/people/newagesoup/sounds/348862/
 
-The sound used in Large Horn was a sound from the soundblocks files that was unused in the mod
+The sound used in Large Horn is a sound from the soundblocks files that was unused in the mod
 
 The sound used for the bagpipes was found on  http://www.freesfx.co.uk
