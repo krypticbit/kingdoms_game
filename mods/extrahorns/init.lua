@@ -37,9 +37,9 @@ minetest.register_craftitem ("extrahorns:warhorn", {
 minetest.register_craft ({
     output = "extrahorns:warhorn",
     recipe = {
-		{"extrahorns:largehorn","",""},
-		{"","extrahorns:largehorn",""},
-		{"","","extrahorns:largehorn"},
+		{"extrahorns:largehorn", "", ""},
+		{"", "extrahorns:largehorn", ""},
+		{"", "", "extrahorns:largehorn"},
     }
 })
 
