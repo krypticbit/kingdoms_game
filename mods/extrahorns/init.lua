@@ -1,13 +1,13 @@
 -- large horn
 minetest.register_craftitem ("extrahorns:largehorn", {
     description = "Large Horn",
-    inventory_image = "large.png",
+    inventory_image = "extrahorns_largehorn.png",
     groups = {instrument=1},	
     on_use = function (itemstack, user)
-		minetest.sound_play ("extrahorns_largehorn", {
-			pos = user:getpos(),
-            max_hear_distance = 450,
-            gain = 1,
+	minetest.sound_play ("extrahorns_largehorn", {
+		pos = user:getpos(),
+            	max_hear_distance = 450,
+            	gain = 1,
         })
     end,
 })
@@ -22,11 +22,11 @@ minetest.register_craft ({
 
 minetest.register_craftitem ("extrahorns:warhorn", {
     description     = "War Horn" ,
-    inventory_image = "warhorn.png",
+    inventory_image = "extrahorns_warhorn.png",
     groups = {instrument=1},	
     on_use = function (itemstack, user)
         minetest.sound_play ("extrahorns_warhorn", {
-            pos               = user:getpos() ,
+            pos= user:getpos() ,
             max_hear_distance = 550,
             gain = 1.2,
         })
@@ -45,11 +45,11 @@ minetest.register_craft ({
 -- bagpipes
 minetest.register_craftitem ("extrahorns:bagpipes", {
     description     = "Bagpipes",
-    inventory_image = "bagpipe.png" ,
+    inventory_image = "extrahorns_bagpipe.png" ,
     groups = {instrument=1},	
     on_use = function (itemstack, user)
         minetest.sound_play ("extrahorns_bagpipe", {
-            pos               = user:getpos(),
+            pos = user:getpos(),
             max_hear_distance = 200,
             gain              = 1,
         })
