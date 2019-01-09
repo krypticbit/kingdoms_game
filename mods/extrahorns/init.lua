@@ -39,7 +39,7 @@ minetest.register_craft ({
 		{"extrahorns:largehorn", "", ""},
 		{"", "extrahorns:largehorn", ""},
 		{"", "", "extrahorns:largehorn"},
-    }
+	}
 })
 
 -- bagpipes
