@@ -5,7 +5,7 @@ minetest.register_craftitem ("extrahorns:largehorn", {
 	groups = {instrument=1},	
 	on_use = function (itemstack, user)
 		minetest.sound_play ("extrahorns_largehorn", {
-			pos = user:getpos(),
+			pos = user:get_pos(),
 			max_hear_distance = 450,
 			gain = 1,
 		})
@@ -26,7 +26,7 @@ minetest.register_craftitem ("extrahorns:warhorn", {
 	groups = {instrument=1},	
 	on_use = function (itemstack, user)
 		minetest.sound_play ("extrahorns_warhorn", {
-			pos= user:getpos() ,
+			pos = user:get_pos(),
 			max_hear_distance = 550,
 			gain = 1.2,
 		})
@@ -49,7 +49,7 @@ minetest.register_craftitem ("extrahorns:bagpipes", {
 	groups = {instrument=1},	
 	on_use = function (itemstack, user)
 		minetest.sound_play ("extrahorns_bagpipe", {
-			pos = user:getpos(),
+			pos = user:get_pos(),
 			max_hear_distance = 350,
 			gain = 1,
 		})
@@ -59,8 +59,8 @@ minetest.register_craftitem ("extrahorns:bagpipes", {
 minetest.register_craft ({
 	output = "extrahorns:bagpipes",
 	recipe = {
-		{ "default:stick","default:stick", "default:gold_ingot"} ,
-		{ "group:wool","group:wool", ""} ,
+		{ "default:stick", "default:stick", "default:gold_ingot"} ,
+		{ "group:wool", "group:wool", ""} ,
 		{ "group:wool", "group:wool", "default:stick" } ,
 	}
 })
