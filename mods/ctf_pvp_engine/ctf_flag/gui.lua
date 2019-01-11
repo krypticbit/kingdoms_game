@@ -104,7 +104,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 
-	if not formname=="ctf:flag_board" then
+	if formname ~= "ctf:flag_board" then
 		return false
 	end
 
@@ -119,7 +119,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			return false
 		end
 
-		if ctf.can_mod(name,team) == false then
+		if not ctf.can_mod(name,team) then
 			return false
 		end
 
@@ -153,7 +153,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			return
 		end
 
-		if ctf.can_mod(name,team) == false then
+		if not ctf.can_mod(name,team) then
 			return false
 		end
 
