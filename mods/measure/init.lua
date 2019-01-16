@@ -12,16 +12,20 @@ minetest.register_craftitem("measure:stick", {
 		if not user then
 			return
 		end
+		
+		local name = user:get_player_name()
 
-		local pos = minetest.get_pointed_thing_position(pointed_thing, above)	
-
-		if not pointed_thing or not pos or not pointed_thing.ref == nil then
-			minetest.chat_send_player(user:get_player_name(), "Invalid position! Please try again.")
+		if not pointed_thing or pointed_thing.type == "object" then
+			minetest.chat_send_player(name, "Please punch a valid node!")
 			return itemstack
 		end
+		
+		local pos = minetest.get_pointed_thing_position(pointed_thing, above)
+		
+		if not pos then
+			minetest.chat_send_player(name, "Please punch a valid position!")
 				       
 		local meta = itemstack:get_meta()
-		local name = user:get_player_name()
 		local coord1 = meta:get_string("coord1")
 						       
 		if coord1 and coord1 ~= "" then
