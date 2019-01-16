@@ -15,7 +15,7 @@ minetest.register_craftitem("measure:stick", {
 
 		local pos = minetest.get_pointed_thing_position(pointed_thing, above)	
 
-		if not pointed_thing or not pos then
+		if not pointed_thing or not pos or not pointed_thing.ref == nil then
 			minetest.chat_send_player(user:get_player_name(), "Invalid position! Please try again.")
 			return itemstack
 		end
