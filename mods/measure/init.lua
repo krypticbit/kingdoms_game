@@ -24,6 +24,7 @@ minetest.register_craftitem("measure:stick", {
 		
 		if not pos then
 			minetest.chat_send_player(name, "Please punch a valid position!")
+		end
 				       
 		local meta = itemstack:get_meta()
 		local coord1 = meta:get_string("coord1")
