@@ -36,8 +36,7 @@ minetest.register_craftitem("measure:stick", {
 			local coord2 = pos
 			local distance = vector.distance(coord1, coord2)
 			minetest.chat_send_player(name, ("--\nDistance: " .. distance .. " nodes.\n"..deltas_as_string(coord1, coord2)))
-			meta:set_string("coord1", "") -- Freeing it up for repeated use.
-								 
+			meta:set_string("coord1", "") -- Freeing it up for repeated use.					 
 		else
 			meta:set_string("coord1", minetest.serialize(pos))
 			minetest.chat_send_player(name, ("Got node 1 at "..(pos.x..","..pos.y..","..pos.z)))
