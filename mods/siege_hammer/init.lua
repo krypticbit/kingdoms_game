@@ -43,6 +43,9 @@ local function cac_Material_Strengths()
 	local node = nil
 	for i in pairs(list) do
 		node = list[i]
+		if node.groups.unbreakable == 1 then
+			table.insert(black_list, node.name)
+		end
 		local strength_Pool = 0
 		local cracky = div(47,node.groups.cracky)
 		local stone = div(68,node.groups.stone)
