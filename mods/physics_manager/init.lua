@@ -47,6 +47,7 @@ local function update_physics(player)
 	local n = player:get_player_name()
 	-- Get table of physics overrides
 	local requests = player_physics_table[n]
+   if requests == nil then return end
 	-- Get active physics overrides
 	local speed, speedP = get_highest_priority(requests, "speed")
 	local jump, jumpP = get_highest_priority(requests, "jump")
@@ -101,3 +102,9 @@ function remove_player_physics_multiplier(player, id)
 	player_physics_multipliers[pName][id] = nil
 	update_physics(player)
 end
+
+-- Reset player physics when the player leaves
+minetest.register_on_leaveplayer(function(player)
+   local pName = player:get_player_name()
+   player_physics_multipliers[pName] = nil
+end)
