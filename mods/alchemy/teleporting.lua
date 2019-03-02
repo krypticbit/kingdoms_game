@@ -62,8 +62,7 @@ local function register_teleport_solution(shortname, stonetype, tex, ing, num)
    alchemy.register_timed_effect(shortname, {
       effect_name = "Warp countdown",
       duration = 5,
-      on_end = function(n)
-         local p = minetest.get_player_by_name(n)
+      on_end = function(p)
          if p then
             local pos = alchemy.teleport_stones[n][shortname]
             if pos == nil then
