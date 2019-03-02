@@ -4,18 +4,16 @@ local time_multiplier = 1.3
 local function decrease_effect_timer()
    for p, eList in pairs(alchemy.active_effects) do
       local player = minetest.get_player_by_name(p)
-      for e, t in pairs(eList) do
-         alchemy.active_effects[p][e].time = t.time - 1
-         if t.time <= 0 then
-            if t.on_end then
-               t.on_end(t.target)
-            end
-            if player then
+      if player then
+         for e, t in pairs(eList) do
+            alchemy.active_effects[p][e].time = t.time - 1
+            if t.time <= 0 then
+               if t.on_end then
+                  t.on_end(player)
+               end
                alchemy.hud.remove_effect(player, t.number, t)
-            end
-            alchemy.active_effects[p][e] = nil
-         else
-            if player then
+               alchemy.active_effects[p][e] = nil
+            else
                -- Update the HUD
                alchemy.hud.update_effect(player, t.number, t)
                -- Run on_tick function
@@ -72,6 +70,16 @@ local function register_timed_effect(e, def)
       end
    end
 end
+
+-- When the player rejoins, re-add their HUDs
+minetest.register_on_joinplayer(function(player)
+   local pName = player:get_player_name()
+   if alchemy.active_effects[n] == nil then return end
+   for e, eTable in pairs(alchemy.active_effects[n]) do
+      local eNum = alchemy.hud.add_effect(player, eTable)
+      alchemy.active_effects[n][e].number = eNum
+   end
+end)
 
 alchemy.register_effect = register_effect
 alchemy.register_timed_effect = register_timed_effect
@@ -148,11 +156,8 @@ register_timed_effect("jump_boost", {
    on_start = function(player, pos)
       set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
    end,
-   on_end = function(n)
-      local player = minetest.get_player_by_name(n)
-      if player then
-         remove_player_physics_multiplier(player, "potions jump boost")
-      end
+   on_end = function(player)
+      remove_player_physics_multiplier(player, "potions jump boost")
    end
 })
 
@@ -163,11 +168,8 @@ register_timed_effect("speed_boost", {
    on_start = function(player, pos)
       set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
    end,
-   on_end = function(n)
-      local player = minetest.get_player_by_name(n)
-      if player then
-         remove_player_physics_multiplier(player, "potions speed boost")
-      end
+   on_end = function(player)
+      remove_player_physics_multiplier(player, "potions speed boost")
    end
 })
 
@@ -178,11 +180,8 @@ register_timed_effect("invisibility_brew", {
    on_start = function(player, pos)
       player:set_properties({visual_size = {x = 0, y = 0}})
    end,
-   on_end = function(n)
-      local player = minetest.get_player_by_name(n)
-      if player then
-         player:set_properties({visual_size = {x = 1, y = 1}})
-      end
+   on_end = function(player)
+      player:set_properties({visual_size = {x = 1, y = 1}})
    end
 })
 
