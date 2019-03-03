@@ -140,7 +140,7 @@ minetest.register_on_player_hpchange(function(p, change)
       if above_node.name:find("default:lava_") or
       above_node.name == "fire:basic_flame" or
       above_node.name == "fire:permanent_flame" then
-         local d_above = node_above.damage_per_second or minetest.registered_nodes["default:lava_flowing"].damage_per_second
+         local d_above = above_node.damage_per_second or minetest.registered_nodes["default:lava_flowing"].damage_per_second
          if d_above == -change then
             return 0
          end
