@@ -1,16 +1,19 @@
-local r = ctf.setting("flag.nobuild_radius")
-local c_air = minetest.get_content_id("air")
+--local r = ctf.setting("flag.nobuild_radius")
+--local c_air = minetest.get_content_id("air")
 
+--[[
 local function elementsInTable(t)
    local n = 0
    for _ in pairs(t) do n = n + 1 end
    return n
 end
+--]]
 
 local function recalc_team_maxpower(team)
    team.power.max_power = ctf.get_team_maxpower(team)
 end
 
+--[[
 local function can_place_flag(pos)
 	local lpos = pos
 	local pos1 = {x=lpos.x-r+1,y=lpos.y,z=lpos.z-r+1}
@@ -56,6 +59,7 @@ local function can_place_flag(pos)
     end
 	return true
 end
+--]]
 
 local function do_capture(attname, flag, returned)
 	local team = flag.team
@@ -263,6 +267,7 @@ ctf_flag = {
 		meta:set_string("infotext", "Unowned flag")
 		minetest.get_node_timer(pos):start(5)
 	end,
+	--[[
 	on_place = function(itemstack, placer, pointed_thing)
 		if not placer then
 			return itemstack
@@ -369,4 +374,5 @@ ctf_flag = {
 			return itemstack
 		end
 	end
+	--]]
 }
