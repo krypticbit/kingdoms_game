@@ -64,8 +64,8 @@ function register_flag(def)
 		drawtype = "nodebox",
 		paramtype = "light",
 		walkable = false,
-		inventory_image = "flag_graphic.png",
-		wield_image = "flag_graphic.png",
+		inventory_image = def.image,
+		wield_image = def.image,
 		tiles = {
 			"default_wood.png",
 			"default_wood.png",
@@ -200,8 +200,8 @@ function register_flag(def)
 	})
 end
 
-register_flag({name = "ctf_flag:flag", description = "Flag - 1", depth_max = -10})
-register_flag({name = "ctf_flag:flag1", description = "Flag - 2", depth_max = -40})
+register_flag({name = "ctf_flag:flag", description = "Flag - 1", depth_max = -10, image = "flag_graphic1.png"})
+register_flag({name = "ctf_flag:flag1", description = "Flag - 2", depth_max = -40, image = "flag_graphic2.png"})
 
 minetest.register_craft({
 	output = "ctf_flag:flag",
@@ -215,8 +215,8 @@ minetest.register_craft({
 minetest.register_craft({
 	output = "ctf_flag:flag1",
 	recipe = {
-		{"default:diamondblock", "default:gold_ingot 2", "group:wool"},
-		{"default:stick", "default:mese_crystal 2", ""},
+		{"default:diamondblock", "default:goldblock 2", "group:wool"},
+		{"default:stick", "default:mese 2", ""},
 		{"default:stick", "", ""}
 	}
 })
