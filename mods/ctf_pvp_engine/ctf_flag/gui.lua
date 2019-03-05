@@ -153,16 +153,25 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			return
 		end
 
-		if not ctf.can_mod(name,team) then
+		if not ctf.can_mod(name, team) then
 			return false
 		end
 
-		ctf_flag.delete(team,pos)
+		ctf_flag.delete(team, pos)
 
+		local meta = minetest.get_meta(pos)
+		
+		local node = meta:get_string("node_name")
+		
+		if not node then
+			node = 'ctf_flag:flag'
+		end
+				
 		minetest.set_node(pos,{name="air"})
 		pos.y=pos.y+1
 		minetest.set_node(pos,{name="air"})
-                player:get_inventory():add_item('main', 'ctf_flag:flag')
+		
+		player:get_inventory():add_item('main', node)
 
       -- Recalc max power
       local t = ctf.team(team)
