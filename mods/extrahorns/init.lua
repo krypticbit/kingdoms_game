@@ -59,9 +59,9 @@ minetest.register_craftitem("extrahorns:bagpipes", {
 minetest.register_craft({
 	output = "extrahorns:bagpipes",
 	recipe = {
-    {"default:stick", "default:stick", "default:gold_ingot"} ,
-		{"group:wool", "group:wool", ""} ,
-		{"group:wool", "group:wool", "default:stick" } ,
+		{"default:stick", "default:stick", "default:gold_ingot"},
+		{"group:wool", "group:wool", ""},
+		{"group:wool", "group:wool", "default:stick" },
 	}
 })
 
