@@ -11,7 +11,7 @@ minetest.register_node("brewing:cauldron_full",{
         type = "fixed",
         fixed = {
 			{-0.5, -0.5, -0.5, -0.375, 0.5, -0.375},
-			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375}, 
+			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375},
 			{0.375, -0.5, 0.375, 0.5, 0.5, 0.5},
 			{-0.5, -0.5, 0.375, -0.375, 0.5, 0.5},
 			{-0.375, -0.375, -0.375, 0.375, -0.3125, 0.375},
@@ -52,7 +52,7 @@ minetest.register_node("brewing:cauldron_two_third_full",{
         type = "fixed",
         fixed = {
 			{-0.5, -0.5, -0.5, -0.375, 0.5, -0.375},
-			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375}, 
+			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375},
 			{0.375, -0.5, 0.375, 0.5, 0.5, 0.5},
 			{-0.5, -0.5, 0.375, -0.375, 0.5, 0.5},
 			{-0.375, -0.375, -0.375, 0.375, -0.3125, 0.375},
@@ -89,7 +89,7 @@ minetest.register_node("brewing:cauldron_one_third_full",{
         type = "fixed",
         fixed = {
 			{-0.5, -0.5, -0.5, -0.375, 0.5, -0.375},
-			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375}, 
+			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375},
 			{0.375, -0.5, 0.375, 0.5, 0.5, 0.5},
 			{-0.5, -0.5, 0.375, -0.375, 0.5, 0.5},
 			{-0.375, -0.375, -0.375, 0.375, -0.3125, 0.375},
@@ -125,7 +125,7 @@ minetest.register_node("brewing:cauldron_empty",{
         type = "fixed",
         fixed = {
 			{-0.5, -0.5, -0.5, -0.375, 0.5, -0.375},
-			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375}, 
+			{0.375, -0.5, -0.5, 0.5, 0.5, -0.375},
 			{0.375, -0.5, 0.375, 0.5, 0.5, 0.5},
 			{-0.5, -0.5, 0.375, -0.375, 0.5, 0.5},
 			{-0.375, -0.375, -0.375, 0.375, -0.3125, 0.375},
@@ -197,13 +197,13 @@ for _, data in pairs(recipes) do
 			end
 		end,
 		groups = {vessel=1,dig_immediate=4,attached_node=1},
-		
+
 		on_use = function(itemstack, player, pointed_thing)
 			local player_inv = player:get_inventory()
 			minetest.item_eat(data[3])
 			player_inv:add_item("main", "vessels:drinking_glass")
 		end,
-		
+
 		selection_box = {
 			type = "fixed",
 			fixed = {-0.25, -0.5, -0.25, 0.25, 0.4, 0.25}
@@ -227,9 +227,6 @@ for _, data in pairs(recipes) do
 		cooktime = 7.9,
 		recipe = "brewing:"..data[2].."_unbrewed"
 	})
-	if minetest.get_modpath("hud") ~= nil then
-		overwritefood("brewing:"..data[2], data[3], "vessels:drinking_glass")
-	end
 end
 minetest.register_craft({
 	output = 'brewing:cauldron_empty',

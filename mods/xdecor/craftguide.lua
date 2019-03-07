@@ -25,9 +25,10 @@ function craftguide:get_formspec(player_name, pagenum, recipe_num)
 			button[3.2,0.2;0.8,0.5;clear;X]
 			tooltip[search;Search]
 			tooltip[clear;Reset]
-			table[6,0.18;1.1,0.5;pagenum;#FFFF00,]]..
-			pagenum..",#FFFFFF,/ "..data.pagemax.."]"..
-			"field[0.3,0.32;2.6,1;filter;;"..data.filter.."]"..
+			table[6,0.18;1.1,0.5;pagenum;#FFFF00,]] ..
+			pagenum .. ",#FFFFFF,/ " .. data.pagemax .. "]" ..
+			"field[0.3,0.32;2.6,1;filter;;" .. data.filter .. "]" ..
+			"field_close_on_enter[filter;false]" ..
 			default.gui_bg..default.gui_bg_img
 
 	local i, s = 0, 0
@@ -76,7 +77,7 @@ function craftguide:get_formspec(player_name, pagenum, recipe_num)
 
 		local output = recipes[recipe_num].output
 		formspec = formspec..[[ image[3.5,5;1,1;gui_furnace_arrow_bg.png^[transformR90]
-				        item_image_button[2.5,5;1,1;]]..output..";"..data.item..";]"		     
+				        item_image_button[2.5,5;1,1;]]..output..";"..data.item..";]"
 	end
 
 	data.formspec = formspec
@@ -102,7 +103,10 @@ function craftguide:get_items(player_name)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname ~= "xdecor:craftguide" then return end
+	if formname ~= "xdecor:craftguide" then
+		return
+	end
+
 	local player_name = player:get_player_name()
 	local data = datas[player_name]
 	local formspec = data.formspec
@@ -116,22 +120,30 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local recipe_num = tonumber(formspec:match("Recipe%s(%d+)")) or 1
 		recipe_num = recipe_num + 1
 		craftguide:get_formspec(player_name, pagenum, recipe_num)
-	elseif fields.search then
+	elseif fields.search or (fields.key_enter_field and
+			fields.key_enter_field == "filter") then
 		data.filter = fields.filter:lower()
 		craftguide:get_items(player_name)
 		craftguide:get_formspec(player_name, 1, 1)
 	elseif fields.prev or fields.next then
-		if fields.prev then pagenum = pagenum - 1
-		else pagenum = pagenum + 1 end
-		if     pagenum > data.pagemax then pagenum = 1
-		elseif pagenum == 0	      then pagenum = data.pagemax end
+		if fields.prev then
+			pagenum = pagenum - 1
+		else
+			pagenum = pagenum + 1
+		end
+		if pagenum > data.pagemax then
+			pagenum = 1
+		elseif pagenum == 0 then
+			pagenum = data.pagemax
+		end
 		craftguide:get_formspec(player_name, pagenum, 1)
-	else for item in pairs(fields) do
-		 if minetest.get_craft_recipe(item).items then
-			data.item = item
-			craftguide:get_formspec(player_name, pagenum, 1)
-		 end
-	     end
+	else
+		for item in pairs(fields) do
+			if minetest.get_craft_recipe(item).items then
+				data.item = item
+				craftguide:get_formspec(player_name, pagenum, 1)
+			end
+		end
 	end
 end)
 
@@ -153,4 +165,3 @@ minetest.register_craftitem("xdecor:crafting_guide", {
 		end
 	end
 })
-
