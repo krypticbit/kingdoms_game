@@ -99,6 +99,7 @@ end
 function remove_player_physics_multiplier(player, id)
 	local pName = player:get_player_name()
 	check_for_entry(pName)
+   check_for_multiplier(pName)
 	player_physics_multipliers[pName][id] = nil
 	update_physics(player)
 end
@@ -107,4 +108,5 @@ end
 minetest.register_on_leaveplayer(function(player)
    local pName = player:get_player_name()
    player_physics_multipliers[pName] = nil
+   player_physics_table[pName] = nil
 end)
