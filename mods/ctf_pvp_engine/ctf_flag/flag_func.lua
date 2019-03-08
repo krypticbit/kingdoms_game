@@ -306,6 +306,12 @@ ctf_flag = {
 			return itemstack
 		end
 
+		local team, index = ctf.get_territory_owner(pos)
+		if team ~= nil then
+			minetest.chat_send_player(name, "You cannot place a flag in a protected area!")
+			return itemstack
+		end
+
 		local tplayer = ctf.player_or_nil(name)
 		if tplayer and ctf.team(tplayer.team) then
 			if ctf.player(name).auth == false then
@@ -313,7 +319,7 @@ ctf_flag = {
 				return itemstack
 			end
 
-         local tname = tplayer.team
+			local tname = tplayer.team
 			local team = ctf.team(tplayer.team)
 
 			if elementsInTable(team.players) <= elementsInTable(team.flags) then
