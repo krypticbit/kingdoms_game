@@ -163,11 +163,11 @@ minetest.register_node("brewing:drinking_glass_water", {
 local recipes = {
 --MAKE YOUR OWN DRINK HERE!
 --drink api: description, itemname, fill value, craft items.
-	{"Wine", "wine", 4, {"default:apple", "cake:sugar", "brewing:cider"}},
-    {"Beer", "beer", 2, {"farming:wheat", "farming:wheat", "cake:sugar" ,"brewing:drinking_glass_water"}},
-    {"Cider", "cider", 2 , {"default:apple", "cake:sugar", "brewing:drinking_glass_water"}},
-    {"Ale", "ale", 2, {"farming:seed_wheat", "farming:wheat", "cake:sugar", "brewing:drinking_glass_water"}},
-	{"Root Beer", "rootbeer", 2, {"farming:seed_wheat", "default:sapling", "cake:sugar", "brewing:drinking_glass_water"}},
+	{"Wine", "wine", 1, {"default:apple", "cake:sugar", "brewing:cider"}},
+    {"Beer", "beer", 1, {"farming:wheat", "farming:wheat", "cake:sugar" ,"brewing:drinking_glass_water"}},
+    {"Cider", "cider", 1 , {"default:apple", "cake:sugar", "brewing:drinking_glass_water"}},
+    {"Ale", "ale", 1, {"farming:seed_wheat", "farming:wheat", "cake:sugar", "brewing:drinking_glass_water"}},
+	{"Root Beer", "rootbeer", 1, {"farming:seed_wheat", "default:sapling", "cake:sugar", "brewing:drinking_glass_water"}},
 }
 for _, data in pairs(recipes) do
 	minetest.register_node("brewing:"..data[2], {
@@ -191,18 +191,14 @@ for _, data in pairs(recipes) do
 			local pt = pointed_thing
 			local there = {x=pt.under.x, y=pt.under.y+1, z=pt.under.z}
 			if minetest.env:get_node(there).name == "air" then
-				minetest.add_node(there, {name="brewing:"..data[2]})
+				minetest.add_node(there, {name="brewing:".. data[2]})
 				itemstack:take_item()
 				return itemstack
 			end
 		end,
-		groups = {vessel=1,dig_immediate=4,attached_node=1},
+		groups = {vessel = 1, dig_immediate = 4, attached_node = 1},
 
-		on_use = function(itemstack, player, pointed_thing)
-			local player_inv = player:get_inventory()
-			minetest.item_eat(data[3])
-			player_inv:add_item("main", "vessels:drinking_glass")
-		end,
+		on_use = minetest.item_eat(data[3], "vessels:drinking_glass"),
 
 		selection_box = {
 			type = "fixed",
