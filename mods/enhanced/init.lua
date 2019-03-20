@@ -1,9 +1,11 @@
--- Tool enhancement (mese infusion) mod by archfan7411
--- Licensed MIT
-
 -- Factor by which performance is to be increased for enhanced tools.
 -- Default is 1.2, which translates to a 20% increase in effectiveness.
 local modifier = 1.2
+
+-- Tint of enhanced tools.
+local tint = "#FFFF00"
+-- Opacity of said tint (0-255)
+local opacity = 40
 
 -- Saving the default tool registration function for later use.
 old_register_tool = minetest.register_tool
@@ -48,7 +50,13 @@ function minetest.register_tool(name, def)
 		-- We create our own inventory image by tinting the provided inventory image yellow
 		if e_def.inventory_image then
 
-			e_def.inventory_image = e_def.inventory_image .. "^[colorize:#FFFF00:40"
+			e_def.inventory_image = e_def.inventory_image .. "^[colorize:"..tint..":"..opacity
+		end
+
+		-- In case the tool has a separate wield image, we must tint it as well.
+		if e_def.wield_image then
+
+			e_def.wield_image = e_def.wield_image .. "^[colorize:"..tint..":"..opacity
 		end
 
 		-- We make the enhanced version's description by concatenating "Enhanced" to the start of the given description.
