@@ -34,8 +34,18 @@ function minetest.get_objects_inside_radius(pos, radius)
     return objs
 end
 
-function minetest.get_server_status()
-    local status = cloaking.get_server_status()
+local override_statusline = false
+if minetest.settings:get_bool('show_statusline_on_connect') ~= nil then
+    override_statusline = true
+end
+
+function minetest.get_server_status(name, joined)
+    if override_statusline and joined == true then
+        override_statusline = false
+    end
+
+    local status = cloaking.get_server_status(name, joined)
+    if not status or status == "" then return status end
     local motd   = status:sub(status:find('}', 1, true) + 0)
     status = status:sub(1, status:find('{', 1, true))
     local players = {}
@@ -48,11 +58,19 @@ function minetest.get_server_status()
 end
 
 -- Change the on-join status
-minetest.settings:set_bool('show_statusline_on_connect', false)
-minetest.register_on_joinplayer(function(player)
-    local name = player:get_player_name()
-    minetest.chat_send_player(name, minetest.get_server_status())
-end)
+if override_statusline then
+    minetest.settings:set_bool('show_statusline_on_connect', false)
+    minetest.register_on_joinplayer(function(player)
+        if not override_statusline then return end
+
+        local name   = player:get_player_name()
+        local status = minetest.get_server_status(name, 'cloaking')
+
+        if status and status ~= '' then
+            minetest.chat_send_player(name, status)
+        end
+    end)
+end
 
 -- Don't allow chat or chatcommands in all commands that don't have the
 --   allow_while_cloaked parameter set.
@@ -130,9 +148,9 @@ local function player_and_name(player, n)
     local victim = player:get_player_name()
 
     if n then
-        if cloaked_players[victim] then return end
+        if cloaked_players[victim] then return false end
     elseif n ~= nil then
-        if not cloaked_players[victim] then return end
+        if not cloaked_players[victim] then return false end
     end
 
     return player, victim
@@ -145,43 +163,66 @@ if not minetest.features.object_independent_selectionbox then
 end
 
 -- "Hide" players
-function cloaking.hide_player(player)
+local hidden = {}
+function cloaking.hide_player(player, preserve_attrs)
     -- Sanity check
-    if type(player) == "string" then
-        local _
-        player, _ = player_and_name(player, true)
-        if not player then return end
+    local victim
+    local player, victim = player_and_name(player, true)
+    if not player then return end
+
+    -- Save existing attributes
+    if preserve_attrs or preserve_attrs == nil then
+        if hidden[victim] then return end
+        hidden[victim] = {
+            player:get_properties(),
+            player:get_nametag_attributes()
+        }
+    else
+        hidden[victim] = nil
     end
 
     -- Hide the player
     player:set_properties({
-        visual_size          = {x = 0, y = 0},
+        visual_size          = {x = 0, y = 0, z = 0},
         [selectionbox]       = {0,0,0,0,0,0},
         makes_footstep_sound = false,
     })
     player:set_nametag_attributes({text = " "})
 end
 
+-- Remove original attributes when players leave
+minetest.register_on_leaveplayer(function(player)
+    hidden[player:get_player_name()] = nil
+end)
+
 -- "Unhide" players
 function cloaking.unhide_player(player)
     -- Sanity check
     local player, victim = player_and_name(player, true)
-    if not player then return end
+    if not player or hidden[victim] == nil then return end
 
-    -- Get the new selectionbox
-    local box = false
-    if minetest.features.object_independent_selectionbox then
-        box = player:get_properties().collisionbox
+    -- Get the data
+    local data     = hidden[victim] or {}
+    hidden[victim] = nil
+
+    -- Use sensible defaults if the data does not exist.
+    if not data[1] then
+        local box = false
+        if minetest.features.object_independent_selectionbox then
+            box = player:get_properties().collisionbox
+        end
+        box = box or {-0.3,-1,-0.3,0.3,0.75,0.3}
+
+        data = {{
+            visual_size          = {x = 1, y = 2, z = 1},
+            [selectionbox]       = box,
+            makes_footstep_sound = true,
+        }}
     end
-    box = box or {-0.3,-1,-0.3,0.3,0.75,0.3}
 
     -- Make the player visible
-    player:set_properties({
-        visual_size          = {x = 1, y = 1},
-        [selectionbox]       = box,
-        makes_footstep_sound = true,
-    })
-    player:set_nametag_attributes({text = victim})
+    player:set_properties(data[1])
+    player:set_nametag_attributes(data[2] or {text = victim})
 end
 
 -- The cloak and uncloak functions
@@ -192,7 +233,7 @@ function cloaking.cloak(player)
     local player, victim = player_and_name(player, true)
     if not player then return end
 
-    cloaking.hide_player(player)
+    cloaking.hide_player(player, false)
 
     local t = nil
     if use_areas and areas.hud[victim] then
@@ -229,6 +270,7 @@ function cloaking.uncloak(player)
     if not player then return end
 
     cloaked_players[victim] = nil
+    hidden[victim] = false
     cloaking.unhide_player(player)
 
     -- In singleplayer, there is no joined the game message by default.
