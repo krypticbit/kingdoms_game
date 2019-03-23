@@ -53,11 +53,9 @@ local nametag = {
 minetest.register_entity("playertag:tag", nametag)
 
 minetest.register_on_joinplayer(function(player)
-	if not player.tag then
-		player:set_nametag_attributes({
-			color = {a = 0, r = 0, g = 0, b = 0}
-		})
-	end
+	player:set_nametag_attributes({
+		color = {a = 0, r = 0, g = 0, b = 0}
+	})
 	add_tag(player)
 end)
 
