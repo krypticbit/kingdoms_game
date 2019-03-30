@@ -1,25 +1,46 @@
+-- REMOVESTONE
+
+minetest.register_node("mesecons_random:removestone", {
+	tiles = {"jeija_removestone.png"},
+	is_ground_content = false,
+	inventory_image = minetest.inventorycube("jeija_removestone_inv.png"),
+	groups = {cracky=3},
+	description="Removestone",
+	sounds = default.node_sound_stone_defaults(),
+	mesecons = {effector = {
+		action_on = function (pos, node)
+			minetest.remove_node(pos)
+			mesecon.on_dignode(pos, node)
+			minetest.check_for_falling(vector.add(pos, vector.new(0, 1, 0)))
+		end
+	}},
+	on_blast = mesecon.on_blastnode,
+})
+
+minetest.register_craft({
+	output = 'mesecons_random:removestone 4',
+	recipe = {
+		{"", "default:cobble", ""},
+		{"default:cobble", "group:mesecon_conductor_craftable", "default:cobble"},
+		{"", "default:cobble", ""},
+	}
+})
 
 -- GHOSTSTONE
 
-default.register_fence("mesecons_random:ghoststone", {
-	description="Portcullis",
-	texture = "default_stone.png",
-	is_ground_content = true,
-	groups = {cracky=2},
-	material = "default:steel_ingot",
+minetest.register_node("mesecons_random:ghoststone", {
+	description="Ghoststone",
+	tiles = {"jeija_ghoststone.png"},
+	is_ground_content = false,
+	inventory_image = minetest.inventorycube("jeija_ghoststone_inv.png"),
+	groups = {cracky=3},
 	sounds = default.node_sound_stone_defaults(),
 	mesecons = {conductor = {
 		state = mesecon.state.off,
-		rules = { --axes
-			{x = -1, y = 0, z = 0},
-			{x = 1, y = 0, z = 0},
-			{x = 0, y = -1, z = 0},
-			{x = 0, y = 1, z = 0},
-			{x = 0, y = 0, z = -1},
-			{x = 0, y = 0, z = 1},
-		},
+		rules = mesecon.rules.alldirs,
 		onstate = "mesecons_random:ghoststone_active"
-	}}
+	}},
+	on_blast = mesecon.on_blastnode,
 })
 
 minetest.register_node("mesecons_random:ghoststone_active", {
@@ -27,18 +48,13 @@ minetest.register_node("mesecons_random:ghoststone_active", {
 	pointable = false,
 	walkable = false,
 	diggable = false,
+	is_ground_content = false,
 	sunlight_propagates = true,
 	paramtype = "light",
+	drop = "mesecons_random:ghoststone",
 	mesecons = {conductor = {
 		state = mesecon.state.on,
-		rules = {
-			{x = -1, y = 0, z = 0},
-			{x = 1, y = 0, z = 0},
-			{x = 0, y = -1, z = 0},
-			{x = 0, y = 1, z = 0},
-			{x = 0, y = 0, z = -1},
-			{x = 0, y = 0, z = 1},
-		},
+		rules = mesecon.rules.alldirs,
 		offstate = "mesecons_random:ghoststone"
 	}},
 	on_construct = function(pos)
@@ -47,5 +63,16 @@ minetest.register_node("mesecons_random:ghoststone_active", {
 		if (minetest.get_node(shadowpos).name == "air") then
 			minetest.dig_node(shadowpos)
 		end
-	end
+	end,
+	on_blast = mesecon.on_blastnode,
+})
+
+
+minetest.register_craft({
+	output = 'mesecons_random:ghoststone 4',
+	recipe = {
+		{"default:steel_ingot", "default:cobble", "default:steel_ingot"},
+		{"default:cobble", "group:mesecon_conductor_craftable", "default:cobble"},
+		{"default:steel_ingot", "default:cobble", "default:steel_ingot"},
+	}
 })
