@@ -3,7 +3,8 @@ local mp = minetest.get_modpath(minetest.get_current_modname())
 
 -- Define tables
 projectiles = {}
-local gun_uid = 1
+local shooters_reloading = {}
+local shooter_uid = 1
 
 -- Shooting functions
 local function shoot(shooter, damage, range)
@@ -42,6 +43,10 @@ local function shoot(shooter, damage, range)
       local hit_pos = hit.intersection_point
       local hit_height = hit_pos.y - hit.ref:get_pos().y
       minetest.chat_send_all(tostring(hit_height))
+      -- Account for distance; do half damage at max range
+      local dist = vector.distance(from, hit_pos)
+      damage = damage * (1 - dist / range / 2)
+      minetest.chat_send_all(tostring(damage))
       if hit_height > 1.7 then -- headshot
          hit.ref:punch(shooter, nil, {damage_groups = {fleshy = damage * 1.5}})
       else
@@ -55,15 +60,18 @@ local function should_continue_reload(player, shooter_uid)
    return player:get_wielded_item():get_meta():get_int("shooter_uid") == shooter_uid
 end
 
-local function abort_reload(player, hudid)
+local function abort_reload(player, hudid, ammo, shooter_uid)
    minetest.chat_send_all("aborted")
    player:hud_remove(hudid)
+   local user_inv = player:get_inventory()
+   user_inv:add_item("main", ammo)
+   shooters_reloading[shooter_uid] = nil
 end
 
-local function finish_reload(player, shooter_uid, hudid, rounds)
+local function finish_reload(player, shooter_uid, hudid, rounds, ammo)
    -- Check if the player is still holding the gun
    if should_continue_reload(player, shooter_uid) ~= true then
-      abort_reload(player, hudid)
+      abort_reload(player, hudid, ammo, shooter_uid)
    end
    -- Remove hud
    player:hud_remove(hudid)
@@ -71,26 +79,29 @@ local function finish_reload(player, shooter_uid, hudid, rounds)
    local w = player:get_wielded_item()
    local meta = w:get_meta()
    meta:set_string("rounds", rounds)
+   w:set_wear(1)
    player:set_wielded_item(w)
+   -- Remove reloading status
+   shooters_reloading[shooter_uid] = nil
 end
 
-local function update_reload(player, shooter_uid, hudid, rounds, quartertime, to)
+local function update_reload(player, shooter_uid, hudid, rounds, ammo, quartertime, to)
    -- Check if the player is still holding the gun
    if should_continue_reload(player, shooter_uid) ~= true then
-      abort_reload(player, hudid)
+      abort_reload(player, hudid, ammo, shooter_uid)
       return
    end
    -- Update the HUD
    player:hud_change(hudid, "text", "projectiles_reloading_" .. to .. ".png")
    -- Figure out what function to call next
    if to >= 3 then
-      minetest.after(quartertime, finish_reload, player, shooter_uid, hudid, rounds)
+      minetest.after(quartertime, finish_reload, player, shooter_uid, hudid, rounds, ammo)
    else
-      minetest.after(quartertime, update_reload, player, shooter_uid, hudid, rounds, quartertime, to + 1)
+      minetest.after(quartertime, update_reload, player, shooter_uid, hudid, rounds, ammo, quartertime, to + 1)
    end
 end
 
-local function reload(player, shooter_uid, speed, rounds)
+local function reload(player, shooter_uid, speed, rounds, ammo)
    minetest.chat_send_all("reloading")
    -- Calculate quartertime
    local quartertime = speed / 4.0
@@ -104,7 +115,7 @@ local function reload(player, shooter_uid, speed, rounds)
       text = "projectiles_reloading_0.png"
    })
    -- Start reload cycle
-   minetest.after(quartertime, update_reload, player, shooter_uid, hudid, rounds, quartertime, 1)
+   minetest.after(quartertime, update_reload, player, shooter_uid, hudid, rounds, ammo, quartertime, 1)
 end
 
 projectiles.register_shooter = function(name, def)
@@ -119,27 +130,40 @@ projectiles.register_shooter = function(name, def)
    local description = def.description or ""
    local max_rounds = def.rounds or 1
    local reload_speed = def.reload_speed or 1
+   local scale = def.scale or {x = 1, y = 1, z = 1}
    -- Register shooter as tool
    minetest.register_tool("projectiles:" .. name, {
       description = description,
       inventory_image = texture,
       range = 0,
+      wield_scale = scale,
       on_use = function(istack, user, pointed_thing)
-         if user == ni or user:is_player() == false then return end
+         if user == nil or user:is_player() == false then return end
          local meta = istack:get_meta()
          local rounds = meta:get_int("rounds")
          -- Shoot if loaded
          if rounds > 0 then
-            meta:set_int("rounds", rounds - 1)
+            rounds = rounds - 1
+            meta:set_int("rounds", rounds)
+            local wear = 1 - rounds / max_rounds
+            local wearfinal = wear * 65535
+            if wear == 1 then wearfinal = 65534 end -- Don't let it break
+            istack:set_wear(wearfinal)
             shoot(user, damage, range)
          else
+            -- Check if the gun is already reloading
+            local s_uid = meta:get_int("shooter_uid")
+            if shooters_reloading[s_uid] ~= nil then
+               return
+            end
             -- Attempt to reload
             local user_inv = user:get_inventory()
             if user_inv:contains_item("main", ammo) then
                user_inv:remove_item("main", ammo)
-               meta:set_int("shooter_uid", gun_uid)
-               reload(user, gun_uid, reload_speed, max_rounds)
-               gun_uid = gun_uid + 1
+               meta:set_int("shooter_uid", shooter_uid)
+               shooters_reloading[shooter_uid] = true
+               reload(user, shooter_uid, reload_speed, max_rounds, ammo)
+               shooter_uid = shooter_uid + 1
             end
          end
          return istack
