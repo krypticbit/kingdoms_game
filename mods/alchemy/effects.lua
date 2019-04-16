@@ -73,7 +73,7 @@ end
 
 -- When the player rejoins, re-add their HUDs
 minetest.register_on_joinplayer(function(player)
-   local pName = player:get_player_name()
+   local n = player:get_player_name()
    if alchemy.active_effects[n] == nil then return end
    for e, eTable in pairs(alchemy.active_effects[n]) do
       local eNum = alchemy.hud.add_effect(player, eTable)
