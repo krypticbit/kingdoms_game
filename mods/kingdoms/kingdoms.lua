@@ -1,16 +1,19 @@
 -- Get info about members
 function kingdoms.player_in_any_kingdoms(name)
-   return kingdoms.members[name] ~= nil
+   if kingdoms.members[name] ~= nil then
+      return true, kingdoms.members[name].kingdom
+   else
+      return false
+   end
 end
 
--- Get info about kingdom(s)
-function kingdoms.list_kingdoms()
-   local l = ""
-   for n,k in pairs(kingdoms.kingdoms) do
-      local mNum = kingdoms.helpers.count_table(k.members)
-      l = l .. n .. ": " .. tostring(mNum) .. " member(s)\n"
+function kingdoms.player_has_priv(name, priv)
+   if kingdoms.members[name] == nil then
+      return false
    end
-   return l
+   local rank = kingdoms.members[name].rank
+   local kingdom = kingdoms.kingdoms[kingdoms.members[name].kingdom]
+   return kingdom.ranks[rank][priv] ~= nil
 end
 
 -- Add / remove / modify members
@@ -31,7 +34,7 @@ function kingdoms.add_player_to_kingdom(kingdom_name, name, rank)
    end
    -- Check rank
    if rank == nil then
-      rank = "soldier"
+      rank = kingdoms.kingdoms[kingdom_name].default_rank
    elseif kingdoms.kingdoms[kingdom_name].ranks[rank] == nil then
       return false, "Rank " .. rank .. " does not exist"
    end
@@ -43,17 +46,13 @@ function kingdoms.add_player_to_kingdom(kingdom_name, name, rank)
    return true, "Added " .. name .. " to kingdom " .. kingdom_name
 end
 
-function kingdoms.remove_player_from_kingdom(kingdom_name, name)
-   -- Check if kingdom exists
-   local k = kingdoms.kingdoms[kingdom_name]
-   if k == nil then
-      return false, "Kingdom " .. kingdom_name .. " does not exist"
-   end
+function kingdoms.remove_player_from_kingdom(name)
    -- Check if player is in kingdom
-   if kingdoms.kingdoms[kingdom_name].members[name] == nil then
-      return false, "Player " .. name .. " is not in kingdom " .. kingdom_name
+   if kingdoms.members[name] == nil then
+      return false, "Player " .. name .. " is not in a kingdom"
    end
    -- Remove
+   local kingdom_name = kingdoms.members[name].kingdom
    kingdoms.kingdoms[kingdom_name].members[name] = nil
    kingdoms.members[name] = nil
    -- Save
@@ -86,7 +85,9 @@ function kingdoms.add_kingdom(name, king)
    kingdoms.kingdoms[name] = {
       name = name,
       members = {},
-      ranks = kingdoms.helpers.copy_table(kingdoms.default_ranks)
+      ranks = kingdoms.helpers.copy_table(kingdoms.default_ranks),
+      default_rank = "soldier",
+      restricted = false
    }
    -- Add owner
    kingdoms.add_player_to_kingdom(name, king, "king")
@@ -98,9 +99,19 @@ end
 function kingdoms.remove_kingdom(name)
    -- Check if kingdom exists
    if kingdoms.kingdoms[name] == nil then
-      return false, "Kingdom does not exist"
+      return false, "Kingdom " .. name .. " does not exist"
    end
-   -- Remove
+   -- Remove members
+   for n,_ in pairs(kingdoms.kingdoms[name].members) do
+      kingdoms.members[n] = nil
+   end
+   -- Remove applications
+   for k, p in pairs(kingdoms.pending) do
+      if p == name then
+         kingdoms.pending[k] = nil
+      end
+   end
+   -- Remove kingdom
    kingdoms.kingdoms[name] = nil
    -- Save
    kingdoms.helpers.save()
@@ -111,7 +122,7 @@ end
 function kingdoms.add_rank(name, rank, privs)
    -- Check if kingdom exists
    if kingdoms.kingdoms[name] == nil then
-      return false, "Kingdom does not exist"
+      return false, "Kingdom " .. name .. " does not exist"
    end
    -- Check if rank exists
    if kingdoms.kingdoms[name].ranks[rank] ~= nil then
@@ -137,15 +148,72 @@ end
 function kingdoms.remove_rank(name, rank)
    -- Check if kingdom exists
    if kingdoms.kingdoms[name] == nil then
-      return false, "Kingdom does not exist"
+      return false, "Kingdom " .. name .. " does not exist"
+   end
+   -- Check if rank exists
+   if kingdoms.kingdoms[name].ranks[rank] == nil then
+      return false, "Rank " .. rank .. " does not exist in kingdom " .. name
+   end
+   -- Remove rank
+   kingdoms.kingdoms[name].ranks[rank] = nil
+   -- Demote all members with that rank
+   for n,_ in pairs(kingdoms.kingdoms[name].members) do
+      if kingdoms.members[n].rank == rank then
+         kingdoms.members[n].rank = kingdoms.kingdoms[name].default_rank
+      end
+   end
+   -- Save
+   kingdoms.helpers.save()
+   return true, "Removed rank " .. rank .. " from kingdom " .. name
+end
+
+function kingdoms.set_rank_privs(name, rank, privs)
+   -- Check if kingdom exists
+   if kingdoms.kingdoms[name] == nil then
+      return false, "Kingdom " .. name .. " does not exist"
    end
    -- Check if rank exists
    if kingdoms.kingdoms[name].ranks[rank] == nil then
       return false, "Rank " .. rank .. " does not exist"
    end
-   -- Remove rank
-   kingdoms.kingdoms[name].ranks[rank] = nil
+   -- Check if privs are valid
+   for priv, _ in pairs(privs) do
+      if kingdoms.kingdom_privs[priv] == nil then
+         return false, "Invalid priv " .. priv
+      end
+   end
+   -- Set privs
+   kingdoms.kingdoms[name].ranks[rank] = privs
    -- Save
    kingdoms.helpers.save()
-   return true, "Removed rank " .. rank " from kingdom " .. name
+   return true, "Set privs of rank " .. rank .. " to " .. kingdoms.helpers.keys_to_str(privs)
+end
+
+function kingdoms.set_default_rank(name, rank)
+   -- Check if kingdom exists
+   if kingdoms.kingdoms[name] == nil then
+      return false, "Kingdom " .. name .. " does not exist"
+   end
+   -- Check if rank exists
+   if kingdoms.kingdoms[name].ranks[rank] == nil then
+      return false, "Rank " .. rank .. " does not exist"
+   end
+   -- Set as default
+   kingdoms.kingdoms[name].default_rank = rank
+   -- Save
+   kingdoms.helpers.save()
+   return true, "Set default rank of kingdom " .. name .. " to " .. rank
+end
+
+function kingdoms.toggle_restricted(name)
+   -- Check if kingdom exists
+   if kingdoms.kingdoms[name] == nil then
+      return false, "Kingdom " .. name .. " does not exist"
+   end
+   -- Toggle
+   kingdoms.kingdoms[name].restricted = not kingdoms.kingdoms[name].restricted
+   -- Save
+   kingdoms.helpers.save()
+   return true, kingdoms.kingdoms[name].restricted and "Kingdom " .. name .. " restriction enabled" or
+   "Kingdom " .. name .. " restriction disabled"
 end

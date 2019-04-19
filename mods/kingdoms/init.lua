@@ -10,17 +10,17 @@ dofile(mp .. "/helpers.lua")
 
 -- Define privs
 kingdoms.kingdom_privs = {
-   kick = true, -- Kick member
-   join = true, -- Accept member
+   recruiter = true, -- Accept / kick members
    make_base = true, -- Place flag
    interact = true, -- Interact with team areas
    diplomat = true, -- Make / end wars
+   rank_master = true, -- Make / remove ranks
 }
 
 -- Define default ranks
 kingdoms.default_ranks = {
    king = kingdoms.helpers.copy_table(kingdoms.kingdom_privs),
-   lord = {make_base = true, interact = true, join = true, kick = true},
+   lord = {make_base = true, interact = true, recruiter = true},
    soldier = {make_base = true, interact = true}
 }
 
@@ -39,7 +39,15 @@ if kStr == "" then
 else
    kingdoms.kingdoms = minetest.deserialize(kStr)
 end
-dofile(mp .. "/kingdoms.lua")
 
--- Register kingdoms chatcommand
+-- Load pending join requests
+local pendingStr = storage:get_string("pending_requests")
+if pendingStr == "" then
+   kingdoms.pending = {}
+else
+   kingdoms.pending = minetest.deserialize(pendingStr)
+end
+
+-- Load external files
+dofile(mp .. "/kingdoms.lua")
 dofile(mp .. "/chat.lua")
