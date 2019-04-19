@@ -11,58 +11,58 @@ ChatCmdBuilder.new("kingdoms_admin", function(cmd)
       return kingdoms.add_kingdom(kingdom_name, name)
    end)
    -- Add new kingdom with specified owner
-   cmd:sub("add :name:word :king:word", function(name, kingdom_name, king)
+   cmd:sub("add :name:word :king:word", function(_, kingdom_name, king)
       return kingdoms.add_kingdom(kingdom_name, king)
    end)
    -- Remove kingdom
-   cmd:sub("remove :name:word", function(name, kingdom_name)
+   cmd:sub("remove :name:word", function(_, kingdom_name)
       return kingdoms.remove_kingdom(kingdom_name)
    end)
    -- Add player to kingdom
-   cmd:sub("join :victim:word :kingdom:word", function(name, victim, kingdom)
+   cmd:sub("join :victim:word :kingdom:word", function(_, victim, kingdom)
       return kingdoms.add_player_to_kingdom(kingdom, victim)
    end)
    -- Remove player from kingdom
-   cmd:sub("kick :victim:word", function(name, victim, kingdom)
+   cmd:sub("kick :victim:word", function(_, victim, _)
       return kingdoms.remove_player_from_kingdom(victim)
    end)
    -- Set player rank in kingdom
-   cmd:sub("set_rank :victim:word :rank:word", function(name, victim, rank)
+   cmd:sub("set_rank :victim:word :rank:word", function(_, victim, rank)
       return kingdoms.set_player_rank(victim, rank)
    end)
    -- Add rank to kingdom
-   cmd:sub("add_rank :kingdom:word :rank:word", function(name, kingdom, rank)
+   cmd:sub("add_rank :kingdom:word :rank:word", function(_, kingdom, rank)
       return kingdoms.add_rank(kingdom, rank)
    end)
    -- Add rank to kingdom with specified privs
-   cmd:sub("add_rank :kingdom:word :rank:word :privs:text", function(name, kingdom, rank, privs)
+   cmd:sub("add_rank :kingdom:word :rank:word :privs:text", function(_, kingdom, rank, privs)
       return kingdoms.add_rank(kingdom, rank, kingdoms.helpers.split_into_keys(privs))
    end)
    -- Change privs of rank
-   cmd:sub("set_rank_privs :kingdom:word :rank:word :privs:text", function(name, kingdom, rank, privs)
+   cmd:sub("set_rank_privs :kingdom:word :rank:word :privs:text", function(_, kingdom, rank, privs)
       return kingdoms.set_rank_privs(kingdom, rank, kingdoms.helpers.split_into_keys(privs))
    end)
    -- Set rank as default rank (given to new recruits)
-   cmd:sub("set_default_rank :kingdom:word :rank:word", function(name, kingdom, rank)
+   cmd:sub("set_default_rank :kingdom:word :rank:word", function(_, kingdom, rank)
       return kingdoms.set_default_rank(kingdom, rank)
    end)
    -- Remove rank
-   cmd:sub("remove_rank :kingdom:word :rank:word", function(name, kingdom, rank)
+   cmd:sub("remove_rank :kingdom:word :rank:word", function(_, kingdom, rank)
       return kingdoms.remove_rank(kingdom, rank)
    end)
    -- Toggle restriced setting (restricted = someone has to accept player request)
-   cmd:sub("toggle_restricted :kingdom:word", function(name, kingdom)
+   cmd:sub("toggle_restricted :kingdom:word", function(_, kingdom)
       return kingdoms.toggle_restricted(kingdom)
    end)
 end, {
-   description = "Manage kingdoms (See '/kingdoms_admin help' for more information)",
+   description = "Manage kingdoms (admins only)",
    privs = {overlord = true}
 })
 
 -- Player kingdoms comannds
 ChatCmdBuilder.new("kingdoms", function(cmd)
    -- List kingdoms
-   cmd:sub("list", function(name)
+   cmd:sub("list", function(_)
       local l = ""
       for n,k in pairs(kingdoms.kingdoms) do
          local mNum = kingdoms.helpers.count_table(k.members)
@@ -71,7 +71,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       return true, l
    end)
    -- Get info on kingdom
-   cmd:sub("info kingdom :name:word", function(name, kingdom)
+   cmd:sub("info kingdom :name:word", function(_, kingdom)
       local k = kingdoms.kingdoms[kingdom]
       -- Check if kingdom is valid
       if k == nil then
@@ -89,7 +89,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       return true, info
    end)
    -- Get info on players
-   cmd:sub("info player :name:word", function(name, pname)
+   cmd:sub("info player :name:word", function(_, pname)
       local m = kingdoms.members[pname]
       -- Check if player is in a kingdom
       if m == nil then
