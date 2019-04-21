@@ -178,7 +178,7 @@ for c,v in pairs(kingdoms.colors) do
          local numAttackers = 0
          local numDefenders = 0
          for _, o in pairs(objs) do
-            if minetest.is_player(o) then
+            if minetest.is_player(o) and o:get_hp() > 0 then
                local n = o:get_player_name()
                if kingdoms.members[n] then
                   local start_pos = o:get_pos()

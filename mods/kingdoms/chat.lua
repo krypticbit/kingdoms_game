@@ -126,7 +126,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Join
       kingdoms.pending[victim] = nil
       kingdoms.helpers.save()
-      return kingdoms.add_player_to_kingdom(victim, k)
+      return kingdoms.add_player_to_kingdom(k, victim)
    end)
    -- Apply to / join kingdom
    cmd:sub("join :kingdom:word", function(name, kingdom)
