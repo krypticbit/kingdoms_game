@@ -5,7 +5,7 @@ function kingdoms.get_gui(pname, tab)
    if tab == nil or tab == "news" then
       fs = fs .. "textlist[0,1;7.8,8;newslist;Server News:,"
       -- Get news and break it into lines
-      local ntable = kingdoms.get_news(20)
+      local ntable = kingdoms.get_news(30)
       local nidx = 1
       local lidx
       local lines

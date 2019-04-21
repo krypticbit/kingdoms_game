@@ -15,6 +15,7 @@ local function cancel_attack(meta, dname, aname)
    meta:set_string("infotext", get_infotext(dname))
    minetest.chat_send_all("Kingdom " .. dname ..
       " warded off the attack of kingdom " .. aname .. "!")
+   kingdoms.add_news("Kingdom " .. aname .. " attacked a territory of kingdom " .. dname .. " but failed to capture it")
 end
 
 local function finish_attack(pos, hpos, meta, dname, aname)
@@ -23,6 +24,7 @@ local function finish_attack(pos, hpos, meta, dname, aname)
    meta:set_string("infotext", get_infotext(aname))
    minetest.swap_node(pos, {name = "kingdoms:marker_" .. string.lower(kingdoms.kingdoms[aname].color)})
    minetest.chat_send_all("Kingdom " .. aname .. " conquered a territory of kingdom " .. dname)
+   kingdoms.add_news("Kingdom " .. aname .. " captured a territory from kingdom " .. dname)
    kingdoms.helpers.save()
 end
 

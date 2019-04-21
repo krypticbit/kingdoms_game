@@ -10,7 +10,7 @@ dofile(mp .. "/helpers.lua")
 
 -- Config
 kingdoms.marker_radius = 100
-kingdoms.marker_capture_time = 300 -- Seconds
+kingdoms.marker_capture_time = 10 -- Seconds
 kingdoms.marker_capture_range = 5
 
 -- Generated based on config

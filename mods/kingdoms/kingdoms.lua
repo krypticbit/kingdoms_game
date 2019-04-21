@@ -97,6 +97,7 @@ function kingdoms.add_kingdom(name, king)
    }
    -- Add owner
    kingdoms.add_player_to_kingdom(name, king, "king")
+   kingdoms.add_news("Kingdom " .. name .. " was created")
    -- Save
    kingdoms.helpers.save()
    return true, "Added kingdom " .. name
@@ -126,6 +127,7 @@ function kingdoms.remove_kingdom(name)
    end
    -- Remove kingdom
    kingdoms.kingdoms[name] = nil
+   kingdoms.add_news("Kingdom " .. name .. " was disbanded")
    -- Save
    kingdoms.helpers.save()
    return true, "Removed kingdom " .. name
