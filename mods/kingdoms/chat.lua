@@ -295,7 +295,10 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
    end)
    -- Bring up kingdoms gui
    cmd:sub("", function(name)
-      local fs = kingdoms.get_gui(name)
-      minetest.show_formspec(name, "kingdoms:gui", fs)
+      if kingdoms.members[name] == nil then
+         return false, "You are not in a kingdom"
+      end
+      local fs = kingdoms.get_gui(name, "news")
+      minetest.show_formspec(name, "kingdoms:gui_news", fs)
    end)
 end)
