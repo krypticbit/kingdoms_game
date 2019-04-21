@@ -8,6 +8,14 @@ kingdoms.storage = storage
 -- Load helpers
 dofile(mp .. "/helpers.lua")
 
+-- Config
+kingdoms.marker_radius = 100
+kingdoms.marker_capture_time = 60 -- Seconds
+kingdoms.marker_capture_range = 5
+
+-- Generated based on config
+kingdoms.marker_radius_sq = kingdoms.marker_radius ^ 2
+
 -- Define privs
 kingdoms.kingdom_privs = {
    recruiter = true, -- Accept / kick members
@@ -22,6 +30,19 @@ kingdoms.default_ranks = {
    king = kingdoms.helpers.copy_table(kingdoms.kingdom_privs),
    lord = {make_base = true, interact = true, recruiter = true},
    soldier = {make_base = true, interact = true}
+}
+
+-- Define colors
+kingdoms.colors = {
+   White = "#FFFFFF",
+   Black = "#000000",
+   Red = "#800000",
+   Yellow = "#FFFF00",
+   Green = "#008000",
+   Blue = "#000080",
+   Purple = "#800080",
+   Orange = "#FF8C00",
+   Brown = "#8B4513"
 }
 
 -- Load players
@@ -48,6 +69,15 @@ else
    kingdoms.pending = minetest.deserialize(pendingStr)
 end
 
+-- Load markers
+local mStr = storage:get_string("markers")
+if mStr == "" then
+   kingdoms.markers = {}
+else
+   kingdoms.markers = minetest.deserialize(mStr)
+end
+
 -- Load external files
 dofile(mp .. "/kingdoms.lua")
+dofile(mp .. "/markers.lua")
 dofile(mp .. "/chat.lua")

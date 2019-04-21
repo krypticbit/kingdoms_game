@@ -87,7 +87,8 @@ function kingdoms.add_kingdom(name, king)
       members = {},
       ranks = kingdoms.helpers.copy_table(kingdoms.default_ranks),
       default_rank = "soldier",
-      restricted = false
+      restricted = false,
+      color = "White"
    }
    -- Add owner
    kingdoms.add_player_to_kingdom(name, king, "king")
@@ -216,4 +217,31 @@ function kingdoms.toggle_restricted(name)
    kingdoms.helpers.save()
    return true, kingdoms.kingdoms[name].restricted and "Kingdom " .. name .. " restriction enabled" or
    "Kingdom " .. name .. " restriction disabled"
+end
+
+function kingdoms.set_color(name, color)
+   -- Check if kingdom exists
+   if kingdoms.kingdoms[name] == nil then
+      return false, "Kingdom " .. name .. " does not exist"
+   end
+   -- Check if color exists
+   if kingdoms.colors[color] == nil then
+      return false, "Invaild color" .. color
+   end
+   -- Set color
+   kingdoms.kingdoms[name].color = color
+   -- Update all loaded markers
+   local n
+   local new_itemstr = "kingdoms:marker_" .. string.lower(color)
+   for _,m in pairs(kingdoms.markers) do
+      if m.kingdom == name then
+         n = minetest.get_node_or_nil(m.pos)
+         if n ~= nil then
+            minetest.swap_node(m.pos, {name = new_itemstr})
+         end
+      end
+   end
+   -- Save
+   kingdoms.helpers.save()
+   return true, "Changed color of kingdom " .. name .. " to " .. color
 end

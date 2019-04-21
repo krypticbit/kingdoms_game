@@ -54,6 +54,10 @@ ChatCmdBuilder.new("kingdoms_admin", function(cmd)
    cmd:sub("toggle_restricted :kingdom:word", function(_, kingdom)
       return kingdoms.toggle_restricted(kingdom)
    end)
+   -- Set kingdom color
+   cmd:sub("set_color :kingdom:word :color:word", function(_, kingdom, color)
+      return kingdoms.set_color(kingdom, color)
+   end)
 end, {
    description = "Manage kingdoms (admins only)",
    privs = {overlord = true}
@@ -81,11 +85,14 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       local info = "-- Kingdom " .. kingdom .. " --\n"
       -- Get members
       local numMembers = kingdoms.helpers.count_table(k.members)
-      info = info .. tostring(numMembers) .. " Members: " .. kingdoms.helpers.keys_to_str(k.members) .. "\n---\n"
+      info = info .. tostring(numMembers) .. " Members: " .. kingdoms.helpers.keys_to_str(k.members) .. "\n"
       -- Get ranks
       local numRanks = kingdoms.helpers.count_table(k.ranks)
       info = info .. tostring(numRanks) .. " Ranks: " .. kingdoms.helpers.keys_to_str(k.ranks) .. "\n"
-      info = info .. "Default Rank: " .. k.default_rank .. "\n---\n"
+      info = info .. "Default Rank: " .. k.default_rank .. "\n"
+      -- Get other info
+      info = info .. "Restricted: " .. (k.restricted and "Yes" or "No") .. "\n"
+      info = info .. "Color: " .. k.color
       return true, info
    end)
    -- Get info on players
