@@ -218,9 +218,19 @@ for c,v in pairs(kingdoms.colors) do
    })
 end
 
+-- Scepter to capture markers
 minetest.register_tool("kingdoms:scepter", {
    description = "Scepter",
    inventory_image = "kingdoms_scepter.png",
+})
+
+minetest.register_craft({
+   output = "kingdoms:scepter",
+   recipe = {
+      {"default:goldblock", "default:goldblock", "default:goldblock"},
+      {"default:goldblock", "default:diamondblock", "default:goldblock"},
+      {"default:goldblock", "default:goldblock", "default:goldblock"}
+   }
 })
 
 -- LBM to ensure that markers are the right colors and valid markers
