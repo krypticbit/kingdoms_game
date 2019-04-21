@@ -10,7 +10,8 @@ function kingdoms.add_news(news)
 end
 
 function kingdoms.get_news(maxamt)
-   local news = ""
+   local news = {}
+   local idx = 1
    if maxamt == nil then -- Get all news
       local uid = 1
       local n
@@ -19,17 +20,26 @@ function kingdoms.get_news(maxamt)
          if n == nil then -- Reached the end
             return news
          end
-         news = news .. format_news_item(n)
+         news[idx] = format_news_item(n)
+         idx = idx + 1
          uid = uid + 1
       end
    else -- Get the `maxamt` most recent articles
       local uid = kingdoms.news.uid - 1
       local n
       while uid >= kingdoms.news.uid - maxamt do
+         if uid < 1 then break end
          n = kingdoms.news.news[uid]
-         news = news .. format_news_item(n)
+         news[idx] = format_news_item(n)
+         idx = idx + 1
          uid = uid - 1
       end
       return news
    end
+end
+
+function kingdoms.clear_news()
+   kingdoms.news.news = {}
+   kingdoms.news.uid = 1
+   kingdoms.helpers.save()
 end

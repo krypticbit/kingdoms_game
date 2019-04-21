@@ -295,5 +295,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
    end)
    -- Bring up kingdoms gui
    cmd:sub("", function(name)
+      local fs = kingdoms.get_gui(name)
+      minetest.show_formspec(name, "kingdoms:gui", fs)
    end)
 end)

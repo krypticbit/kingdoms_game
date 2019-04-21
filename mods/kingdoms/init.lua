@@ -50,7 +50,7 @@ kingdoms.colors = {
 -- Load news
 local nStr = storage:get_string("news")
 if nStr == "" then
-   kingdoms.news = {newsuid = 1, news = {}}
+   kingdoms.news = {uid = 1, news = {}}
 else
    kingdoms.news = minetest.deserialize(nStr)
 end
@@ -90,5 +90,6 @@ end
 -- Load external files
 dofile(mp .. "/news.lua")
 dofile(mp .. "/kingdoms.lua")
+dofile(mp .. "/gui.lua")
 dofile(mp .. "/markers.lua")
 dofile(mp .. "/chat.lua")

@@ -38,6 +38,28 @@ function kingdoms.helpers.split_into_keys(str)
    return out
 end
 
+function kingdoms.helpers.split_into_lengths(str, of)
+   local res = {}
+   local len = 0
+   local wlen
+   local line = ""
+   local lidx = 1
+   for w in str:gmatch("%S+") do
+      wlen = w:len()
+      if len + wlen > of then
+         res[lidx] = line
+         line = w
+         lidx = lidx + 1
+         len = wlen
+      else
+         line = line .. " " .. w
+         len = len + wlen + 1 -- + 1 for the space
+      end
+   end
+   res[lidx] = line
+   return res
+end
+
 function kingdoms.helpers.save()
    local ktable = minetest.serialize(kingdoms.kingdoms)
    kingdoms.storage:set_string("kingdoms", ktable)
