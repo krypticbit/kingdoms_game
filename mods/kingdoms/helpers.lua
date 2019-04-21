@@ -47,4 +47,6 @@ function kingdoms.helpers.save()
    kingdoms.storage:set_string("pending_requests", ptable)
    local markersTable = minetest.serialize(kingdoms.markers)
    kingdoms.storage:set_string("markers", markersTable)
+   local newsTable = minetest.serialize(kingdoms.news)
+   kingdoms.storage:set_string("news", newsTable)
 end

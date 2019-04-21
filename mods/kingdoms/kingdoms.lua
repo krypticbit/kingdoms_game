@@ -89,6 +89,7 @@ function kingdoms.add_kingdom(name, king)
    kingdoms.kingdoms[name] = {
       name = name,
       members = {},
+      news = {},
       ranks = kingdoms.helpers.copy_table(kingdoms.default_ranks),
       default_rank = "soldier",
       restricted = false,

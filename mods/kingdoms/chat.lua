@@ -293,4 +293,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Set color
       return kingdoms.set_color(kingdoms.members[name].kingdom, color)
    end)
+   -- Bring up kingdoms gui
+   cmd:sub("", function(name)
+   end)
 end)

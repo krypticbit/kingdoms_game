@@ -10,7 +10,7 @@ dofile(mp .. "/helpers.lua")
 
 -- Config
 kingdoms.marker_radius = 100
-kingdoms.marker_capture_time = 60 -- Seconds
+kingdoms.marker_capture_time = 300 -- Seconds
 kingdoms.marker_capture_range = 5
 
 -- Generated based on config
@@ -47,6 +47,14 @@ kingdoms.colors = {
    Brown = "#8B4513"
 }
 
+-- Load news
+local nStr = storage:get_string("news")
+if nStr == "" then
+   kingdoms.news = {newsuid = 1, news = {}}
+else
+   kingdoms.news = minetest.deserialize(nStr)
+end
+
 -- Load players
 local pStr = storage:get_string("members")
 if pStr == "" then
@@ -80,6 +88,7 @@ else
 end
 
 -- Load external files
+dofile(mp .. "/news.lua")
 dofile(mp .. "/kingdoms.lua")
 dofile(mp .. "/markers.lua")
 dofile(mp .. "/chat.lua")
