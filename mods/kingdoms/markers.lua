@@ -58,7 +58,7 @@ end
 -- Default marker
 minetest.register_node("kingdoms:marker", {
    description = "Marker",
-   tiles = {"marker.png^[noalpha"},
+   tiles = {"kingdoms_marker.png^[noalpha"},
    stack_max = 1,
    on_place = function(istack, placer, pointed_thing)
       -- Check if the placer is a player
@@ -103,7 +103,7 @@ minetest.register_node("kingdoms:marker", {
 for c,v in pairs(kingdoms.colors) do
    minetest.register_node("kingdoms:marker_" .. string.lower(c), {
       description = c .. " Marker (You haxxor you)",
-      tiles = {"marker.png^[colorize:" .. v .. "^marker.png"},
+      tiles = {"kingdoms_marker.png^[colorize:" .. v .. "^kingdoms_marker.png"},
       light_source = 1,
       drop = "kingdoms:marker",
       groups = {kingdoms_marker = 1, oddly_breakable_by_hand = 1, cracky = 1},
@@ -148,7 +148,14 @@ for c,v in pairs(kingdoms.colors) do
             minetest.chat_send_player(pname, "This marker is already under attack by kingdom " .. attackers)
             return
          end
+         -- Check if puncher is wielding a scepter
+         if puncher:get_wielded_item():get_name() ~= "kingdoms:scepter" then
+            minetest.node_punch(pos, node, puncher, pointed_thing)
+            minetest.chat_send_player(pname, "Punch this marker with a scepter to capture it")
+            return
+         end
          -- Begin attack
+         puncher:set_wielded_item("")
          minetest.chat_send_all("Kingdom " .. member.kingdom ..
             " is attacking a territory of kingdom " .. marker.kingdom .. "!")
          local timer = minetest.get_node_timer(pos)
@@ -169,6 +176,7 @@ for c,v in pairs(kingdoms.colors) do
          -- Check if attackers are near marker
          local objs = minetest.get_objects_inside_radius(pos, kingdoms.marker_capture_range)
          local numAttackers = 0
+         local numDefenders = 0
          for _, o in pairs(objs) do
             if minetest.is_player(o) then
                local n = o:get_player_name()
@@ -179,16 +187,21 @@ for c,v in pairs(kingdoms.colors) do
                      add_particles(start_pos, pos, 0.2,
                         "kingdoms_circle.png^[colorize:" .. kingdoms.colors[kingdoms.kingdoms[akingdom].color])
                   elseif kingdoms.members[n].kingdom == dkingdom then -- Friend
-                     numAttackers = numAttackers - 1
+                     numDefenders = numDefenders + 1
                      add_particles(start_pos, pos, 0.2,
                         "kingdoms_circle.png^[colorize:" .. kingdoms.colors[kingdoms.kingdoms[dkingdom].color])
                   end
                end
             end
          end
+         -- If there are no attackers, the attackers lost
+         if numAttackers == 0 then
+            cancel_attack(meta, dkingdom, akingdom)
+            return
+         end
          -- Decrease countdown
          local cd = meta:get_float("countdown")
-         cd = cd - elapsed * numAttackers
+         cd = cd + elapsed * (numDefenders - numAttackers)
          -- Check if the attackers won
          if cd < 0 then -- attackers won
             finish_attack(pos, hpos, meta, dkingdom, akingdom)
@@ -205,6 +218,11 @@ for c,v in pairs(kingdoms.colors) do
    })
 end
 
+minetest.register_tool("kingdoms:scepter", {
+   description = "Scepter",
+   inventory_image = "kingdoms_scepter.png",
+})
+
 -- LBM to ensure that markers are the right colors and valid markers
 minetest.register_lbm({
    label = "Correct markers",
@@ -213,13 +231,67 @@ minetest.register_lbm({
    run_at_every_load = true,
    action = function(pos, node)
       local hpos = minetest.hash_node_position(pos)
-      if kingdoms.markers[hpos] == nil then -- Corrupt marker
+      -- Check if marker is recorded
+      if kingdoms.markers[hpos] == nil then
          minetest.log("warning", "Invalid marker at " .. minetest.pos_to_string(pos) .. ", removing")
          minetest.set_node(pos, {name = "air"})
+         return
       end
-      local correct_name = "kingdoms:marker_" .. string.lower(kingdoms.kingdoms[kingdoms.markers[hpos].kingdom].color)
+      -- Check if marker's kingdom exists
+      local k = kingdoms.kingdoms[kingdoms.markers[hpos].kingdom]
+      if k == nil then
+         minetest.log("warning", "Removing marker at " .. minetest.pos_to_string(pos) ..
+            " because kingdom no longer exists")
+            minetest.set_node(pos, {name = "air"})
+            kingdoms.markers[hpos] = nil
+            kingdoms.helpers.save()
+         return
+      end
+      -- Check if name is correct
+      local correct_name = "kingdoms:marker_" .. string.lower(k.color)
       if node.name ~= correct_name then -- Wrong color
          minetest.swap_node(pos, {name = correct_name})
       end
    end
 })
+
+-- Make markers actually protect things
+local function new_is_protected(pos, name)
+   -- Get the closest marker to pos within the marker radius
+   local distsq
+   local mindist
+   local k
+   for _,m in pairs(kingdoms.markers) do
+      distsq = (m.pos.x - pos.x) ^ 2 + (m.pos.z - pos.z) ^ 2
+      if distsq < kingdoms.marker_radius_sq then
+         if mindist == nil or distsq < mindist then
+            mindist = distsq
+            k = m.kingdom
+         end
+      end
+   end
+   -- Check if area is protected at all
+   if k == nil then -- No marker near enough was found
+      return false
+   end
+   -- Check if player has access to the area
+   if kingdoms.members[name] == nil or kingdoms.members[name].kingdom ~= k then
+      minetest.chat_send_player(name, "This area is protected by kingdom " .. k)
+      return true
+   end
+   -- Check if player is allowed to interact
+   if kingdoms.player_has_priv(name, "interact") ~= true then
+      minetest.chat_send_player(name, "This area is protected by kingdom " .. k ..
+         ", but you are not allowed to interact with it")
+      return true
+   end
+   return false
+end
+
+local old_is_protected = minetest.is_protected
+function minetest.is_protected(pos, name)
+   if new_is_protected(pos, name) then
+      return true
+   end
+   return old_is_protected(pos, name)
+end

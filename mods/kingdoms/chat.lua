@@ -114,10 +114,6 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       if kingdoms.members[name] == nil then
          return false, "You are not in a kingdom"
       end
-      -- Check if victim is in a kingdom
-      if kingdoms.members[victim] ~= nil then
-         return false, victim .. " is already in a kingdom"
-      end
       local k = kingdoms.members[name].kingdom
       -- Check if player has necessary privs
       if kingdoms.player_has_priv(name, "recruiter") == false then
@@ -129,6 +125,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       end
       -- Join
       kingdoms.pending[victim] = nil
+      kingdoms.helpers.save()
       return kingdoms.add_player_to_kingdom(victim, k)
    end)
    -- Apply to / join kingdom
@@ -144,10 +141,20 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Join or send request
       if kingdoms.kingdoms[kingdom].restricted then
          kingdoms.pending[name] = kingdom
+         kingdoms.helpers.save()
          return true, "Your request has been sent to the kingdom " .. kingdom
       else
          return kingdoms.add_player_to_kingdom(kingdom, name)
       end
+   end)
+   -- Leave kingdom
+   cmd:sub("leave", function(name)
+      -- Check if player is in a kingdom
+      if kingdoms.members[name] == nil then
+         return false, "You are not in a kingdom"
+      end
+      -- Leave
+      return kingdoms.remove_player_from_kingdom(name)
    end)
    -- Kick member
    cmd:sub("kick :player:word", function(name, victim)
@@ -268,5 +275,22 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       end
       -- Toggle
       return kingdoms.toggle_restricted(kingdoms.members[name].kingdom)
+   end)
+   -- Set team color
+   cmd:sub("set_color :color:word", function(name, color)
+      -- Check if player is in a kingdom
+      if kingdoms.members[name] == nil then
+         return false, "You are not in a kingdom"
+      end
+      -- Check if player has necessary privs
+      if kingdoms.player_has_priv(name, "admin") == false then
+         return false, "You are not a kingdom administrator"
+      end
+      -- Check if color is valid
+      if kingdoms.colors[color] == nil then
+         return false, "Invalid color.  Valid colors are: " .. kingdoms.helpers.keys_to_str(kingdoms.colors)
+      end
+      -- Set color
+      return kingdoms.set_color(kingdoms.members[name].kingdom, color)
    end)
 end)

@@ -55,6 +55,10 @@ function kingdoms.remove_player_from_kingdom(name)
    local kingdom_name = kingdoms.members[name].kingdom
    kingdoms.kingdoms[kingdom_name].members[name] = nil
    kingdoms.members[name] = nil
+   -- If there are 0 members, delete kingdom
+   if kingdoms.helpers.count_table(kingdoms.kingdoms[kingdom_name].members) == 0 then
+      kingdoms.remove_kingdom(kingdom_name)
+   end
    -- Save
    kingdoms.helpers.save()
    return true, "Removed " .. name .. " from kingdom " .. kingdom_name
@@ -110,6 +114,13 @@ function kingdoms.remove_kingdom(name)
    for k, p in pairs(kingdoms.pending) do
       if p == name then
          kingdoms.pending[k] = nil
+      end
+   end
+   -- Remove markers
+   for hpos, m in pairs(kingdoms.markers) do
+      if m.kingdom == name then
+         minetest.set_node(m.pos, {name = "air"})
+         kingdoms.markers[hpos] = nil
       end
    end
    -- Remove kingdom
@@ -178,10 +189,14 @@ function kingdoms.set_rank_privs(name, rank, privs)
       return false, "Rank " .. rank .. " does not exist"
    end
    -- Check if privs are valid
-   for priv, _ in pairs(privs) do
-      if kingdoms.kingdom_privs[priv] == nil then
-         return false, "Invalid priv " .. priv
+   if privs["all"] == nil then
+      for priv, _ in pairs(privs) do
+         if kingdoms.kingdom_privs[priv] == nil then
+            return false, "Invalid priv " .. priv
+         end
       end
+   else
+      privs = kingdoms.helpers.copy_table(kingdoms.kingdom_privs)
    end
    -- Set privs
    kingdoms.kingdoms[name].ranks[rank] = privs

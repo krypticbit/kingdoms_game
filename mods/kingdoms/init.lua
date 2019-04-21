@@ -23,11 +23,13 @@ kingdoms.kingdom_privs = {
    interact = true, -- Interact with team areas
    diplomat = true, -- Make / end wars
    rank_master = true, -- Make / remove ranks
+   admin = true, -- Change team settings
 }
 
 -- Define default ranks
 kingdoms.default_ranks = {
    king = kingdoms.helpers.copy_table(kingdoms.kingdom_privs),
+   high_lord = {make_base = true, interact = true, recruiter = true, admin = true, diplomat = true},
    lord = {make_base = true, interact = true, recruiter = true},
    soldier = {make_base = true, interact = true}
 }
