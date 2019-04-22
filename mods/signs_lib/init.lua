@@ -311,8 +311,10 @@ local function make_line_texture(line, lineno, pos)
 	local maxw = 0
 
 	local words = { }
-	local n = minetest.registered_nodes[minetest.get_node(pos).name]
-	local default_color = n.default_color or 0
+   local default_color
+
+   local n = minetest.registered_nodes[minetest.get_node(pos).name]
+   default_color = n.default_color or 0
 
 	local cur_color = tonumber(default_color, 16)
 
@@ -487,7 +489,7 @@ signs_lib.update_sign = function(pos, fields, owner)
 
 		meta:set_string("infotext", ownstr..string.gsub(make_infotext(fields.text), "@KEYWORD", current_keyword).." ")
 		meta:set_string("text", fields.text)
-		
+
 		meta:set_int("__signslib_new_format", 1)
 		new = true
 	else
@@ -1156,4 +1158,88 @@ minetest.register_craft( {
 
 if minetest.setting_get("log_mods") then
 	minetest.log("action", S("signs loaded"))
+end
+
+-- Added by BillyS
+-- Useful function for the nametag mod
+function signs_lib.make_line_texture(line)
+
+	local width = 0
+	local maxw = 0
+
+	local words = { }
+   local cur_color = 15
+   local lineno = 0
+
+	-- We check which chars are available here.
+	for word_i, word in ipairs(line) do
+		local chars = { }
+		local ch_offs = 0
+		local word_l = #word
+		local i = 1
+		while i <= word_l  do
+			local c = word:sub(i, i)
+			if c == "#" then
+				local cc = tonumber(word:sub(i+1, i+1), 16)
+				if cc then
+					i = i + 1
+					cur_color = cc
+				end
+			else
+				local w = charwidth[c]
+				if w then
+					width = width + w
+					maxw = math_max(width, maxw)
+					if #chars < MAX_INPUT_CHARS then
+						table.insert(chars, {
+							off=ch_offs,
+							tex=FONT_FMT_SIMPLE:format(c:byte()),
+							col=("%X"):format(cur_color),
+						})
+					end
+					ch_offs = ch_offs + w
+				end
+			end
+			i = i + 1
+		end
+		table.insert(words, { chars=chars, w=ch_offs })
+	end
+
+	-- Okay, we actually build the "line texture" here.
+
+	local texture = { }
+
+	--local start_xpos = math.floor((SIGN_WIDTH - maxw) / 2)
+   local start_xpos = 0
+	local xpos = 0
+	local ypos = 0
+
+	cur_color = nil
+
+	for word_i, word in ipairs(words) do
+		local xoffs = (xpos - start_xpos)
+		if (xoffs > 0) and ((xoffs + word.w) > maxw) then
+			table.insert(texture, fill_line(xpos, ypos, maxw, "n"))
+			xpos = start_xpos
+			ypos = ypos + LINE_HEIGHT
+			lineno = lineno + 1
+			if lineno >= NUMBER_OF_LINES then break end
+			table.insert(texture, fill_line(xpos, ypos, maxw, cur_color))
+		end
+		for ch_i, ch in ipairs(word.chars) do
+			if ch.col ~= cur_color then
+				cur_color = ch.col
+				table.insert(texture, fill_line(xpos + ch.off, ypos, maxw, cur_color))
+			end
+			table.insert(texture, (":%d,%d=%s"):format(xpos + ch.off, ypos, ch.tex))
+		end
+		table.insert(texture, (":%d,%d=hdf_20.png"):format(xpos + word.w, ypos))
+		xpos = xpos + word.w + charwidth[" "]
+		if xpos >= (SIGN_WIDTH + charwidth[" "]) then break end
+	end
+
+	table.insert(texture, fill_line(xpos, ypos, maxw, "n"))
+	table.insert(texture, fill_line(start_xpos, ypos + LINE_HEIGHT, maxw, "n"))
+
+	return ("[combine:%dx%d]"):format(width, LINE_HEIGHT) .. table.concat(texture) .. "^[makealpha:0,0,0", width / LINE_HEIGHT
 end
