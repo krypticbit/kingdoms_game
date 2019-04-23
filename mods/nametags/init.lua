@@ -28,8 +28,11 @@ minetest.register_entity("nametags:nametag", {
       e.object:set_attach(pobj, "", {x = 0, y = 20, z = 0}, {x = 0, y = 0, z = 0})
    end,
    on_step = function(e)
-      if minetest.get_player_by_name(e._pname) == nil then
+      local p = minetest.get_player_by_name(e._pname)
+      if p == nil then
          e.object:remove()
+      else
+         e.object:set_attach(p, "", {x = 0, y = 20, z = 0}, {x = 0, y = 0, z = 0})
       end
    end
 })
