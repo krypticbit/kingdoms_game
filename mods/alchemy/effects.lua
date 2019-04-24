@@ -30,7 +30,7 @@ decrease_effect_timer()
 
 -- Effect registering
 local function register_effect(name, effect)
-   alchemy.effects["alchemy:beaker_" .. name] = effect
+   alchemy.effects[name] = effect
 end
 
 local function register_timed_effect(e, def)
@@ -39,7 +39,7 @@ local function register_timed_effect(e, def)
    local on_start = def.on_start
    local on_tick = def.on_tick
    local on_end = def.on_end
-   alchemy.effects["alchemy:beaker_" .. e] = function(p, pos, cLevel)
+   alchemy.effects[e] = function(p, pos, cLevel)
       -- Get correct time
       local cTime = math.floor(time * (time_multiplier ^ (cLevel - 1)))
       -- Run on_start

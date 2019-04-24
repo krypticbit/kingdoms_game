@@ -286,6 +286,10 @@ local function new_is_protected(pos, name)
    if k == nil then -- No marker near enough was found
       return false
    end
+   -- If name is nil, we can't check
+   if name == nil then
+      return true
+   end
    -- Check if player has access to the area
    if kingdoms.members[name] == nil or kingdoms.members[name].kingdom ~= k then
       minetest.chat_send_player(name, "This area is protected by kingdom " .. k)

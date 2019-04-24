@@ -6,6 +6,9 @@ if enable_tnt == nil then
 	enable_tnt = minetest.is_singleplayer()
 end
 
+-- Override by BillyS
+enable_tnt = true
+
 -- loss probabilities array (one in X will be lost)
 local loss_prob = {}
 
@@ -14,18 +17,93 @@ loss_prob["default:dirt"] = 4
 
 local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
--- Fill a list with data for content IDs, after all nodes are registered
+--
+-- Written by BillyS
+-- Special TNT effects for protected areas
+--
+
+minetest.register_on_punchnode(function(pos)
+   local meta = minetest.get_meta(pos)
+   local hp = meta:get_int("node_hp")
+   if hp == 0 then
+      minetest.chat_send_all("None")
+   else
+      minetest.chat_send_all(tostring(hp))
+   end
+end)
+
+-- Helpers
+local function div(a, b)
+   if a == nil or b == nil then return 0 end
+   return a / b
+end
+
+local function mult(a, b)
+   if a == nil or b == nil then return 0 end
+   return a * b
+end
+
+local function get_node_strength(groups)
+   local s = div(50, groups.cracky)
+      + div(70, groups.stone)
+      + mult(150, groups.level)
+      + div(25, groups.crumbly)
+      - mult(10, groups.oddly_breakable_by_hand)
+      + div(30, groups.snappy)
+      + div(40, groups.choppy)
+      - mult(10, groups.dig_immediate)
+   s = math.floor(s + 0.5)
+   if s < 0 then s = 1 end
+   return s
+end
+
+-- Run once all nodes are registered: modify on_blast to do node damage
+local blacklist = {
+   ["kingdoms:marker"] = true
+}
+
 local cid_data = {}
+
 minetest.after(0, function()
-	for name, def in pairs(minetest.registered_nodes) do
-		cid_data[minetest.get_content_id(name)] = {
-			name = name,
+   local id
+   for n, def in pairs(minetest.registered_nodes) do
+      id = minetest.get_content_id(n)
+      cid_data[id] = {
+			name = n,
 			drops = def.drops,
 			flammable = def.groups.flammable,
-			on_blast = def.on_blast,
 		}
-	end
+      if blacklist[n] == nil and def.groups and def.groups.unbreakable == nil and def.on_blast == nil then
+         cid_data[id].on_blast = function(pos, intensity)
+            minetest.chat_send_all("boom")
+            -- Check if node is protected
+            if minetest.is_protected(pos) then
+               -- Get node strength
+               local meta = minetest.get_meta(pos)
+               local s = meta:get_int("node_hp")
+               if s == 0 then
+                  s = get_node_strength(def.groups)
+               end
+               -- Damage node
+               s = s - intensity * math.random(2, 20)
+               s = math.floor(s + 0.5)
+               if s <= 0 then
+                  minetest.set_node(pos, {name = "air"})
+                  return
+               else
+                  meta:set_int("node_hp", s)
+               end
+            end
+         end
+      else
+         cid_data[id].on_blast = def.on_blast
+      end
+   end
 end)
+
+--
+-- End written by BillyS
+--
 
 local function rand_pos(center, pos, radius)
 	local def
@@ -677,4 +755,5 @@ tnt.register_tnt({
 	name = "tnt:tnt",
 	description = "TNT",
 	radius = tnt_radius,
+   ignore_protection = true, -- Handled by kingdoms
 })

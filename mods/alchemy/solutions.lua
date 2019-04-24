@@ -2,12 +2,15 @@
 -- Define callbacks
 --
 
-local function register_solution(shortname, desc, tex)
+local function register_solution(shortname, desc, tex, canthrow)
    -- Register solution
    local bname = "alchemy:beaker_" .. shortname
    alchemy.solutions[bname] = shortname
    -- Register beaker
    alchemy.register_beaker(shortname, desc, tex)
+   if canthrow == true then
+      alchemy.register_splash_beaker(shortname, desc, tex)
+   end
    -- Register cauldrons
    alchemy.register_cauldron(shortname .. "1", {
       texture = tex,
@@ -57,9 +60,9 @@ register_solution("mese", "Mese Solution", "mese_solution.png")
 -- Potions
 --
 
-register_solution("healing_brew", "Healing Brew", "healing_brew_solution.png")
-register_solution("fire_resistance", "Fire Resistance", "fire_resistance_solution.png")
-register_solution("jump_boost", "Jump Boost", "jump_boost_solution.png")
-register_solution("speed_boost", "Speed Boost", "speed_boost_solution.png")
-register_solution("invisibility_brew", "Invisibility Brew", "invisibility_brew_solution.png")
-register_solution("water_breathing_brew", "Water Breathing Brew", "water_breathing_brew_solution.png")
+register_solution("healing_brew", "Healing Brew", "healing_brew_solution.png", true)
+register_solution("fire_resistance", "Fire Resistance", "fire_resistance_solution.png", true)
+register_solution("jump_boost", "Jump Boost", "jump_boost_solution.png", true)
+register_solution("speed_boost", "Speed Boost", "speed_boost_solution.png", true)
+register_solution("invisibility_brew", "Invisibility Brew", "invisibility_brew_solution.png", true)
+register_solution("water_breathing_brew", "Water Breathing Brew", "water_breathing_brew_solution.png", true)
