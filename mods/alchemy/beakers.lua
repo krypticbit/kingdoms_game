@@ -248,8 +248,20 @@ local function register_splash_beaker(name, description, texture)
          })
          e:set_velocity(vel)
          e:set_acceleration({x = 0, y = -20, z = 0})
+         -- Remove item
+         itemstack:take_item()
+         return itemstack
       end
    })
+
+   minetest.register_craft({
+      output = bname,
+      type = "shapeless",
+      recipe = {
+         "default:diamond", "alchemy:beaker_" .. name
+      }
+   })
+
 end
 
 alchemy.register_beaker = register_beaker
