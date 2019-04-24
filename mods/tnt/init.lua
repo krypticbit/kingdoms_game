@@ -22,16 +22,6 @@ local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 -- Special TNT effects for protected areas
 --
 
-minetest.register_on_punchnode(function(pos)
-   local meta = minetest.get_meta(pos)
-   local hp = meta:get_int("node_hp")
-   if hp == 0 then
-      minetest.chat_send_all("None")
-   else
-      minetest.chat_send_all(tostring(hp))
-   end
-end)
-
 -- Helpers
 local function div(a, b)
    if a == nil or b == nil then return 0 end

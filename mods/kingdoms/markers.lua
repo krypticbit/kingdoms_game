@@ -220,6 +220,15 @@ for c,v in pairs(kingdoms.colors) do
    })
 end
 
+minetest.register_craft({
+   output = "kingdoms:marker",
+   recipe = {
+      {"default:steelblock", "default:steelblock", "default:steelblock"},
+      {"default:steelblock", "default:diamondblock", "default:steelblock"},
+      {"default:steelblock", "default:steelblock", "default:steelblock"}
+   }
+})
+
 -- Scepter to capture markers
 minetest.register_tool("kingdoms:scepter", {
    description = "Scepter",
