@@ -402,7 +402,7 @@ end)
 
 -- Auto-add markers on death.
 minetest.register_on_dieplayer(function(player)
-    local name = os.date('Death on %Y-%m-%d %H:%M:%S')
+    local name = 'Death Marker'
     local pos  = player:get_pos()
     advmarkers.last_coords[player] = pos
     advmarkers.set_marker(player, pos, name)
