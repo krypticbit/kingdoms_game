@@ -326,7 +326,7 @@ function doors.register(name, def)
 			meta:set_int("state", state)
 
          if def.obeys_protection then
-            meta:set_string("obeys_protection", true)
+            meta:set_int("obeys_protection", 1)
             meta:set_string("infotext", "Protected Door")
          elseif def.protected then
 				meta:set_string("owner", pn)
@@ -579,7 +579,16 @@ function doors.register_trapdoor(name, def)
 	def.paramtype2 = "facedir"
 	def.is_ground_content = false
 
-	if def.protected then
+   if def.obeys_protection then
+      def.can_dig = can_dig_door
+      def.after_place_node = function(pos, placer, itemstack, pointed_thing)
+			local pn = placer:get_player_name()
+			local meta = minetest.get_meta(pos)
+			meta:set_int("obeys_protection", 1)
+			meta:set_string("infotext", "Protected Trapdoor")
+			return (creative and creative.is_enabled_for and creative.is_enabled_for(pn))
+		end
+   elseif def.protected then
 		def.can_dig = can_dig_door
 		def.after_place_node = function(pos, placer, itemstack, pointed_thing)
 			local pn = placer:get_player_name()
