@@ -583,6 +583,12 @@ function default.can_interact_with_node(player, pos)
 		return true
 	end
 
+   if meta:get_bool("obeys_protection") then
+      if minetest.is_protected(pos, player:get_player_name()) == false then
+         return true
+      end
+   end
+
 	-- Is player wielding the right key?
 	local item = player:get_wielded_item()
 	if item:get_name() == "default:key" then

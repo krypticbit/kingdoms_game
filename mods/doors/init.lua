@@ -208,7 +208,7 @@ local function on_place_node(place_to, newnode,
 end
 
 local function can_dig_door(pos, digger)
-	replace_old_owner_information(pos)
+   replace_old_owner_information(pos)
 	return default.can_interact_with_node(digger, pos)
 end
 
@@ -325,7 +325,10 @@ function doors.register(name, def)
 			local meta = minetest.get_meta(pos)
 			meta:set_int("state", state)
 
-			if def.protected then
+         if def.obeys_protection then
+            meta:set_string("obeys_protection", true)
+            meta:set_string("infotext", "Protected Door")
+         elseif def.protected then
 				meta:set_string("owner", pn)
 				meta:set_string("infotext", "Owned by " .. pn)
 			end
@@ -385,7 +388,9 @@ function doors.register(name, def)
 		return false
 	end
 
-	if def.protected then
+   if def.obeys_protection then
+      def.can_dig = can_dig_door
+   elseif def.protected then
 		def.can_dig = can_dig_door
 		def.on_blast = function() end
 		def.on_key_use = function(pos, player)
