@@ -108,8 +108,10 @@ local armor_mod = minetest.get_modpath("3d_armor")
 function set_sprinting(name, sprinting)
 	local player = minetest.get_player_by_name(name)
 	if sprinting then
-	    set_player_physics_multiplier(player, {speed = 1.5, jump = 1.2}, "stamina")
-    end
+      set_player_physics_multiplier(player, {speed = 1.5, jump = 1.2}, "stamina")
+   else
+      remove_player_physics_multiplier(player, "stamina")
+   end
 end
 
 -- Time based stamina functions
