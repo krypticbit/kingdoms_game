@@ -154,7 +154,7 @@ register_timed_effect("jump_boost", {
    effect_name = "Jump Boost",
    duration = 70,
    on_start = function(player, pos)
-      set_player_physics_multiplier(player, {jump = 2}, 20, "potions jump boost")
+      set_player_physics_multiplier(player, {jump = 2}, "potions jump boost")
    end,
    on_end = function(player)
       remove_player_physics_multiplier(player, "potions jump boost")
@@ -166,7 +166,7 @@ register_timed_effect("speed_boost", {
    effect_name = "Speed Boost",
    duration = 200,
    on_start = function(player, pos)
-      set_player_physics_multiplier(player, {speed = 2}, 20, "potions speed boost")
+      set_player_physics_multiplier(player, {speed = 2}, "potions speed boost")
    end,
    on_end = function(player)
       remove_player_physics_multiplier(player, "potions speed boost")

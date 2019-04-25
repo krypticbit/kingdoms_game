@@ -31,12 +31,10 @@ local function get_highest_priority(t, element)
 	return highest, highestPriority
 end
 
-local function apply_physics_override(t, element, to, targetP)
+local function apply_physics_override(t, element, to)
 	for id, pTable in pairs(t) do
 		if pTable.mults[element] ~= nil then
-			if pTable.priority >= targetP then
-				to = pTable.mults[element] * to
-			end
+			to = pTable.mults[element] * to
 		end
 	end
 	return to
@@ -58,9 +56,9 @@ local function update_physics(player)
 	-- Apply multipliers
 	local mults = player_physics_multipliers[n]
 	if mults then
-		speed = apply_physics_override(mults, "speed", speed, speedP)
-		jump = apply_physics_override(mults, "jump", jump, jumpP)
-		gravity = apply_physics_override(mults, "gravity", gravity, gravityP)
+		speed = apply_physics_override(mults, "speed", speed)
+		jump = apply_physics_override(mults, "jump", jump)
+		gravity = apply_physics_override(mults, "gravity", gravity)
 	end
 	-- Condense final player physics
 	local highest = {
@@ -88,11 +86,11 @@ function reset_player_physics(player, id)
 	update_physics(player)
 end
 
-function set_player_physics_multiplier(player, mults, priority, id)
+function set_player_physics_multiplier(player, mults, id)
 	local pName = player:get_player_name()
 	check_for_entry(pName)
 	check_for_multiplier(pName)
-	player_physics_multipliers[pName][id] = {priority = priority, mults = mults}
+	player_physics_multipliers[pName][id] = mults
 	update_physics(player)
 end
 
