@@ -579,15 +579,15 @@ function default.can_interact_with_node(player, pos)
 	local meta = minetest.get_meta(pos)
 	local owner = meta:get_string("owner")
 
-	if not owner or owner == "" or owner == player:get_player_name() then
-		return true
-	end
-
    if meta:get_int("obeys_protection") == 1 then
       if minetest.is_protected(pos, player:get_player_name()) == false then
          return true
       end
    end
+
+	if not owner or owner == "" or owner == player:get_player_name() then
+		return true
+	end
 
 	-- Is player wielding the right key?
 	local item = player:get_wielded_item()
