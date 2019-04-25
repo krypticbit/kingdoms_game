@@ -33,8 +33,8 @@ end
 
 local function apply_physics_override(t, element, to)
 	for id, pTable in pairs(t) do
-		if pTable.mults[element] ~= nil then
-			to = pTable.mults[element] * to
+		if pTable[element] ~= nil then
+			to = pTable[element] * to
 		end
 	end
 	return to
