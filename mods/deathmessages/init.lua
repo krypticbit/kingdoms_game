@@ -42,6 +42,7 @@ local function get_reason(l, v)
 end
 
 local function broadcast(msg)
+   msg = "[DeathMessage] " .. msg
    minetest.chat_send_all(msg)
    if irc then irc:say(msg) end
 end
