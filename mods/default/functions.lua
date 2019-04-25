@@ -580,8 +580,8 @@ function default.can_interact_with_node(player, pos)
 	local owner = meta:get_string("owner")
 
    if meta:get_int("obeys_protection") == 1 then
-      if minetest.is_protected(pos, player:get_player_name()) == false then
-         return true
+      if minetest.is_protected(pos, player:get_player_name()) then
+         return false
       end
    end
 
