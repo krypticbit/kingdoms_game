@@ -204,7 +204,7 @@ local animations = {
 		rotate(player, LLEG)
 		rotate(player, RLEG)
 
-		local body_position = {x = 0, y = -9, z = 0}
+		local body_position = {x = 0, y = 0, z = 0}
 		local body_rotation = {x = 270, y = 0, z = 0}
 
 		player:set_bone_position(BODY, body_position, body_rotation)
@@ -230,7 +230,7 @@ end
 local previous_animation = {}
 
 local function set_animation(player, anim)
-	if (anim == WALK or anim == MINE or anim == WALK_MINE) 
+	if (anim == WALK or anim == MINE or anim == WALK_MINE)
 	or (previous_animation[player] ~= anim) then
 		previous_animation[player] = anim
 		animations[anim](player)
