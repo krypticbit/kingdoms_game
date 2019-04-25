@@ -1,7 +1,7 @@
 doors.register("door_protected", {
-		tiles = {{name = "doors_door_steel.png", backface_culling = true}},
+		tiles = {{name = "kingdoms_door_protected.png", backface_culling = true}},
 		description = "Protected Door",
-		inventory_image = "doors_item_steel.png",
+		inventory_image = "kingdoms_door_protected_item.png",
 		obeys_protection = true,
 		groups = {cracky = 1, level = 2},
 		sounds = default.node_sound_metal_defaults(),
@@ -22,9 +22,9 @@ minetest.register_craft({
 
 doors.register_trapdoor("kingdoms:trapdoor_protected", {
 	description = "Protected Trapdoor",
-	inventory_image = "doors_trapdoor_steel.png",
-	wield_image = "doors_trapdoor_steel.png",
-	tile_front = "doors_trapdoor_steel.png",
+	inventory_image = "kingdoms_trapdoor_protected.png",
+	wield_image = "kingdoms_trapdoor_protected.png",
+	tile_front = "kingdoms_trapdoor_protected.png",
 	tile_side = "doors_trapdoor_steel_side.png",
 	obeys_protection = true,
 	sounds = default.node_sound_metal_defaults(),
