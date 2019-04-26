@@ -6,13 +6,30 @@ If needed, individual modules such as visualization.lua can be removed without a
 
 For more information, see the [README](README.md).
 
+General
+-------
+
+### value = worldedit.version
+
+Contains the current version of WorldEdit in a table of the form `{major=MAJOR_INTEGER, minor=MINOR_INTEGER}`, where `MAJOR_INTEGER` is the major version (the number before the period) as an integer, and `MINOR_INTEGER` is the minor version (the number after the period) as an integer. This is intended for version checking purposes.
+
+### value = worldedit.version_string
+
+Contains the current version of WorldEdit in the form of a string `"MAJOR_INTEGER.MINOR_INTEGER"`, where `MAJOR_INTEGER` is the major version (the number before the period) as an integer, and `MINOR_INTEGER` is the minor version (the number after the period) as an integer. This is intended for display purposes.
+
 Manipulations
 -------------
 Contained in manipulations.lua, this module allows several node operations to be applied over a region.
 
-### count = worldedit.set(pos1, pos2, nodename)
+### count = worldedit.set(pos1, pos2, node_name)
 
-Sets a region defined by positions `pos1` and `pos2` to `nodename`. To clear to region, use "air" as the value of `nodename`.
+Sets a region defined by positions `pos1` and `pos2` to `node_name`. To clear a region, use "air" as the value of `node_name`.
+
+Returns the number of nodes set.
+
+### `count = worldedit.set_param2(pos1, pos2, param2)`
+
+Sets the param2 values of all nodes in a region defined by positions `pos1` and `pos2` to `param2`.
 
 Returns the number of nodes set.
 
@@ -34,6 +51,12 @@ Copies the region defined by positions `pos1` and `pos2` along the `axis` axis (
 
 Returns the number of nodes copied.
 
+### count = worldedit.copy2(pos1, pos2, off)
+
+Copies the region defined by positions `pos1` and `pos2` by the offset vector `off`.
+
+Returns the number of nodes copied.
+
 ### count = worldedit.move(pos1, pos2, axis, amount)
 
 Moves the region defined by positions `pos1` and `pos2` along the `axis` axis ("x" or "y" or "z") by `amount` nodes.
@@ -46,11 +69,17 @@ Duplicates the region defined by positions `pos1` and `pos2` along the `axis` ax
 
 Returns the number of nodes stacked.
 
-### count, newpos1, newpos2 = worldedit.scale(pos1, pos2, factor)
+### count = worldedit.stack2(pos1, pos2, direction, amount)
 
-Scales the region defined by positions `pos1` and `pos2` by an factor of positive integer `factor` with `pos1` as the origin.
+Duplicates the region defined by positions `pos1` and `pos2` `amount` times with offset vector `direction`.
 
-Returns the number of nodes scaled, the new scaled position 1, and the new scaled position 2.
+Returns the number of nodes stacked.
+
+### count, newpos1, newpos2 = worldedit.stretch(pos1, pos2, stretchx, stretchy, stretchz)
+
+Stretches the region defined by positions `pos1` and `pos2` by an factor of positive integers `stretchx`, `stretchy`. and `stretchz` along the X, Y, and Z axes, respectively, with `pos1` as the origin.
+
+Returns the number of nodes stretched, the new scaled position 1, and the new scaled position 2.
 
 ### count, newpos1, newpos2 = worldedit.transpose(pos1, pos2, axis1, axis2)
 
@@ -92,51 +121,39 @@ Primitives
 ----------
 Contained in primitives.lua, this module allows the creation of several geometric primitives.
 
-### count = worldedit.hollow_sphere(pos, radius, nodename)
+### count = worldedit.cube(pos, width, height, length, node_name, hollow)
 
-Adds a hollow sphere centered at `pos` with radius `radius`, composed of `nodename`.
-
-Returns the number of nodes added.
-
-### count = worldedit.sphere(pos, radius, nodename)
-
-Adds a sphere centered at `pos` with radius `radius`, composed of `nodename`.
+Adds a cube with its ground level centered at `pos`, the dimensions `width` x `height` x `length`, composed of `node_name`.
 
 Returns the number of nodes added.
 
-### count = worldedit.hollow_dome(pos, radius, nodename)
+### count = worldedit.sphere(pos, radius, node_name, hollow)
 
-Adds a hollow dome centered at `pos` with radius `radius`, composed of `nodename`.
-
-Returns the number of nodes added.
-
-### count = worldedit.dome(pos, radius, nodename)
-
-Adds a dome centered at `pos` with radius `radius`, composed of `nodename`.
+Adds a sphere centered at `pos` with radius `radius`, composed of `node_name`.
 
 Returns the number of nodes added.
 
-### count = worldedit.hollow_cylinder(pos, axis, length, radius, nodename)
+### count = worldedit.dome(pos, radius, node_name, hollow)
 
-Adds a hollow cylinder at `pos` along the `axis` axis ("x" or "y" or "z") with length `length` and radius `radius`, composed of `nodename`.
-
-Returns the number of nodes added.
-
-### count = worldedit.cylinder(pos, axis, length, radius, nodename)
-
-Adds a cylinder at `pos` along the `axis` axis ("x" or "y" or "z") with length `length` and radius `radius`, composed of `nodename`.
+Adds a dome centered at `pos` with radius `radius`, composed of `node_name`.
 
 Returns the number of nodes added.
 
-### count = worldedit.pyramid(pos, axis, height, nodename)
+### count = worldedit.cylinder(pos, axis, length, radius1, radius2, node_name, hollow)
 
-Adds a pyramid centered at `pos` along the `axis` axis ("x" or "y" or "z") with height `height`.
+Adds a cylinder-like at `pos` along the `axis` axis ("x" or "y" or "z") with length `length`, base radius `radius1` and top radius `radius2`, composed of `node_name`.
 
 Returns the number of nodes added.
 
-### count = worldedit.spiral(pos, length, height, spacer, nodename)
+### count = worldedit.pyramid(pos, axis, height, node_name, hollow)
 
-Adds a spiral centered at `pos` with side length `length`, height `height`, space between walls `spacer`, composed of `nodename`.
+Adds a pyramid centered at `pos` along the `axis` axis ("x" or "y" or "z") with height `height`, composed of `node_name`.
+
+Returns the number of nodes added.
+
+### count = worldedit.spiral(pos, length, height, spacer, node_name)
+
+Adds a spiral centered at `pos` with side length `length`, height `height`, space between walls `spacer`, composed of `node_name`.
 
 Returns the number of nodes added.
 
@@ -156,15 +173,15 @@ Hides all nodes in a region defined by positions `pos1` and `pos2` by non-destru
 
 Returns the number of nodes hidden.
 
-### count = worldedit.suppress(pos1, pos2, nodename)
+### count = worldedit.suppress(pos1, pos2, node_name)
 
-Suppresses all instances of `nodename` in a region defined by positions `pos1` and `pos2` by non-destructively replacing them with invisible nodes.
+Suppresses all instances of `node_name` in a region defined by positions `pos1` and `pos2` by non-destructively replacing them with invisible nodes.
 
 Returns the number of nodes suppressed.
 
-### count = worldedit.highlight(pos1, pos2, nodename)
+### count = worldedit.highlight(pos1, pos2, node_name)
 
-Highlights all instances of `nodename` in a region defined by positions `pos1` and `pos2` by non-destructively hiding all other nodes.
+Highlights all instances of `node_name` in a region defined by positions `pos1` and `pos2` by non-destructively hiding all other nodes.
 
 Returns the number of nodes found.
 
@@ -176,31 +193,32 @@ Returns the number of nodes restored.
 
 Serialization
 -------------
-Contained in serialization.lua, this module allows regions of nodes to be serialized and deserialized to formats suitable for use outside MineTest.
+Contained in serialization.lua, this module allows regions of nodes to be serialized and deserialized to formats suitable for use outside Minetest.
 
-### version = worldedit.valueversion(value)
+### version, extra_fields, content = worldedit.read_header(value)
 
-Determines the version of serialized data `value`.
+Reads the header from serialized data `value`.
 
-Returns the version as a positive integer or 0 for unknown versions.
+Returns the version as a positive integer (nil for unknown versions),
+extra header fields (nil if not supported), and the content after the header.
 
 ### data, count = worldedit.serialize(pos1, pos2)
 
 Converts the region defined by positions `pos1` and `pos2` into a single string.
 
-Returns the serialized data and the number of nodes serialized.
+Returns the serialized data and the number of nodes serialized, or nil.
 
-### pos1, pos2, count = worldedit.allocate(originpos, value)
+### pos1, pos2, count = worldedit.allocate(origin_pos, value)
 
-Determines the volume the nodes represented by string `value` would occupy if deserialized at `originpos`.
+Determines the volume the nodes represented by string `value` would occupy if deserialized at `origin_pos`.
 
-Returns the two corner positions and the number of nodes.
+Returns the two corner positions and the number of nodes, or nil.
 
-### count = worldedit.deserialize(originpos, value)
+### count = worldedit.deserialize(origin_pos, value)
 
-Loads the nodes represented by string `value` at position `originpos`.
+Loads the nodes represented by string `value` at position `origin_pos`.
 
-Returns the number of nodes deserialized.
+Returns the number of nodes deserialized or nil.
 
 Code
 ----
