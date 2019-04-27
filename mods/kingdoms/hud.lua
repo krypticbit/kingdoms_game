@@ -7,6 +7,7 @@ function kingdoms.update_hud(p)
    if type(p) == "string" then
       name = p
       player = minetest.get_player_by_name(p)
+      if player == nil then return end
    else
       player = p
       name = p:get_player_name()
