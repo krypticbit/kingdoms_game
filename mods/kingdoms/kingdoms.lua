@@ -41,6 +41,7 @@ function kingdoms.add_player_to_kingdom(kingdom_name, name, rank)
    -- Add player to kingdom
    kingdoms.kingdoms[kingdom_name].members[name] = true
    kingdoms.members[name] = {rank = rank, kingdom = kingdom_name}
+   kingdoms.update_hud(name)
    -- Save
    kingdoms.helpers.save()
    return true, "Added " .. name .. " to kingdom " .. kingdom_name
@@ -55,6 +56,7 @@ function kingdoms.remove_player_from_kingdom(name)
    local kingdom_name = kingdoms.members[name].kingdom
    kingdoms.kingdoms[kingdom_name].members[name] = nil
    kingdoms.members[name] = nil
+   kingdoms.update_hud(name)
    -- If there are 0 members, delete kingdom
    if kingdoms.helpers.count_table(kingdoms.kingdoms[kingdom_name].members) == 0 then
       kingdoms.remove_kingdom(kingdom_name)
