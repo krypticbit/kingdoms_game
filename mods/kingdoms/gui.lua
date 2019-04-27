@@ -40,7 +40,7 @@ function kingdoms.set_gui(pname, tab)
       -- Get info
       local idx = kingdoms_gui[pname].apls.index
       -- Generate fs
-      fs = fs .. "textlist[0,1;7.8,7;aplslist;Kingdom Applications:,"
+      fs = fs .. "textlist[0,1;7.8,7;aplslist;Kingdom Applicants:,"
       for n,k in pairs(kingdoms.pending) do
          if k == kingdom then
             fs = fs .. n .. ","
@@ -52,7 +52,7 @@ function kingdoms.set_gui(pname, tab)
       -- Add accept / reject buttons
       minetest.log(tostring(kingdoms_gui[pname].apls.index))
       minetest.log(minetest.serialize(kingdoms_gui[pname].apls.apls))
-      if idx > 1 then -- Idx 1 == "Kingdom Applications:"
+      if idx > 1 and kingdoms.player_has_priv(pname, "recruiter") then -- Idx 1 == "Kingdom Applications:"
          local victim = kingdoms_gui[pname].apls.apls[idx - 1]
          fs = fs .. "button[0,8.3;2,1;acpt_" .. victim .. ";Accept]"
          fs = fs .. "button[2,8.3;2,1;rejc_" .. victim .. ";Reject]"
