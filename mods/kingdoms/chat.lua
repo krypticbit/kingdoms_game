@@ -302,3 +302,13 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       minetest.show_formspec(name, "kingdoms:gui_news", fs)
    end)
 end)
+
+-- Alias /k to /kingdoms
+minetest.register_chatcommand("k", {
+   params = "<arguments>",
+   description = "Alias for /kingdoms",
+   privs = {},
+   func = function(name, arg)
+      return minetest.registered_chatcommands["kingdoms"].func(name, arg)
+   end
+})
