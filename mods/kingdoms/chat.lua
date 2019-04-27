@@ -293,6 +293,22 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Set color
       return kingdoms.set_color(kingdoms.members[name].kingdom, color)
    end)
+   -- Help menu
+   cmd:sub("help", function(name)
+      return true, "Usage: \"/kingdoms <command>\" Commands:\n" ..
+         "info player|kingdom <name>: Gets info about player or kingdom\n" ..
+         "accept <name>: Accept player into kingdom (The player must have applied previously)\n" ..
+         "join <kingdom>: Join a kingdom or send a join request\n" ..
+         "leave: Leave a kingdom\n" ..
+         "kick <name>: Kick a player from your kingdom\n" ..
+         "set_rank <name> <rank>: Set the rank of a player\n" ..
+         "add_rank <rank> [<rank privs>]: Add rank with default privs or <rank privs> if specified\n" ..
+         "set_rank_privs <rank> <privs>: Set the privs of a rank\n" ..
+         "set_default_rank <rank>: Set a rank as default (given to new teammates)\n" ..
+         "remove_rank <rank>: Remove a rank\n" ..
+         "toggle_restricted: Toggle restricted status (restricted = player has to request to join)\n" ..
+         "set_color <color>: Set kingdom color (Leave <color> blank for a list of all colors)"
+   end)
    -- Bring up kingdoms gui
    cmd:sub("", function(name)
       if kingdoms.members[name] == nil then
