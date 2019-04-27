@@ -335,8 +335,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       if kingdoms.members[name] == nil then
          return false, "You are not in a kingdom"
       end
-      local fs = kingdoms.get_gui(name, "news")
-      minetest.show_formspec(name, "kingdoms:gui_news", fs)
+      kingdoms.set_gui(name, "news")
    end)
 end)
 

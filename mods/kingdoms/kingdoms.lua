@@ -1,3 +1,10 @@
+-- Constants
+local kingdom_relations = {
+   war = 1,
+   peace = 2,
+   alliance = 3
+}
+
 -- Get info about members
 function kingdoms.player_in_any_kingdoms(name)
    if kingdoms.members[name] ~= nil then
@@ -92,6 +99,7 @@ function kingdoms.add_kingdom(name, king)
       name = name,
       members = {},
       news = {},
+      relations = {},
       ranks = kingdoms.helpers.copy_table(kingdoms.default_ranks),
       default_rank = "soldier",
       restricted = false,
@@ -224,6 +232,40 @@ function kingdoms.set_default_rank(name, rank)
    -- Save
    kingdoms.helpers.save()
    return true, "Set default rank of kingdom " .. name .. " to " .. rank
+end
+
+function kingdoms.set_relation(kingdom1, kingdom2, relation)
+   -- Check if kingdom1 exists
+   if kingdoms.kingdoms[kingdom1] == nil then
+      return false, "Kingdom " .. kingdom1 .. " does not exist"
+   end
+   -- Check if kingdom2 exists
+   if kingdoms.kingdoms[kingdom2] == nil then
+      return false, "Kingdom " .. kingdom2 .. " does not exist"
+   end
+   -- Check if relation is valid
+   if kingdom_relations[relation] == nil then
+      return false, "Invalid relation " .. relation
+   end
+   -- Set relation
+   kingdoms.kingdoms[kingdom1].relations[kingdom2] = kingdom_relations[relation]
+   kingdoms.kingdoms[kingdom2].relations[kingdom1] = kingdom_relations[relation]
+   -- Save
+   kingdoms.helpers.save()
+   return true, ""
+end
+
+function kingdoms.get_relation(kingdom1, kingdom2)
+   -- Check if kingdom1 exists
+   if kingdoms.kingdoms[kingdom1] == nil then
+      return false, "Kingdom " .. kingdom1 .. " does not exist"
+   end
+   -- Check if kingdom2 exists
+   if kingdoms.kingdoms[kingdom2] == nil then
+      return false, "Kingdom " .. kingdom2 .. " does not exist"
+   end
+   -- Get relation
+   return true, kingdoms.kingdoms[kingdom1].relations[kingdom2] or kingdom_relations.peace
 end
 
 function kingdoms.toggle_restricted(name)
