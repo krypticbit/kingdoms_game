@@ -1,19 +1,48 @@
-assert(minetest.get_voxel_manip, string.rep(">", 300) .. "HEY YOU! YES, YOU OVER THERE. THIS VERSION OF WORLDEDIT REQUIRES MINETEST 0.4.8 OR LATER! YOU HAVE AN OLD VERSION." .. string.rep("<", 300))
+--- Worldedit.
+-- @module worldedit
+-- @release 1.2
+-- @copyright 2013 sfan5, Anthony Zhang (Uberi/Temperest), and Brett O'Donnell (cornernote).
+-- @license GNU Affero General Public License version 3 (AGPLv3)
+-- @author sfan5
+-- @author Anthony Zang (Uberi/Temperest)
+-- @author Bret O'Donnel (cornernote)
+-- @author ShadowNinja
+
+
+worldedit = {}
+
+local ver = {major=1, minor=2}
+worldedit.version = ver
+worldedit.version_string = string.format("%d.%d", ver.major, ver.minor)
+
+if not minetest.get_voxel_manip then
+	local err_msg = "This version of WorldEdit requires Minetest 0.4.8 or later!  You have an old version."
+	minetest.log("error", string.rep("#", 128))
+	minetest.log("error", err_msg)
+	minetest.log("error", string.rep("#", 128))
+	error(err_msg)
+end
 
 local path = minetest.get_modpath(minetest.get_current_modname())
 
-local loadmodule = function(path)
-	local file = io.open(path)
-	if not file then
-		return
-	end
+local function load_module(path)
+	local file = io.open(path, "r")
+	if not file then return end
 	file:close()
 	return dofile(path)
 end
 
-loadmodule(path .. "/manipulations.lua")
-loadmodule(path .. "/primitives.lua")
-loadmodule(path .. "/visualization.lua")
-loadmodule(path .. "/serialization.lua")
-loadmodule(path .. "/code.lua")
-loadmodule(path .. "/compatibility.lua")
+dofile(path .. "/common.lua")
+load_module(path .. "/manipulations.lua")
+load_module(path .. "/primitives.lua")
+load_module(path .. "/visualization.lua")
+load_module(path .. "/serialization.lua")
+load_module(path .. "/code.lua")
+load_module(path .. "/compatibility.lua")
+load_module(path .. "/cuboid.lua")
+
+
+if minetest.settings:get_bool("log_mods") then
+	print("[WorldEdit] Loaded!")
+end
+

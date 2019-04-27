@@ -1,478 +1,329 @@
-worldedit = worldedit or {}
-local minetest = minetest --local copy of global
+--- Functions for creating primitive shapes.
+-- @module worldedit.primitives
 
---adds a hollow sphere centered at `pos` with radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.hollow_sphere = function(pos, radius, nodename)
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {x=pos.x - radius, y=pos.y - radius, z=pos.z - radius}
-	local pos2 = {x=pos.x + radius, y=pos.y + radius, z=pos.z + radius}
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
+local mh = worldedit.manip_helpers
 
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
 
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
-	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
-	local offsetx, offsety, offsetz = pos.x - emerged_pos1.x, pos.y - emerged_pos1.y, pos.z - emerged_pos1.z
-	local zstride, ystride = area.zstride, area.ystride
-	local count = 0
-	for z = -radius, radius do
-		local newz = (z + offsetz) * zstride + 1 --offset contributed by z plus 1 to make it 1-indexed
-		for y = -radius, radius do
-			local newy = newz + (y + offsety) * ystride
-			for x = -radius, radius do
-				local squared = x * x + y * y + z * z
-				if squared >= min_radius and squared <= max_radius then --position is on surface of sphere
-					local i = newy + (x + offsetx)
-					nodes[i] = node_id
-					count = count + 1
-				end
-			end
-		end
-	end
+--- Adds a cube
+-- @param pos Position of ground level center of cube
+-- @param width Cube width. (x)
+-- @param height Cube height. (y)
+-- @param length Cube length. (z)
+-- @param node_name Name of node to make cube of.
+-- @param hollow Whether the cube should be hollow.
+-- @return The number of nodes added.
+function worldedit.cube(pos, width, height, length, node_name, hollow)
+	-- Set up voxel manipulator
+	local basepos = vector.subtract(pos, {x=math.floor(width/2), y=0, z=math.floor(length/2)})
+	local manip, area = mh.init(basepos, vector.add(basepos, {x=width, y=height, z=length}))
+	local data = mh.get_empty_data(area)
 
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
-
-	return count
-end
-
---adds a sphere centered at `pos` with radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.sphere = function(pos, radius, nodename)
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {x=pos.x - radius, y=pos.y - radius, z=pos.z - radius}
-	local pos2 = {x=pos.x + radius, y=pos.y + radius, z=pos.z + radius}
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
-	local max_radius = radius * (radius + 1)
-	local offsetx, offsety, offsetz = pos.x - emerged_pos1.x, pos.y - emerged_pos1.y, pos.z - emerged_pos1.z
-	local zstride, ystride = area.zstride, area.ystride
-	local count = 0
-	for z = -radius, radius do
-		local newz = (z + offsetz) * zstride + 1 --offset contributed by z plus 1 to make it 1-indexed
-		for y = -radius, radius do
-			local newy = newz + (y + offsety) * ystride
-			for x = -radius, radius do
-				if x * x + y * y + z * z <= max_radius then --position is inside sphere
-					local i = newy + (x + offsetx)
-					nodes[i] = node_id
-					count = count + 1
-				end
-			end
-		end
-	end
-
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
-
-	return count
-end
-
---adds a hollow dome centered at `pos` with radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.hollow_dome = function(pos, radius, nodename)
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {x=pos.x - radius, y=pos.y, z=pos.z - radius}
-	local pos2 = {x=pos.x + radius, y=pos.y + radius, z=pos.z + radius}
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	local miny, maxy = 0, radius
-	if radius < 0 then
-		radius = -radius
-		miny, maxy = -radius, 0
-	end
-
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
-	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
-	local offsetx, offsety, offsetz = pos.x - emerged_pos1.x, pos.y - emerged_pos1.y, pos.z - emerged_pos1.z
-	local zstride, ystride = area.zstride, area.ystride
-	local count = 0
-	for z = -radius, radius do
-		local newz = (z + offsetz) * zstride + 1 --offset contributed by z plus 1 to make it 1-indexed
-		for y = miny, maxy do
-			local newy = newz + (y + offsety) * ystride
-			for x = -radius, radius do
-				local squared = x * x + y * y + z * z
-				if squared >= min_radius and squared <= max_radius then --position is on surface of sphere
-					local i = newy + (x + offsetx)
-					nodes[i] = node_id
-					count = count + 1
-				end
-			end
-		end
-	end
-
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
-
-	return count
-end
-
---adds a dome centered at `pos` with radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.dome = function(pos, radius, nodename)
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {x=pos.x - radius, y=pos.y, z=pos.z - radius}
-	local pos2 = {x=pos.x + radius, y=pos.y + radius, z=pos.z + radius}
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	local miny, maxy = 0, radius
-	if radius < 0 then
-		radius = -radius
-		miny, maxy = -radius, 0
-	end
-
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
-	local max_radius = radius * (radius + 1)
-	local offsetx, offsety, offsetz = pos.x - emerged_pos1.x, pos.y - emerged_pos1.y, pos.z - emerged_pos1.z
-	local zstride, ystride = area.zstride, area.ystride
-	local count = 0
-	for z = -radius, radius do
-		local newz = (z + offsetz) * zstride + 1 --offset contributed by z plus 1 to make it 1-indexed
-		for y = miny, maxy do
-			local newy = newz + (y + offsety) * ystride
-			for x = -radius, radius do
-				if x * x + y * y + z * z <= max_radius then --position is inside sphere
-					local i = newy + (x + offsetx)
-					nodes[i] = node_id
-					count = count + 1
-				end
-			end
-		end
-	end
-
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
-
-	return count
-end
-
---adds a hollow cylinder at `pos` along the `axis` axis ("x" or "y" or "z") with length `length` and radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.hollow_cylinder = function(pos, axis, length, radius, nodename) --wip: rewrite this using voxelmanip
-	local other1, other2
-	if axis == "x" then
-		other1, other2 = "y", "z"
-	elseif axis == "y" then
-		other1, other2 = "x", "z"
-	else --axis == "z"
-		other1, other2 = "x", "y"
-	end
-
-	--handle negative lengths
-	local currentpos = {x=pos.x, y=pos.y, z=pos.z}
-	if length < 0 then
-		length = -length
-		currentpos[axis] = currentpos[axis] - length
-	end
-
-	--make area stay loaded
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {
-		[axis]=currentpos[axis],
-		[other1]=currentpos[other1] - radius,
-		[other2]=currentpos[other2] - radius
-	}
-	local pos2 = {
-		[axis]=currentpos[axis] + length - 1,
-		[other1]=currentpos[other1] + radius,
-		[other2]=currentpos[other2] + radius
-	}
-	manip:read_from_map(pos1, pos2)
-
-	--create schematic for single node column along the axis
-	local node = {name=nodename, param1=0, param2=0}
-	local nodes = {}
-	for i = 1, length do
-		nodes[i] = node
-	end
-	local schematic = {size={[axis]=length, [other1]=1, [other2]=1}, data=nodes}
-
-	--add columns in a circle around axis to form cylinder
-	local place_schematic = minetest.place_schematic
-	local count = 0
-	local offset1, offset2 = 0, radius
-	local delta = -radius
-	while offset1 <= offset2 do
-		--add node at each octant
-		local first1, first2 = pos[other1] + offset1, pos[other1] - offset1
-		local second1, second2 = pos[other2] + offset2, pos[other2] - offset2
-		currentpos[other1], currentpos[other2] = first1, second1
-		place_schematic(currentpos, schematic) --octant 1
-		currentpos[other1] = first2
-		place_schematic(currentpos, schematic) --octant 4
-		currentpos[other2] = second2
-		place_schematic(currentpos, schematic) --octant 5
-		currentpos[other1] = first1
-		place_schematic(currentpos, schematic) --octant 8
-		local first1, first2 = pos[other1] + offset2, pos[other1] - offset2
-		local second1, second2 = pos[other2] + offset1, pos[other2] - offset1
-		currentpos[other1], currentpos[other2] = first1, second1
-		place_schematic(currentpos, schematic) --octant 2
-		currentpos[other1] = first2
-		place_schematic(currentpos, schematic) --octant 3
-		currentpos[other2] = second2
-		place_schematic(currentpos, schematic) --octant 6
-		currentpos[other1] = first1
-		place_schematic(currentpos, schematic) --octant 7
-
-		count = count + 8 --wip: broken because sometimes currentpos is repeated
-
-		--move to next location
-		delta = delta + (offset1 * 2) + 1
-		if delta >= 0 then
-			offset2 = offset2 - 1
-			delta = delta - (offset2 * 2)
-		end
-		offset1 = offset1 + 1
-	end
-	count = count * length --apply the length to the number of nodes
-	return count
-end
-
---adds a cylinder at `pos` along the `axis` axis ("x" or "y" or "z") with length `length` and radius `radius`, composed of `nodename`, returning the number of nodes added
-worldedit.cylinder = function(pos, axis, length, radius, nodename)
-	local other1, other2
-	if axis == "x" then
-		other1, other2 = "y", "z"
-	elseif axis == "y" then
-		other1, other2 = "x", "z"
-	else --axis == "z"
-		other1, other2 = "x", "y"
-	end
-
-	--handle negative lengths
-	local currentpos = {x=pos.x, y=pos.y, z=pos.z}
-	if length < 0 then
-		length = -length
-		currentpos[axis] = currentpos[axis] - length
-	end
-
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local pos1 = {
-		[axis]=currentpos[axis],
-		[other1]=currentpos[other1] - radius,
-		[other2]=currentpos[other2] - radius
-	}
-	local pos2 = {
-		[axis]=currentpos[axis] + length - 1,
-		[other1]=currentpos[other1] + radius,
-		[other2]=currentpos[other2] + radius
-	}
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
-	local max_radius = radius * (radius + 1)
+	-- Add cube
+	local node_id = minetest.get_content_id(node_name)
 	local stride = {x=1, y=area.ystride, z=area.zstride}
-	local offset = {x=currentpos.x - emerged_pos1.x, y=currentpos.y - emerged_pos1.y, z=currentpos.z - emerged_pos1.z}
-	local min_slice, max_slice = offset[axis], offset[axis] + length - 1
+	local offset = vector.subtract(basepos, area.MinEdge)
 	local count = 0
-	for index2 = -radius, radius do
-		local newindex2 = (index2 + offset[other1]) * stride[other1] + 1 --offset contributed by other axis 1 plus 1 to make it 1-indexed
-		for index3 = -radius, radius do
-			local newindex3 = newindex2 + (index3 + offset[other2]) * stride[other2]
-			if index2 * index2 + index3 * index3 <= max_radius then
-				for index1 = min_slice, max_slice do --add column along axis
-					local i = newindex3 + index1 * stride[axis]
-					nodes[i] = node_id
+
+	for z = 0, length-1 do
+		local index_z = (offset.z + z) * stride.z + 1 -- +1 for 1-based indexing
+		for y = 0, height-1 do
+			local index_y = index_z + (offset.y + y) * stride.y
+			for x = 0, width-1 do
+				local is_wall = z == 0 or z == length-1
+					or y == 0 or y == height-1
+					or x == 0 or x == width-1
+				if not hollow or is_wall then
+					local i = index_y + (offset.x + x)
+					data[i] = node_id
+					count = count + 1
 				end
-				count = count + length
 			end
 		end
 	end
 
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
+	mh.finish(manip, data)
+	return count
+end
+
+--- Adds a sphere of `node_name` centered at `pos`.
+-- @param pos Position to center sphere at.
+-- @param radius Sphere radius.
+-- @param node_name Name of node to make shere of.
+-- @param hollow Whether the sphere should be hollow.
+-- @return The number of nodes added.
+function worldedit.sphere(pos, radius, node_name, hollow)
+	local manip, area = mh.init_radius(pos, radius)
+
+	local data = mh.get_empty_data(area)
+
+	-- Fill selected area with node
+	local node_id = minetest.get_content_id(node_name)
+	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
+	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
+	local stride_z, stride_y = area.zstride, area.ystride
+	local count = 0
+	for z = -radius, radius do
+		-- Offset contributed by z plus 1 to make it 1-indexed
+		local new_z = (z + offset_z) * stride_z + 1
+		for y = -radius, radius do
+			local new_y = new_z + (y + offset_y) * stride_y
+			for x = -radius, radius do
+				local squared = x * x + y * y + z * z
+				if squared <= max_radius and (not hollow or squared >= min_radius) then
+					-- Position is on surface of sphere
+					local i = new_y + (x + offset_x)
+					data[i] = node_id
+					count = count + 1
+				end
+			end
+		end
+	end
+
+	mh.finish(manip, data)
 
 	return count
 end
 
---adds a pyramid centered at `pos` with height `height`, composed of `nodename`, returning the number of nodes added
-worldedit.pyramid = function(pos, axis, height, nodename)
-	local other1, other2
-	if axis == "x" then
-		other1, other2 = "y", "z"
-	elseif axis == "y" then
-		other1, other2 = "x", "z"
-	else --axis == "z"
-		other1, other2 = "x", "y"
+
+--- Adds a dome.
+-- @param pos Position to center dome at.
+-- @param radius Dome radius.  Negative for concave domes.
+-- @param node_name Name of node to make dome of.
+-- @param hollow Whether the dome should be hollow.
+-- @return The number of nodes added.
+-- TODO: Add axis option.
+function worldedit.dome(pos, radius, node_name, hollow)
+	local min_y, max_y = 0, radius
+	if radius < 0 then
+		radius = -radius
+		min_y, max_y = -radius, 0
 	end
 
-	local pos1 = {x=pos.x - height, y=pos.y - height, z=pos.z - height}
-	local pos2 = {x=pos.x + height, y=pos.y + height, z=pos.z + height}
+	local manip, area = mh.init_axis_radius(pos, "y", radius)
+	local data = mh.get_empty_data(area)
 
-	--handle inverted pyramids
-	local startaxis, endaxis, step
+	-- Add dome
+	local node_id = minetest.get_content_id(node_name)
+	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
+	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
+	local stride_z, stride_y = area.zstride, area.ystride
+	local count = 0
+	for z = -radius, radius do
+		local new_z = (z + offset_z) * stride_z + 1 --offset contributed by z plus 1 to make it 1-indexed
+		for y = min_y, max_y do
+			local new_y = new_z + (y + offset_y) * stride_y
+			for x = -radius, radius do
+				local squared = x * x + y * y + z * z
+				if squared <= max_radius and (not hollow or squared >= min_radius) then
+					-- Position is in dome
+					local i = new_y + (x + offset_x)
+					data[i] = node_id
+					count = count + 1
+				end
+			end
+		end
+	end
+
+	mh.finish(manip, data)
+
+	return count
+end
+
+--- Adds a cylinder.
+-- @param pos Position to center base of cylinder at.
+-- @param axis Axis ("x", "y", or "z")
+-- @param length Cylinder length.
+-- @param radius1 Cylinder base radius.
+-- @param radius2 Cylinder top radius.
+-- @param node_name Name of node to make cylinder of.
+-- @param hollow Whether the cylinder should be hollow.
+-- @return The number of nodes added.
+function worldedit.cylinder(pos, axis, length, radius1, radius2, node_name, hollow)
+	local other1, other2 = worldedit.get_axis_others(axis)
+
+	-- Backwards compatibility
+	if type(radius2) == "string" then
+		hollow = node_name
+		node_name = radius2
+		radius2 = radius1 -- straight cylinder
+	end
+
+	-- Handle negative lengths
+	local current_pos = {x=pos.x, y=pos.y, z=pos.z}
+	if length < 0 then
+		length = -length
+		current_pos[axis] = current_pos[axis] - length
+		radius1, radius2 = radius2, radius1
+	end
+
+	-- Set up voxel manipulator
+	local manip, area = mh.init_axis_radius_length(current_pos, axis, math.max(radius1, radius2), length)
+	local data = mh.get_empty_data(area)
+
+	-- Add desired shape (anything inbetween cylinder & cone)
+	local node_id = minetest.get_content_id(node_name)
+	local stride = {x=1, y=area.ystride, z=area.zstride}
+	local offset = {
+		x = current_pos.x - area.MinEdge.x,
+		y = current_pos.y - area.MinEdge.y,
+		z = current_pos.z - area.MinEdge.z,
+	}
+	local count = 0
+	for i = 0, length - 1 do
+		-- Calulate radius for this "height" in the cylinder
+		local radius = radius1 + (radius2 - radius1) * (i + 1) / length
+		radius = math.floor(radius + 0.5) -- round
+		local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
+
+		for index2 = -radius, radius do
+			-- Offset contributed by other axis 1 plus 1 to make it 1-indexed
+			local new_index2 = (index2 + offset[other1]) * stride[other1] + 1
+			for index3 = -radius, radius do
+				local new_index3 = new_index2 + (index3 + offset[other2]) * stride[other2]
+				local squared = index2 * index2 + index3 * index3
+				if squared <= max_radius and (not hollow or squared >= min_radius) then
+					-- Position is in cylinder, add node here
+					local vi = new_index3 + (offset[axis] + i) * stride[axis]
+					data[vi] = node_id
+					count = count + 1
+				end
+			end
+		end
+	end
+
+	mh.finish(manip, data)
+
+	return count
+end
+
+
+--- Adds a pyramid.
+-- @param pos Position to center base of pyramid at.
+-- @param axis Axis ("x", "y", or "z")
+-- @param height Pyramid height.
+-- @param node_name Name of node to make pyramid of.
+-- @param hollow Whether the pyramid should be hollow.
+-- @return The number of nodes added.
+function worldedit.pyramid(pos, axis, height, node_name, hollow)
+	local other1, other2 = worldedit.get_axis_others(axis)
+
+	-- Set up voxel manipulator
+	-- FIXME: passing negative <radius> causes mis-sorted pos to be passed
+	-- into mh.init() which is technically not allowed but works
+	local manip, area = mh.init_axis_radius(pos, axis, height)
+	local data = mh.get_empty_data(area)
+
+	-- Handle inverted pyramids
+	local step
 	if height > 0 then
 		height = height - 1
 		step = 1
-		pos1[axis] = pos[axis] --upper half of box
 	else
 		height = height + 1
 		step = -1
-		pos2[axis] = pos[axis] --lower half of box
 	end
 
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
-
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	--fill selected area with node
-	local node_id = minetest.get_content_id(nodename)
+	-- Add pyramid
+	local node_id = minetest.get_content_id(node_name)
 	local stride = {x=1, y=area.ystride, z=area.zstride}
-	local offset = {x=pos.x - emerged_pos1.x, y=pos.y - emerged_pos1.y, z=pos.z - emerged_pos1.z}
-	local size = height * step
+	local offset = {
+		x = pos.x - area.MinEdge.x,
+		y = pos.y - area.MinEdge.y,
+		z = pos.z - area.MinEdge.z,
+	}
+	local size = math.abs(height * step)
 	local count = 0
-	for index1 = 0, height, step do --go through each level of the pyramid
-		local newindex1 = (index1 + offset[axis]) * stride[axis] + 1 --offset contributed by axis plus 1 to make it 1-indexed
+	-- For each level of the pyramid
+	for index1 = 0, height, step do
+		-- Offset contributed by axis plus 1 to make it 1-indexed
+		local new_index1 = (index1 + offset[axis]) * stride[axis] + 1
 		for index2 = -size, size do
-			local newindex2 = newindex1 + (index2 + offset[other1]) * stride[other1]
+			local new_index2 = new_index1 + (index2 + offset[other1]) * stride[other1]
 			for index3 = -size, size do
-				local i = newindex2 + (index3 + offset[other2]) * stride[other2]
-				nodes[i] = node_id
+				local i = new_index2 + (index3 + offset[other2]) * stride[other2]
+				if (not hollow or size - math.abs(index2) < 2 or size - math.abs(index3) < 2) then
+				       data[i] = node_id
+				       count = count + 1
+				end
 			end
 		end
-		count = count + (size * 2 + 1) ^ 2
 		size = size - 1
 	end
 
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
+	mh.finish(manip, data)
 
 	return count
 end
 
---adds a spiral centered at `pos` with side length `length`, height `height`, space between walls `spacer`, composed of `nodename`, returning the number of nodes added
-worldedit.spiral = function(pos, length, height, spacer, nodename)
+--- Adds a spiral.
+-- @param pos Position to center spiral at.
+-- @param length Spral length.
+-- @param height Spiral height.
+-- @param spacer Space between walls.
+-- @param node_name Name of node to make spiral of.
+-- @return Number of nodes added.
+-- TODO: Add axis option.
+function worldedit.spiral(pos, length, height, spacer, node_name)
 	local extent = math.ceil(length / 2)
-	local pos1 = {x=pos.x - extent, y=pos.y, z=pos.z - extent}
-	local pos2 = {x=pos.x + extent, y=pos.y + height, z=pos.z + extent}
 
-	--set up voxel manipulator
-	local manip = minetest.get_voxel_manip()
-	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
-	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
+	local manip, area = mh.init_axis_radius_length(pos, "y", extent, height)
+	local data = mh.get_empty_data(area)
 
-	--fill emerged area with ignore
-	local nodes = {}
-	local ignore = minetest.get_content_id("ignore")
-	for i = 1, worldedit.volume(emerged_pos1, emerged_pos2) do
-		nodes[i] = ignore
-	end
-
-	--
-	local node_id = minetest.get_content_id(nodename)
+	-- Set up variables
+	local node_id = minetest.get_content_id(node_name)
 	local stride = {x=1, y=area.ystride, z=area.zstride}
-	local offsetx, offsety, offsetz = pos.x - emerged_pos1.x, pos.y - emerged_pos1.y, pos.z - emerged_pos1.z
-	local i = offsetz * stride.z + offsety * stride.y + offsetx + 1
+	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
+	local i = offset_z * stride.z + offset_y * stride.y + offset_x + 1
 
-	--add first column
+	-- Add first column
+	local count = height
 	local column = i
 	for y = 1, height do
-		nodes[column] = node_id
+		data[column] = node_id
 		column = column + stride.y
 	end
 
-	--add spiral segments
-	local axis, other = "x", "z"
-	local sign = 1
-	local count = height
-	for segment = 1, length / spacer - 1 do --go through each segment except the last
-		for index = 1, segment * spacer do --fill segment
-			i = i + stride[axis] * sign
+	-- Add spiral segments
+	local stride_axis, stride_other = stride.x, stride.z
+	local sign = -1
+	local segment_length = 0
+	spacer = spacer + 1
+	-- Go through each segment except the last
+	for segment = 1, math.floor(length / spacer) * 2 do
+		-- Change sign and length every other turn starting with the first
+		if segment % 2 == 1 then
+			sign = -sign
+			segment_length = segment_length + spacer
+		end
+		-- Fill segment
+		for index = 1, segment_length do
+			-- Move along the direction of the segment
+			i = i + stride_axis * sign
 			local column = i
-			for y = 1, height do --add column
-				nodes[column] = node_id
+			-- Add column
+			for y = 1, height do
+				data[column] = node_id
 				column = column + stride.y
 			end
-			count = count + height
 		end
-		axis, other = other, axis --swap axes
-		if segment % 2 == 1 then --change sign every other turn
-			sign = -sign
-		end
+		count = count + segment_length * height
+		stride_axis, stride_other = stride_other, stride_axis -- Swap axes
 	end
 
-	--add shorter final segment
-	for index = 1, (math.floor(length / spacer) - 2) * spacer do
-		i = i + stride[axis] * sign
+	-- Add shorter final segment
+	sign = -sign
+	for index = 1, segment_length do
+		i = i + stride_axis * sign
 		local column = i
-		for y = 1, height do --add column
-			nodes[column] = node_id
+		-- Add column
+		for y = 1, height do
+			data[column] = node_id
 			column = column + stride.y
 		end
-		count = count + height
 	end
-print(minetest.serialize(nodes))
-	--update map nodes
-	manip:set_data(nodes)
-	manip:write_to_map()
-	manip:update_map()
+	count = count + segment_length * height
+
+	mh.finish(manip, data)
 
 	return count
 end
