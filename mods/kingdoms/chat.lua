@@ -86,6 +86,12 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Get members
       local numMembers = kingdoms.helpers.count_table(k.members)
       info = info .. tostring(numMembers) .. " Members: " .. kingdoms.helpers.keys_to_str(k.members) .. "\n"
+      -- Get markers
+      local numMarkers = 0
+      for _,m in pairs(kingdoms.markers) do
+         if m.kingdom == kingdom then numMarkers = numMarkers + 1 end
+      end
+      info = info .. tostring(numMarkers) .. " Markers\n"
       -- Get ranks
       local numRanks = kingdoms.helpers.count_table(k.ranks)
       info = info .. tostring(numRanks) .. " Ranks: " .. kingdoms.helpers.keys_to_str(k.ranks) .. "\n"

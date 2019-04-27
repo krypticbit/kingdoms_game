@@ -216,6 +216,11 @@ for c,v in pairs(kingdoms.colors) do
          meta:set_string("infotext", get_infotext(dkingdom, akingdom, (1 - (cd / kingdoms.marker_capture_time)) * 100))
          meta:set_float("countdown", cd)
          return true
+      end,
+      after_dig_node = function(pos)
+         local hpos = minetest.hash_node_position(pos)
+         kingdoms.markers[hpos] = nil
+         kingdoms.helpers.save()
       end
    })
 end
