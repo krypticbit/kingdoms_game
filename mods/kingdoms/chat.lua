@@ -237,6 +237,20 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
       -- Change privs
       return kingdoms.set_rank_privs(kingdoms.members[name].kingdom, rank, kingdoms.helpers.split_into_keys(privs))
    end)
+   -- Get privs of rank
+   cmd:sub("get_rank_privs :rank:word", function(name, rank)
+      -- Check if player is in a kingdom
+      if kingdoms.members[name] == nil then
+         return false, "You are not in a kingdom"
+      end
+      -- Check if rank is valid
+      local rtable = kingdoms.kingdoms[kingdoms.members[name].kingdom].ranks
+      if rtable[rank] == nil then
+         return false, "Invalid rank " .. rank
+      end
+      -- Get privs
+      return true, "Privs of rank " .. rank .. ": " .. kingdoms.helpers.keys_to_str(rtable[rank])
+   end)
    -- Set rank as default rank (given to new recruits)
    cmd:sub("set_default_rank :rank:word", function(name, rank)
       -- Check if player is in a kingdom
@@ -304,6 +318,7 @@ ChatCmdBuilder.new("kingdoms", function(cmd)
          "set_rank <name> <rank>: Set the rank of a player\n" ..
          "add_rank <rank> [<rank privs>]: Add rank with default privs or <rank privs> if specified\n" ..
          "set_rank_privs <rank> <privs>: Set the privs of a rank\n" ..
+         "get_rank_privs <rank>: Get the privs of a rank\n" ..
          "set_default_rank <rank>: Set a rank as default (given to new teammates)\n" ..
          "remove_rank <rank>: Remove a rank\n" ..
          "toggle_restricted: Toggle restricted status (restricted = player has to request to join)\n" ..
