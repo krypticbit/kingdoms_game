@@ -53,5 +53,5 @@ mobs:register_mob("arctic_life:walrus", {
 	replace_with = "air",
 })
 
-mobs:register_spawn("arctic_life:walrus", {"default:dirt_with_snow", "default:snowblock"}, 20, 0, 20000, 1, 31000)
+mobs:register_spawn("arctic_life:walrus", {"default:dirt_with_snow", "default:snowblock"}, 20, 0, 2000, 5, 31000)
 mobs:register_egg("arctic_life:walrus", "Walrus", "default_grass.png", 1)
