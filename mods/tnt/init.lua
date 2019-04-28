@@ -83,6 +83,8 @@ minetest.after(0, function()
                else
                   meta:set_int("node_hp", s)
                end
+            else
+               minetest.set_node(pos, {name = "air"})
             end
          end
       else
