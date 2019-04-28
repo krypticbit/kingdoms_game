@@ -65,7 +65,6 @@ minetest.after(0, function()
 		}
       if blacklist[n] == nil and def.groups and def.groups.unbreakable == nil and def.on_blast == nil then
          cid_data[id].on_blast = function(pos, intensity)
-            minetest.chat_send_all("boom")
             -- Check if node is protected
             if minetest.is_protected(pos) then
                -- Get node strength
