@@ -142,6 +142,12 @@ for c,v in pairs(kingdoms.colors) do
             minetest.chat_send_player(pname, "This marker already belongs to your kingdom")
             return
          end
+         -- Check if puncher is at peace with the kingdom
+         if kingdoms.get_relation(marker.kingdom, member.kingdom).id ~= kingdoms.relations.war then
+            minetest.node_punch(pos, node, puncher, pointed_thing)
+            minetest.chat_send_player(pname, "You are not at war with this kingdom")
+            return
+         end
          -- Check if marker is already under attack
          local meta = minetest.get_meta(pos)
          local attackers = meta:get_string("attackers")

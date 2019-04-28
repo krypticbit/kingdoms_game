@@ -1,10 +1,3 @@
--- Constants
-local kingdom_relations = {
-   war = 1,
-   peace = 2,
-   alliance = 3
-}
-
 -- Get info about members
 function kingdoms.player_in_any_kingdoms(name)
    if kingdoms.members[name] ~= nil then
@@ -243,13 +236,9 @@ function kingdoms.set_relation(kingdom1, kingdom2, relation)
    if kingdoms.kingdoms[kingdom2] == nil then
       return false, "Kingdom " .. kingdom2 .. " does not exist"
    end
-   -- Check if relation is valid
-   if kingdom_relations[relation] == nil then
-      return false, "Invalid relation " .. relation
-   end
    -- Set relation
-   kingdoms.kingdoms[kingdom1].relations[kingdom2] = kingdom_relations[relation]
-   kingdoms.kingdoms[kingdom2].relations[kingdom1] = kingdom_relations[relation]
+   kingdoms.kingdoms[kingdom1].relations[kingdom2] = relation
+   kingdoms.kingdoms[kingdom2].relations[kingdom1] = relation
    -- Save
    kingdoms.helpers.save()
    return true, ""
@@ -265,7 +254,7 @@ function kingdoms.get_relation(kingdom1, kingdom2)
       return false, "Kingdom " .. kingdom2 .. " does not exist"
    end
    -- Get relation
-   return true, kingdoms.kingdoms[kingdom1].relations[kingdom2] or kingdom_relations.peace
+   return kingdoms.kingdoms[kingdom1].relations[kingdom2] or {id = kingdoms.relations.peace}
 end
 
 function kingdoms.toggle_restricted(name)

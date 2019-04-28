@@ -47,6 +47,13 @@ kingdoms.colors = {
    Brown = "#8B4513"
 }
 
+-- Define relations
+kingdoms.relations = {
+   war = 1,
+   peace = 2,
+   alliance = 3,
+}
+
 -- Load news
 local nStr = storage:get_string("news")
 if nStr == "" then
