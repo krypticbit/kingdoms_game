@@ -160,10 +160,6 @@ minetest.register_abm({
    chance = 1,
    catch_up = false,
    action = function(pos, node, obj_count)
-      -- Check if there are any active items
-      if obj_count == 0 then
-         return
-      end
       -- Get items (if any)
       local searchPos = {x = pos.x, y = pos.y + 0.5, z = pos.z}
       local objs = minetest.get_objects_inside_radius(searchPos, 0.5)
