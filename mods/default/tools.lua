@@ -365,6 +365,7 @@ minetest.register_tool("default:sword_mese", {
 	sound = {breaks = "default_tool_breaks"},
 })
 
+--[[
 minetest.register_tool("default:sword_diamond", {
 	description = "Diamond Sword",
 	inventory_image = "default_tool_diamondsword.png",
@@ -378,6 +379,7 @@ minetest.register_tool("default:sword_diamond", {
 	},
 	sound = {breaks = "default_tool_breaks"},
 })
+]]--
 
 minetest.register_tool("default:key", {
 	description = "Key",
