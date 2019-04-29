@@ -50,7 +50,9 @@ end
 minetest.register_on_dieplayer(function(player, reason)
    local victim = player:get_player_name()
    if reason.type == "set_hp" then
-      -- Player was killed by mod
+      -- Player was killed by mod (unknown reason)
+      local msg = get_reason(other_reasons, victim)
+      broadcast(msg)
    elseif reason.type == "punch" then
       if reason.object == nil then
          -- Player was killed by unknown object
