@@ -68,7 +68,7 @@ end
 
 function kingdoms.set_player_rank(name, rank)
    -- Check if player is in a kingdom
-   if kingdoms.player_in_any_kingdoms(name) ~= true then
+   if kingdoms.members[name] == nil then
       return false, "Player " .. name .. " is not in a kingdom"
    end
    -- Check if rank exists
