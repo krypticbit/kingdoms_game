@@ -21,15 +21,6 @@ local function save()
    storage:set_string("articles", saveStr)
 end
 
-local function get_article_index(title)
-   for i,a in pairs(articles) do
-      minetest.chat_send_all(a.title)
-      if a.title == title then
-         return i
-      end
-   end
-end
-
 local function show_guide(name, aIndex)
    local canEdit = minetest.check_player_privs(name, {server = true})
    -- Check if article exists
