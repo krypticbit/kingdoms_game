@@ -9,7 +9,7 @@ if aStr == "" then
    articles = {}
    table.insert(articles, {
       title = "Main",
-      text = "This is the main article. {Main}"
+      text = "This is the main article. {1}"
    })
 else
    articles = minetest.deserialize(aStr)
