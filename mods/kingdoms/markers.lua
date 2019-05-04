@@ -289,6 +289,10 @@ minetest.register_lbm({
 
 -- Make markers actually protect things
 local function new_is_protected(pos, name)
+   -- If the pos is below y = -50, it's not protected
+   if pos.y < -50 then
+      return false
+   end
    -- Get the closest marker to pos within the marker radius
    local distsq
    local mindist
