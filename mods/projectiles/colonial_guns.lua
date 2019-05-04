@@ -12,7 +12,7 @@ projectiles.register_shooter("long_rifle", {
       type = "shaped",
       recipe = {
          {"group:wood", "default:steel_ingot", "default:steel_ingot"},
-         {"group:wood", "default:steel_ingot"}
+         {"group:wood", "default:steel_ingot", ""}
       }
    }
 })
@@ -28,7 +28,6 @@ minetest.register_craft({
    recipe = {
       {"default:steel_ingot", "default:steel_ingot", "default:steel_ingot"},
       {"tnt:gunpowder", "default:paper", "default:copper_ingot"},
-      {}
    }
 })
 
@@ -45,7 +44,7 @@ projectiles.register_shooter("pistol", {
       type = "shaped",
       recipe = {
          {"group:wood", "default:steel_ingot"},
-         {"group:wood"}
+         {"group:wood", ""}
       }
    }
 })
