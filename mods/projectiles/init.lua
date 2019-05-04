@@ -131,8 +131,9 @@ projectiles.register_shooter = function(name, def)
    local max_rounds = def.rounds or 1
    local reload_speed = def.reload_speed or 1
    local scale = def.scale or {x = 1, y = 1, z = 1}
+   local iname = "projectiles:" .. name
    -- Register shooter as tool
-   minetest.register_tool("projectiles:" .. name, {
+   minetest.register_tool(iname, {
       description = description,
       inventory_image = texture,
       range = 0,
@@ -169,6 +170,11 @@ projectiles.register_shooter = function(name, def)
          return istack
       end
    })
+   -- Register craft
+   if def.craft then
+      def.craft.output = iname
+      minetest.register_craft(def.craft)
+   end
 end
 
 -- Register guns
