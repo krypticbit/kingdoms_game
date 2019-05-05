@@ -275,30 +275,31 @@ for name, recipe in pairs(xdecor_doors) do
 	})
 end
 
-xdecor.register("enderchest", {
-	description = "Ender Chest",
-	tiles = {"xdecor_enderchest_top.png", "xdecor_enderchest_top.png",
-		 "xdecor_enderchest_side.png", "xdecor_enderchest_side.png",
-		 "xdecor_enderchest_side.png", "xdecor_enderchest_front.png"},
-	groups = {cracky=1, choppy=1},
-	sounds = default.node_sound_stone_defaults(),
-	on_rotate = screwdriver.rotate_simple,
-	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
-		meta:set_string("formspec", [[ size[8,9]
-				list[current_player;enderchest;0,0;8,4;]
-				list[current_player;main;0,5;8,4;]
-				listring[current_player;enderchest]
-				listring[current_player;main] ]]
-				..xbg..default.get_hotbar_bg(0,5))
-		meta:set_string("infotext", "Ender Chest")
-	end
-})
+--xdecor.register("enderchest", {
+--	description = "Ender Chest",
+--	tiles = {"xdecor_enderchest_top.png", "xdecor_enderchest_top.png",
+--		 "xdecor_enderchest_side.png", "xdecor_enderchest_side.png",
+--		 "xdecor_enderchest_side.png", "xdecor_enderchest_front.png"},
+--	groups = {cracky=1, choppy=1},
+--	sounds = default.node_sound_stone_defaults(),
+--	on_rotate = screwdriver.rotate_simple,
+--	on_construct = function(pos)
+--		local meta = minetest.get_meta(pos)
+--		meta:set_string("formspec", [[ size[8,9]
+--				list[current_player;enderchest;0,0;8,4;]
+--				list[current_player;main;0,5;8,4;]
+--				listring[current_player;enderchest]
+--				listring[current_player;main] ]]
+--				..xbg..default.get_hotbar_bg(0,5))
+--		meta:set_string("infotext", "Ender Chest")
+--	end
+--})
 
-minetest.register_on_joinplayer(function(player)
-	local inv = player:get_inventory()
-	inv:set_size("enderchest", 8*4)
-end)
+
+--minetest.register_on_joinplayer(function(player)
+--	local inv = player:get_inventory()
+--	inv:set_size("enderchest", 8*4)
+--end)
 
 xdecor.register("ivy", {
 	description = "Ivy",
@@ -467,6 +468,7 @@ xdecor.register("trampoline", {
 	sounds = {footstep = {name="xdecor_bouncy", gain=0.8}}
 })
 
+--[[
 xdecor.register("tv", {
 	description = "Television",
 	light_source = 11,
@@ -479,6 +481,7 @@ xdecor.register("tv", {
 		{name="xdecor_television_front_animated.png",
 		 animation = {type="vertical_frames", length=80.0}} }
 })
+]]--
 
 xdecor.register("woodframed_glass", {
 	description = "Wood Framed Glass",
