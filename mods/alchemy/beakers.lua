@@ -208,7 +208,6 @@ minetest.register_entity("alchemy:splash_entity", {
          e.object:remove()
          return
       end
-      -- Move down
    end
 })
 
@@ -226,19 +225,15 @@ local function register_splash_beaker(name, description, texture)
       stack_max = 1,
       inventory_image = tex,
       on_drop = function(itemstack, dropper, pos)
-         -- Get concentration level
-         local cLevel = itemstack:get_meta():get_int("concentration")
-         if cLevel == 0 then cLevel = 1 end
          -- Get random section of texture
          local texpart = ("[combine:3x3:%d,%d=" .. texture):format(math.random(-29, 0), math.random(-29, 0))
          -- Spawn entity
-         local pos = dropper:get_pos()
          local vel = vector.multiply(dropper:get_look_dir(), 10)
          pos.y = pos.y + dropper:get_properties().eye_height
          local e = minetest.add_entity(pos, "alchemy:splash_entity", minetest.serialize({
             tex = texture,
             texpart = texpart,
-            cLevel = cLevel,
+            cLevel = 1, -- Splash beakers can't be concentrated
             name = name,
             orig_vel = vel
          }))
