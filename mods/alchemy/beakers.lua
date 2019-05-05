@@ -234,7 +234,7 @@ local function register_splash_beaker(name, description, texture)
          -- Spawn entity
          local pos = dropper:get_pos()
          local vel = vector.multiply(dropper:get_look_dir(), 20)
-         pos.y = pos.y + dropper:get_properties().eye_height
+         pos.y = pos.y + dropper:get_properties().eye_height + 0.1
          local e = minetest.add_entity(pos, "alchemy:splash_entity", minetest.serialize({
             tex = texture,
             texpart = texpart,
