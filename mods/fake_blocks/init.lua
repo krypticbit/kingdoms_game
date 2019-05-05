@@ -12,6 +12,7 @@ local function register_fakeblock(name, node_copy_name)
       liquid_alternative_source = name,
       liquid_renewable = false,
       liquid_range = 0,
+      waving = 0,
       walkable = false
    })
    -- Register craft

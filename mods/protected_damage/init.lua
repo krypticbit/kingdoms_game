@@ -61,7 +61,7 @@ function protected_damage.damage(pos, amt)
    end
    -- Check for undefined / unbreakable node
    local ndef = minetest.registered_nodes[node.name]
-   if ndef == nil or ndef.groups == nil or ndef.groups.unbreakable ~= nil then
+   if ndef == nil or ndef.groups == nil or ndef.groups.unbreakable ~= nil or ndefs.groups.liquid ~= nil then
       return
    end
    -- Do damage
