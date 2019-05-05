@@ -249,9 +249,9 @@ minetest.register_tool("kingdoms:scepter", {
 minetest.register_craft({
    output = "kingdoms:scepter",
    recipe = {
-      {"default:goldblock", "default:goldblock", "default:goldblock"},
-      {"default:goldblock", "default:diamondblock", "default:goldblock"},
-      {"default:goldblock", "default:goldblock", "default:goldblock"}
+      {"", "default:gold_ingot", "default:gold_ingot"},
+      {"", "default:diamond", "default:gold_ingot"},
+      {"group:stick", "", ""}
    }
 })
 
