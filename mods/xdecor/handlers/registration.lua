@@ -1,10 +1,3 @@
---[[ local default_can_dig = function(pos, _)
-	local meta = minetest.get_meta(pos)
-	local inv = meta:get_inventory()
-
-	return inv:is_empty("main")
-end --]]
-
 xbg = default.gui_bg..default.gui_bg_img..default.gui_slots
 local default_inventory_size = 32
 
@@ -44,29 +37,46 @@ local function get_formspec_by_size(size)
 	return formspec or default_inventory_formspecs
 end
 
-local function drop_stuff()
-	return function(pos, oldnode, oldmetadata, digger)
-		local meta = minetest.get_meta(pos)
-		meta:from_table(oldmetadata)
-		local inv = meta:get_inventory()
-
-		for i=1, inv:get_size("main") do
-			local stack = inv:get_stack("main", i)
-			if not stack:is_empty() then
-				local p = {
-					x = pos.x + math.random(0,5) / 5 - 0.5,
-					y = pos.y,
-					z = pos.z + math.random(0,5) / 5 - 0.5
-				}
-				minetest.add_item(p, stack)
-			end
-		end
-	end
+local default_can_dig = function(pos)
+	local inv = minetest.get_meta(pos):get_inventory()
+	return inv:is_empty("main")
 end
 
 function xdecor.register(name, def)
-	def.drawtype = def.drawtype or (def.node_box and "nodebox")
-	def.paramtype = def.paramtype or "light"
+	local function xdecor_stairs_alternative(nodename, def)
+		local mod, name = nodename:match("(.*):(.*)")
+		for groupname, value in pairs(def.groups) do
+			if groupname ~= "cracky"    and groupname ~= "choppy"  and
+			   groupname ~= "flammable" and groupname ~= "crumbly" and
+			   groupname ~= "snappy"    then
+				def.groups.groupname = nil
+			end
+		end
+
+		if minetest.get_modpath("moreblocks") then
+			stairsplus:register_all(
+				mod,
+				name,
+				nodename,
+				{
+					description = def.description,
+					tiles = def.tiles,
+					groups = def.groups,
+					sounds = def.sounds,
+				}
+			)
+		elseif minetest.get_modpath("stairs") then	
+			stairs.register_stair_and_slab(name,nodename,
+				def.groups,
+				def.tiles,
+				("%s Stair"):format(def.description),
+				("%s Slab"):format(def.description),
+				def.sounds
+			)	
+		end	
+	end
+
+	def.drawtype = def.drawtype or (def.mesh and "mesh") or (def.node_box and "nodebox")
 	def.sounds = def.sounds or default.node_sound_defaults()
 
 	if not (def.drawtype == "normal" or def.drawtype == "signlike" or
@@ -75,9 +85,16 @@ function xdecor.register(name, def)
 		def.paramtype2 = def.paramtype2 or "facedir"
 	end
 
-	if def.drawtype == "plantlike" or def.drawtype == "torchlike" or
-			def.drawtype == "signlike" or def.drawtype == "fencelike" then
+	if def.sunlight_propagates ~= false and
+			(def.drawtype == "plantlike" or def.drawtype == "torchlike" or
+			def.drawtype == "signlike" or def.drawtype == "fencelike") then
 		def.sunlight_propagates = true
+	end
+
+	if not def.paramtype and
+		(def.light_source or def.sunlight_propagates or
+		def.drawtype == "nodebox" or def.drawtype == "mesh") then
+		def.paramtype = "light"
 	end
 
 	local infotext = def.infotext
@@ -92,10 +109,10 @@ function xdecor.register(name, def)
 			local size = inventory.size or default_inventory_size
 			local inv = meta:get_inventory()
 			inv:set_size("main", size)
-			meta:set_string("formspec", (inventory.formspec or get_formspec_by_size(size))..xbg)
+			meta:set_string("formspec", (inventory.formspec or
+					get_formspec_by_size(size))..xbg)
 		end
-		def.after_dig_node = def.after_dig_node or drop_stuff()
-		--def.can_dig = def.can_dig or default_can_dig
+		def.can_dig = def.can_dig or default_can_dig
 	elseif infotext and not def.on_construct then
 		def.on_construct = function(pos)
 			local meta = minetest.get_meta(pos)
@@ -104,4 +121,13 @@ function xdecor.register(name, def)
 	end
 
 	minetest.register_node("xdecor:"..name, def)
+
+	local workbench = minetest.settings:get_bool("enable_xdecor_workbench")
+
+	if workbench == false and
+	   (minetest.get_modpath("moreblocks") or minetest.get_modpath("stairs")) then
+		if xdecor.stairs_valid_def(def) then
+			xdecor_stairs_alternative("xdecor:"..name, def)
+		end
+	end
 end

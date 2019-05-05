@@ -377,3 +377,5 @@ minetest.register_chatcommand("tc", {
       minetest.log("action", k .. " " .. msg)
    end
 })
+
+-- Alliance chat

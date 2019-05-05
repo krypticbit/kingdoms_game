@@ -24,8 +24,8 @@ function xdecor.sit(pos, node, clicker, pointed_thing)
 		default.player_attached[player_name] = false
 		default.player_set_animation(clicker, "stand", 30)
 
-	elseif not default.player_attached[player_name] and node.param2 <= 3 and not
-			ctrl.sneak and vel.x == 0 and vel.y == 0 and vel.z == 0 then
+	elseif not default.player_attached[player_name] and node.param2 <= 3 and
+			not ctrl.sneak and vector.equals(vel, {x=0,y=0,z=0}) then
 
 		clicker:set_eye_offset({x=0, y=-7, z=2}, {x=0, y=0, z=0})
 		--clicker:set_physics_override(0, 0, 0)
@@ -40,16 +40,12 @@ function xdecor.sit(pos, node, clicker, pointed_thing)
 	end
 end
 
-function xdecor.sit_dig(pos, player)
-	local pname = player:get_player_name()
-	local objs = minetest.get_objects_inside_radius(pos, 0.1)
-
-	for _, p in pairs(objs) do
-		if not player or not player:is_player() or p:get_player_name() or
-				default.player_attached[pname] then
+function xdecor.sit_dig(pos, digger)
+	for _, player in pairs(minetest.get_objects_inside_radius(pos, 0.1)) do
+		if player:is_player() and
+			    default.player_attached[player:get_player_name()] then
 			return false
 		end
 	end
 	return true
 end
-

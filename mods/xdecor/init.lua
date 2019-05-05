@@ -1,28 +1,47 @@
 --local t = os.clock()
+
+local mver_major, mver_minor, mver_patch = 0, 4, 16 -- Minetest 0.4.16 minimum.
+
+local client_version = minetest.get_version().string
+local major, minor, patch = client_version:match("(%d+).(%d+).(%d+)")
+
+if (major and minor and patch)     and
+   ((tonumber(major) < mver_major) or
+    (mver_major == tonumber(major) and tonumber(minor) < mver_minor)  or
+    (mver_minor == tonumber(minor) and tonumber(patch) < mver_patch)) then
+	minetest.log("error", "[xdecor] Your Minetest client is too old to run this mod. Disabling.")
+	return
+end
+
 xdecor = {}
 local modpath = minetest.get_modpath("xdecor")
 
--- Handlers.
 dofile(modpath.."/handlers/animations.lua")
 dofile(modpath.."/handlers/helpers.lua")
 dofile(modpath.."/handlers/nodeboxes.lua")
 dofile(modpath.."/handlers/registration.lua")
 
--- Item files.
-dofile(modpath.."/chess.lua")
---dofile(modpath.."/cooking.lua")
-dofile(modpath.."/craftguide.lua")
---dofile(modpath.."/craftitems.lua")
---dofile(modpath.."/enchanting.lua")
---dofile(modpath.."/hive.lua")
---dofile(modpath.."/itemframe.lua")
---dofile(modpath.."/mailbox.lua")
---dofile(modpath.."/mechanisms.lua")
-dofile(modpath.."/nodes.lua")
-dofile(modpath.."/recipes.lua")
-dofile(modpath.."/rope.lua")
-dofile(modpath.."/lights.lua")
---dofile(modpath.."/workbench.lua")
---print(string.format("[xdecor] loaded in %.2f ms", (os.clock()-t)*1000))
-dofile(modpath.."/evenmoreblocks.lua")
+dofile(modpath.."/src/alias.lua")
+dofile(modpath.."/src/nodes.lua")
+dofile(modpath.."/src/recipes.lua")
 
+local subpart = {
+	"chess",
+	--"cooking",
+	--"enchanting",
+	--"hive",
+	"itemframe",
+	--"mailbox",
+	--"mechanisms",
+	"rope",
+	--"workbench"
+}
+
+for _, name in pairs(subpart) do
+	local enable = minetest.settings:get_bool("enable_xdecor_"..name)
+	if enable or enable == nil then
+		dofile(modpath.."/src/"..name..".lua")
+	end
+end
+
+--print(string.format("[xdecor] loaded in %.2f ms", (os.clock()-t)*1000))
