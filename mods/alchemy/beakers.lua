@@ -223,6 +223,7 @@ local function register_splash_beaker(name, description, texture)
       drawtype = "mesh",
       mesh = "beaker_splash.x",
       tiles = {"beaker.png", texture},
+      stack_max = 1,
       inventory_image = tex,
       on_drop = function(itemstack, dropper, pos)
          -- Get concentration level
