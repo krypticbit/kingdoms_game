@@ -1,13 +1,7 @@
 tnt = {}
 
--- Default to enabled when in singleplayer
-local enable_tnt = minetest.settings:get_bool("enable_tnt")
-if enable_tnt == nil then
-	enable_tnt = minetest.is_singleplayer()
-end
-
 -- Override by BillyS
-enable_tnt = true
+local enable_tnt = true
 
 -- loss probabilities array (one in X will be lost)
 local loss_prob = {}
@@ -22,35 +16,7 @@ local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 -- Special TNT effects for protected areas
 --
 
--- Helpers
-local function div(a, b)
-   if a == nil or b == nil then return 0 end
-   return a / b
-end
-
-local function mult(a, b)
-   if a == nil or b == nil then return 0 end
-   return a * b
-end
-
-local function get_node_strength(groups)
-   local s = div(50, groups.cracky)
-      + div(70, groups.stone)
-      + mult(150, groups.level)
-      + div(25, groups.crumbly)
-      - mult(10, groups.oddly_breakable_by_hand)
-      + div(30, groups.snappy)
-      + div(40, groups.choppy)
-      - mult(10, groups.dig_immediate)
-   s = math.floor(s + 0.5)
-   if s < 0 then s = 1 end
-   return s
-end
-
 -- Run once all nodes are registered: modify on_blast to do node damage
-local blacklist = {
-   ["kingdoms:marker"] = true
-}
 
 local cid_data = {}
 
@@ -63,25 +29,12 @@ minetest.after(0, function()
 			drops = def.drops,
 			flammable = def.groups.flammable,
 		}
-      if blacklist[n] == nil and def.groups and def.groups.unbreakable == nil and def.on_blast == nil then
-         cid_data[id].on_blast = function(pos, intensity)
-            -- Check if node is protected
-            if minetest.is_protected(pos) then
-               -- Get node strength
-               local meta = minetest.get_meta(pos)
-               local s = meta:get_int("node_hp")
-               if s == 0 then
-                  s = get_node_strength(def.groups)
-               end
-               -- Damage node
-               s = s - intensity * math.random(2, 20)
-               s = math.floor(s + 0.5)
-               if s <= 0 then
-                  minetest.set_node(pos, {name = "air"})
-                  return
-               else
-                  meta:set_int("node_hp", s)
-               end
+      if def.groups and def.groups.unbreakable == nil and def.on_blast == nil and
+      protected_damage.blacklist[n] == nil then
+         cid_data[id].on_blast = function(pos, intensity, is_protected)
+            -- If protected, do protection damage; otherwise, destroy
+            if is_protected then
+               protected_damage.do_damage(pos, def.groups, intensity * math.random(2, 20))
             else
                minetest.set_node(pos, {name = "air"})
             end
@@ -156,7 +109,8 @@ local basic_flame_on_construct -- cached value
 local function destroy(drops, npos, cid, c_air, c_fire,
 		on_blast_queue, on_construct_queue,
 		ignore_protection, ignore_on_blast, owner)
-	if not ignore_protection and minetest.is_protected(npos, owner) then
+   local is_protected = minetest.is_protected(npos, owner)
+	if not ignore_protection and is_protected then
 		return cid
 	end
 
@@ -167,6 +121,7 @@ local function destroy(drops, npos, cid, c_air, c_fire,
 	elseif not ignore_on_blast and def.on_blast then
 		on_blast_queue[#on_blast_queue + 1] = {
 			pos = vector.new(npos),
+         is_protected = is_protected,
 			on_blast = def.on_blast
 		}
 		return cid
@@ -437,7 +392,7 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 	for _, queued_data in pairs(on_blast_queue) do
 		local dist = math.max(1, vector.distance(queued_data.pos, pos))
 		local intensity = (radius * radius) / (dist * dist)
-		local node_drops = queued_data.on_blast(queued_data.pos, intensity)
+		local node_drops = queued_data.on_blast(queued_data.pos, intensity, queued_data.is_protected)
 		if node_drops then
 			for _, item in pairs(node_drops) do
 				add_drop(drops, item)

@@ -1,2 +1,3 @@
 default
 fire
+protected_damage
