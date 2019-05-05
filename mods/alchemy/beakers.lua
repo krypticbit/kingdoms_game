@@ -233,8 +233,8 @@ local function register_splash_beaker(name, description, texture)
          local texpart = ("[combine:3x3:%d,%d=" .. texture):format(math.random(-29, 0), math.random(-29, 0))
          -- Spawn entity
          local pos = dropper:get_pos()
-         local vel = vector.multiply(dropper:get_look_dir(), 20)
-         pos.y = pos.y + dropper:get_properties().eye_height + 0.1
+         local vel = vector.multiply(dropper:get_look_dir(), 10)
+         pos.y = pos.y + dropper:get_properties().eye_height
          local e = minetest.add_entity(pos, "alchemy:splash_entity", minetest.serialize({
             tex = texture,
             texpart = texpart,
@@ -248,7 +248,7 @@ local function register_splash_beaker(name, description, texture)
             z = math.random() * 2 - 1,
          })
          e:set_velocity(vel)
-         e:set_acceleration({x = 0, y = -20, z = 0})
+         e:set_acceleration({x = 0, y = -5, z = 0})
          -- Remove item
          itemstack:take_item()
          return itemstack
