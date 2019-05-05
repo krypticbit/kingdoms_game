@@ -19,7 +19,6 @@ local function shoot(shooter, damage, range)
    for pointed_thing in ray do
       if pointed_thing.type == "object" and pointed_thing.ref ~= shooter then
          hit = pointed_thing
-         minetest.chat_send_all("Hit entity")
          break
       elseif pointed_thing.type == "node" then
          -- Check if the bullet can go through the node
@@ -58,7 +57,6 @@ local function should_continue_reload(player, shooter_uid)
 end
 
 local function abort_reload(player, hudid, ammo, shooter_uid)
-   minetest.chat_send_all("aborted")
    player:hud_remove(hudid)
    local user_inv = player:get_inventory()
    user_inv:add_item("main", ammo)
@@ -99,7 +97,6 @@ local function update_reload(player, shooter_uid, hudid, rounds, ammo, quarterti
 end
 
 local function reload(player, shooter_uid, speed, rounds, ammo)
-   minetest.chat_send_all("reloading")
    -- Calculate quartertime
    local quartertime = speed / 4.0
    -- Add the hud
@@ -135,6 +132,7 @@ projectiles.register_shooter = function(name, def)
       inventory_image = texture,
       range = 0,
       wield_scale = scale,
+      wear_represents = "reloading", -- For anvil
       on_use = function(istack, user, pointed_thing)
          if user == nil or user:is_player() == false then return end
          local meta = istack:get_meta()
