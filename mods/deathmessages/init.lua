@@ -47,7 +47,15 @@ local function broadcast(msg)
    if irc then irc:say(msg) end
 end
 
-minetest.register_on_dieplayer(function(player, reason)
+minetest.register_on_player_hpchange(function(player, hp_change, reason)
+   -- Check if the player was damaged or healed
+   if hp_change > 0 then return end
+   -- Check if the player is already dead
+   local hp = player:get_hp()
+   if hp <= 0 then return end
+   -- Check if the player will die
+   if hp + hp_change > 0 then return end
+   -- Announce death message
    local victim = player:get_player_name()
    if reason.type == "set_hp" then
       -- Player was killed by mod (unknown reason)
