@@ -323,26 +323,29 @@ end
 -- stamina is disabled if damage is disabled
 if minetest.setting_getbool("enable_damage") and minetest.is_yes(minetest.setting_get("enable_stamina") or "1") then
 	minetest.register_on_joinplayer(function(player)
-		local level = STAMINA_VISUAL_MAX -- TODO
-		if get_int_attribute(player, "stamina:level") then
-			level = math.min(get_int_attribute(player, "stamina:level"), STAMINA_VISUAL_MAX)
-		else
-			player:set_attribute("stamina:level", level)
-		end
-		local id = player:hud_add({
-			name = "stamina",
-			hud_elem_type = "statbar",
-			position = {x = 0.5, y = 1},
-			size = {x = 24, y = 24},
-			text = "stamina_hud_fg.png",
-			number = level,
-			alignment = {x = -1, y = -1},
-			offset = {x = -266, y = -110},
-			max = 0,
-		})
-		player:set_attribute("stamina:hud_id", id)
-		-- reset poisoned
-		player:set_attribute("stamina:poisoned", "no")
+      -- Attempt to fix grey screen
+      minetest.after(0, function()
+         local level = STAMINA_VISUAL_MAX -- TODO
+         if get_int_attribute(player, "stamina:level") then
+            level = math.min(get_int_attribute(player, "stamina:level"), STAMINA_VISUAL_MAX)
+         else
+            player:set_attribute("stamina:level", level)
+         end
+         local id = player:hud_add({
+            name = "stamina",
+            hud_elem_type = "statbar",
+            position = {x = 0.5, y = 1},
+            size = {x = 24, y = 24},
+            text = "stamina_hud_fg.png",
+            number = level,
+            alignment = {x = -1, y = -1},
+            offset = {x = -266, y = -110},
+            max = 0,
+         })
+         player:set_attribute("stamina:hud_id", id)
+         -- reset poisoned
+         player:set_attribute("stamina:poisoned", "no")
+      end)
 	end)
 
 	minetest.register_globalstep(stamina_globaltimer)
