@@ -88,12 +88,11 @@ alchemy.register_timed_effect = register_timed_effect
 register_effect("energized_base", function(p, pos, cLevel)
    local function explode(p, pos)
       -- Work-around because of how TNT protection checking works
-      local ignore_protection = not minetest.is_protected(pos, p:get_player_name())
       local radius = 5 + cLevel
       tnt.boom(p:get_pos(), {
          radius = radius,
          damage_radius = radius + 3,
-         ignore_protection = ignore_protection,
+         ignore_protection = true,
       })
       p:set_hp(0)
    end

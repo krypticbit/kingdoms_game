@@ -186,6 +186,20 @@ register_concentration("healing_brew", {
    result = "alchemy:beaker_healing_brew"
 })
 
+register_concentration("energized_base", {
+   result = "alchemy:beaker_energized_base",
+   on_overconcentrate = function(pos, inv)
+      tnt.boom(pos, {
+         radius = 20,
+         damage_radius = 50,
+         ignore_protection = true,
+      })
+      inv:set_stack("dst", 1, "")
+      inv:set_stack("src1", 1, "")
+      inv:set_stack("src2", 1, "")
+   end
+})
+
 register_concentration("fire_resistance", {
    result = "alchemy:beaker_fire_resistance",
    on_overconcentrate = function(pos, inv)
