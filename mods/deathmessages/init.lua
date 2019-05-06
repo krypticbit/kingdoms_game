@@ -3,15 +3,18 @@ local murdered_reasons = {
    "{killer} removed {victim}'s head from his body.",
    "{killer} gave {victim} a free trip to heaven.",
    "{victim} was perforated by {killer}.  Oops.",
-   "{killer} sliced'n'diced {victim}."
+   "{killer} sliced'n'diced {victim}.",
+   "{victim} was hole-punched by {killer}.",
+   "{killer} terminated {victim}'s life."
 }
 
 local fall_reasons = {
-   "{victim} tripped over his own feet ... at the edge of a cliff",
-   "{victim} went splat",
-   "{victim} took a fast run off of a tall cliff",
+   "{victim} tripped over his own feet ... at the edge of a cliff.",
+   "{victim} went splat.",
+   "{victim} took a fast run off of a tall cliff.",
    "{victim} thought he could fly.  He was wrong.",
-   "{victim} kissed the groud a bit too enthusiastically."
+   "{victim} kissed the groud a bit too enthusiastically.",
+   "{victim} forgot his parachute.",
 }
 
 local lava_reasons = {
@@ -23,9 +26,10 @@ local lava_reasons = {
 
 local drowned_reasons = {
    "{victim} took a long walk off of a short pier.",
-   "{victim} forgot he couldn't breathe underwater",
+   "{victim} forgot he couldn't breathe underwater.",
    "{victim} got a lungful of good ol' H2O.",
-   "{victim} found out that he wasn't a fish."
+   "{victim} found out that he wasn't a fish.",
+   "{victim} refused to breathe."
 }
 
 local other_reasons = {
@@ -82,7 +86,7 @@ minetest.register_on_player_hpchange(function(player, hp_change, reason)
       -- Player was killed by fall damage
    elseif reason.type == "node_damage" then
       -- Player was killed by node damage
-      local n = minetest.registered_nodes[minetest.get_node(player:get_pos()).name]
+      local n = minetest.registered_nodes[reason.node]
       if n ~= nil and n.groups ~= nil and n.groups.lava then
          -- Killed by lava
          local msg = get_reason(lava_reasons, victim)
