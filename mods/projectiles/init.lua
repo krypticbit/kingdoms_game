@@ -43,9 +43,7 @@ local function shoot(shooter, damage, range)
       -- Account for distance; do 3/4 damage at max range
       local dist = vector.distance(from, hit_pos)
       damage = damage * (1 - dist / range / 4)
-      minetest.chat_send_all(tostring(hit_height))
       if hit_height > 1.2 then -- headshot
-         minetest.chat_send_all("Headshot")
          damage = damage * 1.5
       end
       hit.ref:punch(shooter, nil, {damage_groups = {fleshy = damage}})
