@@ -197,7 +197,7 @@ function advmarkers.display_formspec(player)
     player = get_player(player, 0)
     if not get_player_by_name(player) then return end
     local formspec = 'size[5.25,8]' ..
-                     'label[0,0;waypoint list]' ..
+                     'label[0,0;Waypoint list]' ..
                      'button_exit[0,7.5;1.3125,0.5;display;Display]' ..
                      'button[1.3125,7.5;1.3125,0.5;teleport;Teleport]' ..
                      'button[2.625,7.5;1.3125,0.5;rename;Rename]' ..
@@ -233,7 +233,7 @@ function advmarkers.display_formspec(player)
         if pos then
             pos = minetest.formspec_escape(tostring(pos.x) .. ', ' ..
             tostring(pos.y) .. ', ' .. tostring(pos.z))
-            pos = 'waypoint position: ' .. pos
+            pos = 'Waypoint position: ' .. pos
             formspec = formspec .. 'label[0,6.75;' .. pos .. ']'
         end
     else
@@ -324,8 +324,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         return
     end
     local name = false
-    if fields.marker then
-        local event = minetest.explode_textlist_event(fields.marker)
+    if fields.waypoint then
+        local event = minetest.explode_textlist_event(fields.waypoint)
         if event.index then
             name = formspec_list[pname][event.index]
         end
