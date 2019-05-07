@@ -14,7 +14,7 @@ local valid_player_model_versions =  {
 
 local player_model_version = minetest.settings:get("player_model_version")
 if not player_model_version or player_model_version == "" then
-	player_model_version = "default_character_v2"
+	player_model_version = "default_character_v3"
 elseif not  valid_player_model_versions[player_model_version] then
 	error("Invalid value for player_model_version in minetest.conf: " .. player_model_version)
 end
