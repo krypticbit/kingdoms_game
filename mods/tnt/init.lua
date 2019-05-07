@@ -29,12 +29,12 @@ minetest.after(0, function()
 			drops = def.drops,
 			flammable = def.groups.flammable,
 		}
-      if def.groups and def.groups.unbreakable == nil and def.on_blast == nil and
-      protected_damage.blacklist[n] == nil then
+      if protected_damage.blacklist[n] == nil then
          cid_data[id].on_blast = function(pos, intensity, is_protected)
             -- If protected, do protection damage; otherwise, destroy
+            minetest.chat_send_all(tostring(intensity))
             if is_protected then
-               protected_damage.do_damage(pos, def.groups, intensity * math.random(2, 20))
+               protected_damage.do_damage(pos, def, intensity * math.random(2, 20) / 10)
             else
                minetest.set_node(pos, {name = "air"})
             end
