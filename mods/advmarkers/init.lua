@@ -434,7 +434,7 @@ minetest.register_chatcommand('waypoint_import', {
         'existing markers that have the same name.',
     func = function(name, param)
         if advmarkers.import(name, param) then
-            return true, 'Markers imported!'
+            return true, 'waypoints imported!'
         else
             return false, 'Invalid waypoint string!'
         end
@@ -490,11 +490,29 @@ minetest.register_on_leaveplayer(function(player)
     advmarkers.last_coords[name]    = nil
 end)
 
--- Add '/mrkrthere'
-minetest.register_chatcommand('mrkrthere', {
+-- Add '/wpthere'
+minetest.register_chatcommand('wpthere', {
     params      = '',
     description = 'Alias for "/waypoints there".',
     func = function(name, param)
         return minetest.registered_chatcommands['waypoints'].func(name, 'there')
+    end
+})
+
+-- Add '/wps'
+minetest.register_chatcommand('wps', {
+    params      = '',
+    description = 'Alias for "/waypoints".',
+    func = function(name, param)
+        return minetest.registered_chatcommands['waypoints'].func(name, param)
+    end
+})
+
+-- Add '/add_wp'
+minetest.register_chatcommand('add_wp', {
+    params      = '',
+    description = 'Alias for "/add_waypoint".',
+    func = function(name, param)
+        return minetest.registered_chatcommands['add_waypoint'].func(name, param)
     end
 })
