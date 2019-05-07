@@ -1,4 +1,4 @@
-minetest.register_alias("magma:magma", "xdecor:magma")
+minetest.register_alias("xdecor:magma", "magma:magma")
 
 minetest.register_node("magma:magma", {
 	description = "Magma",
