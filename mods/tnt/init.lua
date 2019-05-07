@@ -32,7 +32,6 @@ minetest.after(0, function()
       if protected_damage.blacklist[n] == nil then
          cid_data[id].on_blast = function(pos, intensity, is_protected)
             -- If protected, do protection damage; otherwise, destroy
-            minetest.chat_send_all(tostring(intensity))
             if is_protected then
                protected_damage.do_damage(pos, def, intensity * math.random(2, 20) / 10)
             else
