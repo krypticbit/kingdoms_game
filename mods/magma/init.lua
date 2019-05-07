@@ -23,7 +23,7 @@ minetest.register_node("magma:magma", {
 })
 
 minetest.register_craft({
-        output = 'xdecor:magma 2',
+        output = 'magma:magma 2',
         recipe = {
                 {'bucket:bucket_lava'},
                 {'default:stone'},
@@ -34,8 +34,8 @@ minetest.register_craft({
 minetest.register_craft({
 	type = "shapeless",
 	output = "bucket:bucket_lava",
-	recipe = {"xdecor:magma", "xdecor:magma", "bucket:bucket_empty"},
+	recipe = {"magma:magma", "magma:magma", "bucket:bucket_empty"},
 	replacements = {
-		{"xdecor:magma", "default:cobble"}
+		{"magma:magma", "default:cobble"}
 	}
 })
