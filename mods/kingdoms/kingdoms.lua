@@ -13,6 +13,8 @@ function kingdoms.player_has_priv(name, priv)
    end
    local rank = kingdoms.members[name].rank
    local kingdom = kingdoms.kingdoms[kingdoms.members[name].kingdom]
+   -- Unknown rank
+   if kingdom.ranks[rank] == nil then return false end
    return kingdom.ranks[rank][priv] ~= nil
 end
 
