@@ -18,6 +18,8 @@ minetest.register_entity("nametags:nametag", {
       if pobj == nil then
          e.object:remove()
       end
+      -- Make entity immortal
+      e.object:set_armor_groups({immortal = 1})
       -- Finalize nametag
       local tex, xsize = signs_lib.make_line_texture({sdata})
       e._pname = sdata
