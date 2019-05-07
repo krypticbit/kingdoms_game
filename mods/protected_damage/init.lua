@@ -11,14 +11,14 @@ local function mult(a, b)
 end
 
 function protected_damage.get_node_strength(groups)
-   local s = div(50, groups.cracky)
-      + div(70, groups.stone)
-      + mult(150, groups.level)
-      + div(25, groups.crumbly)
-      - mult(10, groups.oddly_breakable_by_hand)
-      + div(30, groups.snappy)
-      + div(40, groups.choppy)
-      - mult(10, groups.dig_immediate)
+   local s = div(100, groups.cracky)
+      + div(140, groups.stone)
+      + mult(300, groups.level)
+      + div(50, groups.crumbly)
+      - mult(20, groups.oddly_breakable_by_hand)
+      + div(60, groups.snappy)
+      + div(80, groups.choppy)
+      - mult(20, groups.dig_immediate)
    s = math.floor(s + 0.5)
    if s < 0 then s = 1 end
    return s
