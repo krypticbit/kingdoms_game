@@ -379,3 +379,32 @@ minetest.register_chatcommand("tc", {
 })
 
 -- Alliance chat
+-- Team chat
+minetest.register_chatcommand("ac", {
+   params = "<msg>",
+   description = "Chat with teammates of allied teams only",
+   privs = {shout = true},
+   func = function(name, msg)
+      -- Check if player is in a kingdom
+      if kingdoms.members[name] == nil then
+         return false, "You are not in a kingdom"
+      end
+      -- Check if player had a message
+      if msg == nil or msg == "" then
+         return false
+      end
+      -- Get kingdom
+      local k = kingdoms.members[name].kingdom
+      msg = "[Alliance Chat] <" .. name .. "> " .. msg
+      -- Send to teammates
+      for _,p in pairs(minetest.get_connected_players()) do
+         local pname = p:get_player_name()
+         if kingdoms.members[pname] and (kingdoms.members[pname].kingdom == k
+         or kingdoms.get_relation(kingdoms.members[pname].kingdom, k).id == kingdoms.relations.alliance) then
+            minetest.chat_send_player(pname, msg)
+         end
+      end
+      -- Log
+      minetest.log("action", k .. " " .. msg)
+   end
+})
