@@ -15,6 +15,20 @@ protected_damage.blacklist = {
    ["air"] = true
 }
 
+-- Get node strength as a string
+local function get_node_strength_str(hp, max_hp)
+   -- Unbreakable
+   if max_hp == false then
+      return "This node is unbreakable"
+   end
+   -- If undamged, set hp to max
+   if hp == 0 then
+      hp = max_hp
+   end
+   -- Return node strength
+   return ("Node strength: %d/%d"):format(hp, max_hp)
+end
+
 -- Get node strength
 function protected_damage.get_node_strength(name)
    -- Return false if blacklisted
@@ -80,21 +94,17 @@ minetest.register_tool("protected_damage:checker", {
    inventory_image = "protected_damage_checker.png",
    on_use = function(itemstack, user, pointed_thing)
       if pointed_thing.type ~= "node" then return end
+      local pname = user:get_player_name()
+      -- Get hp
       local pos = minetest.get_pointed_thing_position(pointed_thing)
       local meta = minetest.get_meta(pos)
       local hp = meta:get_int("node_hp")
-      local pname = user:get_player_name()
-      if hp == 0 then
-         local ndef = minetest.registered_nodes[minetest.get_node(pos).name]
-         local strength = protected_damage.get_node_strength(ndef)
-         if strength == false then
-            minetest.chat_send_player(pname, "This node is unbreakable")
-         else
-            minetest.chat_send_player(pname, "Node strength: " .. tostring(strength))
-         end
-      else
-         minetest.chat_send_player(pname, "Node strength: " .. tostring(hp))
-      end
+      local max_hp = protected_damage.get_node_strength(minetest.get_node(pos).name)
+      -- Tell player
+      minetest.chat_send_player(pname, get_node_strength_str(hp, max_hp))
+      -- Add wear
+      itemstack:add_wear(100)
+
    end
 })
 minetest.register_craft({
@@ -103,5 +113,40 @@ minetest.register_craft({
       {"", "", "group:wood"},
       {"", "default:steel_ingot", ""},
       {"group:stick", "", ""}
+   }
+})
+
+-- Register tool to repair node
+minetest.register_tool("protected_damage:repair_tool", {
+   description = "Node Repair Tool",
+   inventory_image = "protected_damage_repair_tool.png",
+   on_use = function(itemstack, user, pointed_thing)
+      -- Check pointed_thing
+      if pointed_thing.type ~= "node" then return end
+      -- Check protection
+      local pname = user:get_player_name()
+      local pos = minetest.get_pointed_thing_position(pointed_thing)
+      if minetest.is_protected(pos, pname) then return end
+      -- Check node hp
+      local meta = minetest.get_meta(pos)
+      local hp = meta:get_int("node_hp")
+      local max_hp = protected_damage.get_node_strength(minetest.get_node(pos).name)
+      if hp >= max_hp then return end
+      -- Repair
+      hp = hp + 50
+      if hp > max_hp then hp = max_hp end
+      meta:set_int("node_hp", hp)
+      itemstack:add_wear(500)
+      -- Tell player
+      minetest.chat_send_player(pname, get_node_strength_str(hp, max_hp))
+      return itemstack
+   end
+})
+minetest.register_craft({
+   output = "protected_damage:repair_tool",
+   recipe = {
+      {"", "", "default:steelblock"},
+      {"", "default:steel_ingot", ""},
+      {"default:steel_ingot", "", ""}
    }
 })
