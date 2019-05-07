@@ -493,8 +493,8 @@ end)
 -- Add '/mrkrthere'
 minetest.register_chatcommand('mrkrthere', {
     params      = '',
-    description = 'Alias for "/mrkr there".',
+    description = 'Alias for "/waypoints there".',
     func = function(name, param)
-        return minetest.registered_chatcommands['mrkr'].func(name, 'there')
+        return minetest.registered_chatcommands['waypoints'].func(name, 'there')
     end
 })
