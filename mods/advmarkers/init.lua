@@ -76,7 +76,7 @@ function advmarkers.set_hud_pos(player, pos, title)
             world_pos     = pos
         })
     end
-    minetest.chat_send_player(name, 'Marker set to ' .. title)
+    minetest.chat_send_player(name, 'waypoint set to ' .. title)
     return true
 end
 
@@ -197,12 +197,12 @@ function advmarkers.display_formspec(player)
     player = get_player(player, 0)
     if not get_player_by_name(player) then return end
     local formspec = 'size[5.25,8]' ..
-                     'label[0,0;Marker list]' ..
+                     'label[0,0;waypoint list]' ..
                      'button_exit[0,7.5;1.3125,0.5;display;Display]' ..
                      'button[1.3125,7.5;1.3125,0.5;teleport;Teleport]' ..
                      'button[2.625,7.5;1.3125,0.5;rename;Rename]' ..
                      'button[3.9375,7.5;1.3125,0.5;delete;Delete]' ..
-                     'textlist[0,0.75;5,6;marker;'
+                     'textlist[0,0.75;5,6;waypoint;'
 
     -- Iterate over all the markers
     local id = 0
@@ -233,7 +233,7 @@ function advmarkers.display_formspec(player)
         if pos then
             pos = minetest.formspec_escape(tostring(pos.x) .. ', ' ..
             tostring(pos.y) .. ', ' .. tostring(pos.z))
-            pos = 'Marker position: ' .. pos
+            pos = 'waypoint position: ' .. pos
             formspec = formspec .. 'label[0,6.75;' .. pos .. ']'
         end
     else
@@ -268,9 +268,9 @@ function advmarkers.get_chatcommand_pos(player, pos)
 end
 
 -- Open the markers GUI
-minetest.register_chatcommand('mrkr', {
+minetest.register_chatcommand('waypoints', {
     params      = '',
-    description = 'Open the advmarkers GUI',
+    description = 'Open the waypoint GUI',
     func = function(pname, param)
         if #param:gsub(' ', '') > 0 then
             local pos, err = advmarkers.get_chatcommand_pos(pname, param)
@@ -278,7 +278,7 @@ minetest.register_chatcommand('mrkr', {
                 return false, err
             end
             if not advmarkers.set_hud_pos(pname, pos) then
-                return false, 'Error setting the marker!'
+                return false, 'Error setting the waypoint!'
             end
         else
             advmarkers.display_formspec(pname)
@@ -287,14 +287,14 @@ minetest.register_chatcommand('mrkr', {
 })
 
 -- Add a marker
-minetest.register_chatcommand('add_mrkr', {
+minetest.register_chatcommand('add_waypoint', {
     params      = '<pos / "here" / "there"> <name>',
-    description = 'Adds a marker.',
+    description = 'Adds a waypoint.',
     func = function(pname, param)
         -- Get the parameters
         local s, e = param:find(' ')
         if not s or not e then
-            return false, 'Invalid syntax! See /help add_mrkr for more info.'
+            return false, 'Invalid syntax! See /help add_waypoint for more info.'
         end
         local pos  = param:sub(1, s - 1)
         local name = param:sub(e + 1)
@@ -336,11 +336,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     if name then
         if fields.display then
             if not advmarkers.display_marker(player, name) then
-                minetest.chat_send_player(pname, 'Error displaying marker!')
+                minetest.chat_send_player(pname, 'Error displaying waypoint!')
             end
         elseif fields.rename then
             minetest.show_formspec(pname, 'advmarkers-ssm', 'size[6,3]' ..
-                'label[0.35,0.2;Rename marker]' ..
+                'label[0.35,0.2;Rename waypoint]' ..
                 'field[0.3,1.3;6,1;new_name;New name;' ..
                 minetest.formspec_escape(name) .. ']' ..
                 'button[0,2;3,1;cancel;Cancel]' ..
@@ -350,18 +350,18 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 if advmarkers.rename_marker(pname, name, fields.new_name) then
                     selected_name[pname] = fields.new_name
                 else
-                    minetest.chat_send_player(pname, 'Error renaming marker!')
+                    minetest.chat_send_player(pname, 'Error renaming waypoint!')
                 end
                 advmarkers.display_formspec(pname)
             else
                 minetest.chat_send_player(pname,
-                    'Please enter a new name for the marker.'
+                    'Please enter a new name for the waypoint.'
                 )
             end
         elseif fields.teleport then
             minetest.show_formspec(pname, 'advmarkers-ssm', 'size[6,2.2]' ..
                 'label[0.35,0.25;' .. minetest.formspec_escape(
-                    'Teleport to a marker\n - ' .. name
+                    'Teleport to a waypoint\n - ' .. name
                 ) .. ']' ..
                 'button[0,1.25;3,1;cancel;Cancel]' ..
                 'button_exit[3,1.25;3,1;teleport_confirm;Teleport]')
@@ -369,17 +369,17 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             -- Teleport with /teleport
             local pos = advmarkers.get_marker(pname, name)
             if not pos then
-                minetest.chat_send_player(pname, 'Error teleporting to marker!')
+                minetest.chat_send_player(pname, 'Error teleporting to waypoint!')
             elseif minetest.check_player_privs(pname, 'teleport') then
                 player:set_pos(pos)
-                minetest.chat_send_player(pname, 'Teleported to marker "' ..
+                minetest.chat_send_player(pname, 'Teleported to waypoint "' ..
                     name .. '".')
             else
                 minetest.chat_send_player(pname, 'Insufficient privileges!')
             end
         elseif fields.delete then
             minetest.show_formspec(pname, 'advmarkers-ssm', 'size[6,2]' ..
-                'label[0.35,0.25;Are you sure you want to delete this marker?]' ..
+                'label[0.35,0.25;Are you sure you want to delete this waypoint?]' ..
                 'button[0,1;3,1;cancel;Cancel]' ..
                 'button[3,1;3,1;delete_confirm;Delete]')
         elseif fields.delete_confirm then
@@ -395,25 +395,25 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
         end
     elseif fields.display or fields.delete then
-        minetest.chat_send_player(pname, 'Please select a marker.')
+        minetest.chat_send_player(pname, 'Please select a waypoint.')
     end
     return true
 end)
 
 -- Auto-add markers on death.
 minetest.register_on_dieplayer(function(player)
-    local name = 'Death Marker'
+    local name = 'Death Waypoint'
     local pos  = player:get_pos()
     advmarkers.last_coords[player] = pos
     advmarkers.set_marker(player, pos, name)
     minetest.chat_send_player(player:get_player_name(),
-        'Added marker "' .. name .. '".')
+        'Added waypoint "' .. name .. '".')
 end)
 
 -- Allow string exporting
-minetest.register_chatcommand('mrkr_export', {
+minetest.register_chatcommand('waypoint_export', {
     params      = '',
-    description = 'Exports an advmarkers string containing all your markers.',
+    description = 'Exports an waypoint string containing all your markers.',
     func = function(name, param)
         local export
         if param == 'old' then
@@ -422,21 +422,21 @@ minetest.register_chatcommand('mrkr_export', {
             export = advmarkers.export(name)
         end
         minetest.show_formspec(name, 'advmarkers-ignore',
-            'field[_;Your marker export string;' ..
+            'field[_;Your waypoint export string;' ..
             minetest.formspec_escape(export) .. ']')
     end
 })
 
 -- String importing
-minetest.register_chatcommand('mrkr_import', {
+minetest.register_chatcommand('waypoint_import', {
     params      = '<advmarkers string>',
-    description = 'Imports an advmarkers string. This will not overwrite ' ..
+    description = 'Imports an waypoint string. This will not overwrite ' ..
         'existing markers that have the same name.',
     func = function(name, param)
         if advmarkers.import(name, param) then
             return true, 'Markers imported!'
         else
-            return false, 'Invalid advmarkers string!'
+            return false, 'Invalid waypoint string!'
         end
     end
 })
