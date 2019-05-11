@@ -14,6 +14,22 @@ knockout.storage = minetest.get_mod_storage()
 local knockout_huds = {}
 local player_invs_detached = {}
 
+local get_name_and_ref = function(player)
+   if type(player) == "string" then
+      return player, minetest.get_player_by_name(player)
+   else
+      return player:get_player_name(), player
+   end
+end
+
+local get_name = function(player)
+   if type(player) == "string" then
+      return player
+   else
+      return player:get_player_name()
+   end
+end
+
 local can_edit_player_inv = function(name, count)
    if minetest.get_player_by_name(name) and knockout.knocked_out[name] then -- player is online and knocked out
       return count
@@ -21,8 +37,8 @@ local can_edit_player_inv = function(name, count)
    return 0
 end
 
-local update_player_inv = function(dInv, victimName)
-   local v = minetest.get_player_by_name(victimName)
+local update_player_inv = function(dInv, victim)
+   local v, victimName = get_name_and_ref(victim)
    if v == nil then return end
    local vInv = minetest.get_inventory({type='player', name = victimName})
    vInv:set_list("main", dInv:get_list("main"))
@@ -31,7 +47,8 @@ local update_player_inv = function(dInv, victimName)
    armor:set_player_armor(v)
 end
 
-local get_knocked_out_fs = function(victimName)
+local get_knocked_out_fs = function(victim)
+   local victimName = get_name(victim)
    if player_invs_detached[victimName] == nil then
       local pInv = minetest.get_inventory({type='player', name = victimName})
       local d = minetest.create_detached_inventory("ko_" .. victimName, {
@@ -138,11 +155,15 @@ knockout.save = function()
 	knockout.storage:set_string("knocked_out", minetest.serialize(knockout.knocked_out))
 end
 
-knockout.pick_up = function(carrierName, carriedName, carrierObj)
-   for carryer, carried in pairs(knockout.carrying) do
-      if carryer == carrierName or carried == carriedName then return end
+knockout.pick_up = function(carrier, carried, carrierObj)
+   local carriedName, victim = get_name_and_ref(carried)
+   local carrierName = get_name(carrier)
+   -- Check if carried is already being carried
+   -- OR carrier is already carrying another player
+   for lcarrier, lcarried in pairs(knockout.carrying) do
+      if lcarrier == carrierName or lcarried == carriedName then return end
    end
-   local victim = minetest.get_player_by_name(carriedName)
+   -- Pick up
    if victim then
       local parent = victim:get_attach()
       if parent then
@@ -154,7 +175,8 @@ knockout.pick_up = function(carrierName, carriedName, carrierObj)
 end
 
 -- Drop a player
-knockout.carrier_drop = function(pName) -- pname = name of carrier
+knockout.carrier_drop = function(player) -- player = carrier
+   local pName = get_name(player)
 	if knockout.carrying[pName] then
 		local cName = knockout.carrying[pName]
 		local carried = minetest.get_player_by_name(cName)
@@ -167,9 +189,9 @@ knockout.carrier_drop = function(pName) -- pname = name of carrier
 end
 
 -- Knock out player
-knockout.knockout = function(pName, duration)
-	local p = minetest.get_player_by_name(pName)
-	if not p then return end
+knockout.knockout = function(player, duration)
+   local pName, p
+   pName, p = get_name_and_ref(player)
 	if duration == nil then
 		if knockout.knocked_out[pName] == nil then return end
 	else
@@ -208,8 +230,9 @@ knockout.knockout = function(pName, duration)
 end
 
 -- Wake up player
-knockout.wake_up = function(pName)
-	local p = minetest.get_player_by_name(pName)
+knockout.wake_up = function(player)
+   local pName, p
+   pName, p = get_name_and_ref(player)
 	knockout.knocked_out[pName] = nil
 	-- Un-freeze player
 	local e = p:get_attach()
@@ -249,7 +272,10 @@ knockout.wake_up = function(pName)
 end
 
 -- Decrease knockout time
-knockout.decrease_knockout_time = function(pName, by)
+knockout.decrease_knockout_time = function(player, by)
+   -- Get name
+   local pName = get_name(player)
+   -- Decrease
 	knockout.knocked_out[pName] = knockout.knocked_out[pName] - by
 	if knockout.knocked_out[pName] <= 0 then
 		knockout.wake_up(pName)
