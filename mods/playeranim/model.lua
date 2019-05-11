@@ -8,7 +8,7 @@ local LLEG = "Leg_Left"
 local RLEG = "Leg_Right"
 
 -- Version of player model
-local DEFAULT_PLAYER_MODEL_VERSION = "MTG_4_Jun_2017"
+local DEFAULT_PLAYER_MODEL_VERSION = "MTG_4_Nov_2017"
 
 local VALID_PLAYER_MODEL_VERSIONS = {
 	MTG_4_Jun_2017 = true,
