@@ -3,8 +3,8 @@ minetest.register_tool("whip:whip", {
    inventory_image = "whip_whip.png",
    range = 10.0,
    tool_capabilities = {
-      full_punch_interval = 2.0,
-      damage_groups = {fleshy = 3}
+      full_punch_interval = 1.5,
+      damage_groups = {fleshy = 1}
    }
 })
 
