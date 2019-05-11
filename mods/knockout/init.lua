@@ -38,7 +38,7 @@ local can_edit_player_inv = function(name, count)
 end
 
 local update_player_inv = function(dInv, victim)
-   local v, victimName = get_name_and_ref(victim)
+   local victimName, v = get_name_and_ref(victim)
    if v == nil then return end
    local vInv = minetest.get_inventory({type='player', name = victimName})
    vInv:set_list("main", dInv:get_list("main"))
