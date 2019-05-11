@@ -4,7 +4,7 @@ minetest.register_tool("whip:whip", {
    range = 10.0,
    tool_capabilities = {
       full_punch_interval = 1.5,
-      damage_groups = {fleshy = 1}
+      damage_groups = {fleshy = 3}
    }
 })
 
