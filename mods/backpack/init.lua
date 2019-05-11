@@ -52,7 +52,7 @@ minetest.register_entity("backpack:backpack", {
             end
          end
       elseif backpack.wearing[n] == nil then
-         e.object:set_attach(puncher, "", {x = 0, y = 0, z = -2}, {x = 0, y = 180, z = 0})
+         e.object:set_attach(puncher, "", {x = 0, y = 10, z = -2}, {x = 0, y = 180, z = 0})
          backpack.wearing[n] = e
       end
    end,
