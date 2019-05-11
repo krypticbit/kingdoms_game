@@ -21,7 +21,7 @@ knockout.register_tool("whip:whip", 1, 5, 50)
 
 minetest.register_tool("whip:cat_o_nine_tails", {
    description = "Cat o' nine tails",
-   inventory_image = "whip_whip.png",
+   inventory_image = "cat_o_nine_tails.png",
    range = 7.5,
    tool_capabilities = {
       full_punch_interval = 1.8,
