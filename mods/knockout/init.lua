@@ -190,13 +190,12 @@ end
 
 -- Knock out player
 knockout.knockout = function(player, duration)
+   -- Get name and ref
    local pName, p
    pName, p = get_name_and_ref(player)
-	if duration == nil then
-		if knockout.knocked_out[pName] == nil then return end
-	else
-		knockout.knocked_out[pName] = duration
-	end
+   -- Set ko duration
+	if duration == nil then duration = 0 end
+   knockout.knocked_out[pName] = duration
 	-- Incase player is riding a horse or something
 	p:set_detach()
 	-- If the player is carrying another player, fix that
