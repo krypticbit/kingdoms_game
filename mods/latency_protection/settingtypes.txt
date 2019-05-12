@@ -1,4 +1,0 @@
-[Latency Protection]
-
-# The max latency in seconds before refusing a player's actions.
-protection_timeout (Protection Timeout) float 2.0
