@@ -239,6 +239,7 @@ minetest.register_abm({
 	neighbors = {"group:sand"},
 	interval = 12,
 	chance = 83,
+   catch_up = true,
 	action = function(...)
 		default.grow_cactus(...)
 	end
@@ -250,6 +251,7 @@ minetest.register_abm({
 	neighbors = {"default:dirt", "default:dirt_with_grass"},
 	interval = 14,
 	chance = 71,
+   catch_up = true,
 	action = function(...)
 		default.grow_papyrus(...)
 	end
