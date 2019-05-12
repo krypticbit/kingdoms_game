@@ -1,4 +1,4 @@
-players_glitching = {}
+local players_glitching = {}
 
 local timeout = tonumber(minetest.settings:get("protection_timeout")) or 2.0
 
