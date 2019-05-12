@@ -81,7 +81,7 @@ minetest.register_craft({
 minetest.register_alias("xtraarmor:helmet_wool", "xtraarmor:helmet_wool_grey")
 minetest.register_alias("xtraarmor:chestplate_wool", "xtraarmor:chestplate_wool_grey")
 minetest.register_alias("xtraarmor:leggings_wool", "xtraarmor:leggings_wool_grey")
-minetest.register_alias("xtraarmor:boots_wool", "xtraarmor:helmet_boots_grey")
+minetest.register_alias("xtraarmor:boots_wool", "xtraarmor:boots_wool_grey")
 
 minetest.register_craft({
 	output = 'xtraarmor:helmet_wool',
