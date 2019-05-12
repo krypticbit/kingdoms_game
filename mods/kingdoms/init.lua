@@ -101,6 +101,7 @@ dofile(mp .. "/gui.lua")
 dofile(mp .. "/markers.lua")
 dofile(mp .. "/chat.lua")
 dofile(mp .. "/hud.lua")
+dofile(mp .. "/protection.lua")
 
 dofile(mp .. "/doors.lua")
 dofile(mp .. "/chests.lua")
