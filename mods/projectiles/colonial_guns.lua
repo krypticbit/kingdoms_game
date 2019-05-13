@@ -23,7 +23,7 @@ minetest.register_craftitem("projectiles:rifle_cartridge", {
 })
 
 minetest.register_craft({
-   output = "projectiles:rifle_cartridge",
+   output = "projectiles:rifle_cartridge 2",
    type = "shaped",
    recipe = {
       {"default:steel_ingot", "default:steel_ingot", "default:steel_ingot"},
@@ -52,4 +52,13 @@ projectiles.register_shooter("pistol", {
 minetest.register_craftitem("projectiles:pistol_cartridge", {
    definition = "Pistol Cartridge",
    inventory_image = "projectiles_pistol_cartridge.png",
+})
+
+minetest.register_craft({
+   output = "projectiles:pistol_cartridge 2",
+   type = "shaped",
+   recipe = {
+      {"default:steel_ingot", "default:steel_ingot"},
+      {"tnt:gunpowder", "default:copper_ingot"},
+   }
 })
