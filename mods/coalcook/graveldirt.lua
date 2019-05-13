@@ -28,7 +28,7 @@ minetest.register_craft({
 	}
 })
 minetest.register_craft({
-	output = "default:dirt",
+	output = "default:dirt_with_grass",
 	recipe = {
 		{"default:sand", "group:leaves"}
 	}
