@@ -90,16 +90,18 @@ end
 -- Protection implementation
 local old_is_protected = minetest.is_protected
 function minetest.is_protected(pos, name)
+   -- Check if name is defined and player is connected
+   local p = minetest.get_player_by_name(name)
+   if p == nil then return end
    -- If wifi-glitching, everything is protected
    local g_pos = players_glitching[name]
 	if g_pos then
-		minetest.get_player_by_name(name):set_pos(g_pos)
+		p:set_pos(g_pos)
 		return true
 	end
    -- Check if node if protected by a kingdom
    if new_is_protected(pos, name) then
       -- Node is protected => teleport back
-      local p = minetest.get_player_by_name(name)
       if player_ghosts[name] then
          p:set_pos(player_ghosts[name])
       else
