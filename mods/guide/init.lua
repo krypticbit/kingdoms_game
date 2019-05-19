@@ -1,4 +1,5 @@
 local selected_article = {}
+local link_indicies = {}
 local link_pattern = "%{%w+%}"
 
 -- Load
@@ -33,17 +34,20 @@ local function show_guide(name, aIndex)
       fs = "size[8,9;]textlist[0,0;2,9;articles;"
    end
    local didAdd = false
+   link_indicies[name] = {}
    for lName in articles[aIndex].text:gmatch(link_pattern) do
       local idx = tonumber(lName:sub(2, -2))
       if articles[idx] then
+         link_indicies[name][#link_indicies[name] + 1] = idx
          fs = fs .. articles[idx].title .. ","
          didAdd = true
       end
    end
+   minetest.chat_send_all(dump(link_indicies[name]))
    if didAdd then
-      fs = fs:sub(1, -2) .. "]"
+      fs = fs:sub(1, -2) .. ";1;false]"
    else
-      fs = fs .. "]"
+      fs = fs .. ";1;false]"
    end
    -- Add selected article
    local sArticle = articles[aIndex]
@@ -77,8 +81,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
    if fields["articles"] then -- Article was changed
       local e = minetest.explode_textlist_event(fields["articles"])
       if e.type == "CHG" then
-         show_guide(pname, e.index)
-         selected_article[pname] = e.index
+         local article_index = link_indicies[pname][e.index]
+         minetest.chat_send_all(tostring(article_index))
+         show_guide(pname, article_index)
+         selected_article[pname] = article_index
       end
    elseif fields["save"] then -- Save was pressed
       -- If an article is not selected, it's the default article
