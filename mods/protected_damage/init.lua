@@ -54,7 +54,13 @@ function protected_damage.get_node_strength(name)
 end
 
 -- Core damage function (used by tnt mod)
-function protected_damage.do_damage(pos, name, amt)
+function protected_damage.do_damage(pos, name, amt, by)
+   -- Check if damager is in a kingdom
+   if by ~= nil then
+      if kingdoms.members[by] == nil then
+         return
+      end
+   end
    -- Get node strength
    local meta = minetest.get_meta(pos)
    local s = meta:get_int("node_hp")
@@ -74,7 +80,7 @@ function protected_damage.do_damage(pos, name, amt)
 end
 
 -- Main damage function (involves checks)
-function protected_damage.damage(pos, amt)
+function protected_damage.damage(pos, amt, by)
    -- Check for unloaded node
    local node = minetest.get_node_or_nil(pos)
    if node == nil then
@@ -85,7 +91,7 @@ function protected_damage.damage(pos, amt)
       return
    end
    -- Do damage
-   protected_damage.do_damage(pos, node.name, amt)
+   protected_damage.do_damage(pos, node.name, amt, by)
 end
 
 -- Register tool to get node strength

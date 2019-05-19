@@ -30,10 +30,10 @@ minetest.after(0, function()
 			flammable = def.groups.flammable,
 		}
       if protected_damage.blacklist[n] == nil then
-         cid_data[id].on_blast = function(pos, intensity, is_protected)
+         cid_data[id].on_blast = function(pos, intensity, by)
             -- If protected, do protection damage; otherwise, destroy
-            if is_protected then
-               protected_damage.do_damage(pos, def, intensity * math.random(2, 20) / 10)
+            if minetest.is_protected(pos, by) then
+               protected_damage.do_damage(pos, def, intensity * math.random(2, 20) / 10, by)
             else
                minetest.set_node(pos, {name = "air"})
             end
@@ -120,7 +120,7 @@ local function destroy(drops, npos, cid, c_air, c_fire,
 	elseif not ignore_on_blast and def.on_blast then
 		on_blast_queue[#on_blast_queue + 1] = {
 			pos = vector.new(npos),
-         is_protected = is_protected,
+         by = owner,
 			on_blast = def.on_blast
 		}
 		return cid
@@ -391,7 +391,7 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 	for _, queued_data in pairs(on_blast_queue) do
 		local dist = math.max(1, vector.distance(queued_data.pos, pos))
 		local intensity = (radius * radius) / (dist * dist)
-		local node_drops = queued_data.on_blast(queued_data.pos, intensity, queued_data.is_protected)
+		local node_drops = queued_data.on_blast(queued_data.pos, intensity, queued_data.by)
 		if node_drops then
 			for _, item in pairs(node_drops) do
 				add_drop(drops, item)
