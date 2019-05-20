@@ -60,6 +60,22 @@ function kingdoms.helpers.split_into_lengths(str, of)
    return res
 end
 
+function kingdoms.helpers.get_owning_kingdom(pos)
+   local distsq
+   local mindist
+   local k
+   for _,m in pairs(kingdoms.markers) do
+      distsq = (m.pos.x - pos.x) ^ 2 + (m.pos.z - pos.z) ^ 2
+      if distsq < kingdoms.marker_radius_sq then
+         if mindist == nil or distsq < mindist then
+            mindist = distsq
+            k = m.kingdom
+         end
+      end
+   end
+   return k
+end
+
 function kingdoms.helpers.save()
    local ktable = minetest.serialize(kingdoms.kingdoms)
    kingdoms.storage:set_string("kingdoms", ktable)

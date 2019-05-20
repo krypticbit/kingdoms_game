@@ -1,4 +1,6 @@
 protected_damage = {}
+local attacks = {}
+local attack_cooldown = 60 * 20 -- Seconds
 
 local function div(a, b)
    if a == nil or b == nil then return 0 end
@@ -53,14 +55,29 @@ function protected_damage.get_node_strength(name)
    return s
 end
 
+-- Check if protected damage can happen
+function protected_damage.can_damage(pos, by)
+   -- Damager must be a member of a kingdom
+   local m = kingdoms.members[by]
+   if m == nil then
+      return false
+   end
+   -- Damager can't attack their own kingdom
+   local protected_by = kingdoms.helpers.get_owning_kingdom(pos)
+   if protected_by == m.kingdom then
+      return false
+   end
+   -- Damager must be at war
+   if kingdoms.get_relation(m.kingdom, protected_by).id ~= kingdoms.relations.war then
+      return false
+   end
+   return true
+end
+
 -- Core damage function (used by tnt mod)
 function protected_damage.do_damage(pos, name, amt, by)
-   -- Check if damager is in a kingdom
-   if by ~= nil then
-      if kingdoms.members[by] == nil then
-         return
-      end
-   end
+   -- Check kingdoms / members
+   if not protected_damage.can_damage(pos, by) then return end
    -- Get node strength
    local meta = minetest.get_meta(pos)
    local s = meta:get_int("node_hp")
@@ -79,15 +96,11 @@ function protected_damage.do_damage(pos, name, amt, by)
    end
 end
 
--- Main damage function (involves checks)
+-- Main damage function (gets node)
 function protected_damage.damage(pos, amt, by)
    -- Check for unloaded node
    local node = minetest.get_node_or_nil(pos)
    if node == nil then
-      return
-   end
-   -- Check for blacklisted node
-   if protected_damage.blacklist[node.name] ~= nil then
       return
    end
    -- Do damage

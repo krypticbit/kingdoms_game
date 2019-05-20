@@ -43,6 +43,7 @@ minetest.after(5, step)
 
 -- Update players_violating and teleport players
 minetest.register_on_protection_violation(function(pos, name)
+   minetest.chat_send_player(name, "This area is protected by a kingdom")
    players_violating[name] = os.time()
    local p = minetest.get_player_by_name(name)
    if p == nil then return end
@@ -60,18 +61,7 @@ local function new_is_protected(pos, name)
       return false
    end
    -- Get the closest marker to pos within the marker radius
-   local distsq
-   local mindist
-   local k
-   for _,m in pairs(kingdoms.markers) do
-      distsq = (m.pos.x - pos.x) ^ 2 + (m.pos.z - pos.z) ^ 2
-      if distsq < kingdoms.marker_radius_sq then
-         if mindist == nil or distsq < mindist then
-            mindist = distsq
-            k = m.kingdom
-         end
-      end
-   end
+   local k = kingdoms.helpers.get_owning_kingdom(pos)
    -- Check if area is protected at all
    if k == nil then -- No marker near enough was found
       return false
@@ -82,13 +72,10 @@ local function new_is_protected(pos, name)
    end
    -- Check if player has access to the area
    if kingdoms.members[name] == nil or kingdoms.members[name].kingdom ~= k then
-      minetest.chat_send_player(name, "This area is protected by kingdom " .. k)
       return true
    end
    -- Check if player is allowed to interact
    if kingdoms.player_has_priv(name, "interact") ~= true then
-      minetest.chat_send_player(name, "This area is protected by kingdom " .. k ..
-         ", but you are not allowed to interact with it")
       return true
    end
    return false

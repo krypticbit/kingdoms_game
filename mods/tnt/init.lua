@@ -33,7 +33,7 @@ minetest.after(0, function()
          cid_data[id].on_blast = function(pos, intensity, by)
             -- If protected, do protection damage; otherwise, destroy
             if minetest.is_protected(pos, by) then
-               protected_damage.do_damage(pos, def, intensity * math.random(2, 20) / 10, by)
+               protected_damage.do_damage(pos, n, intensity * math.random(2, 20) / 10, by)
             else
                minetest.set_node(pos, {name = "air"})
             end
