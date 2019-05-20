@@ -8,6 +8,7 @@ projectiles.register_shooter("long_rifle", {
    rounds = 1,
    reload_speed = 2,
    scale = {x = 3, y = 1, z = 1},
+   sound = "projectiles_rifle_shot",
    craft = {
       type = "shaped",
       recipe = {
@@ -40,6 +41,7 @@ projectiles.register_shooter("pistol", {
    ammo = "projectiles:pistol_cartridge 6",
    rounds = 6,
    reload_speed = 4,
+   sound = "projectiles_pistol_shot",
    craft = {
       type = "shaped",
       recipe = {

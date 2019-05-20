@@ -125,6 +125,7 @@ projectiles.register_shooter = function(name, def)
    local reload_speed = def.reload_speed or 1
    local scale = def.scale or {x = 1, y = 1, z = 1}
    local iname = "projectiles:" .. name
+   local sound = def.sound or nil
    -- Register shooter as tool
    minetest.register_tool(iname, {
       description = description,
@@ -144,6 +145,14 @@ projectiles.register_shooter = function(name, def)
             local wearfinal = wear * 65535
             if wear == 1 then wearfinal = 65534 end -- Don't let it break
             istack:set_wear(wearfinal)
+            if sound then
+               minetest.chat_send_all("Playing sound")
+               minetest.sound_play(sound, {
+                  pos = user:get_pos(),
+                  max_hear_distance = 200,
+                  gain = 10.0
+               })
+            end
             shoot(user, damage, range)
          else
             -- Check if the gun is already reloading
