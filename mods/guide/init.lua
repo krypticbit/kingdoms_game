@@ -43,7 +43,6 @@ local function show_guide(name, aIndex)
          didAdd = true
       end
    end
-   minetest.chat_send_all(dump(link_indicies[name]))
    if didAdd then
       fs = fs:sub(1, -2) .. ";1;false]"
    else
@@ -82,7 +81,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
       local e = minetest.explode_textlist_event(fields["articles"])
       if e.type == "CHG" then
          local article_index = link_indicies[pname][e.index]
-         minetest.chat_send_all(tostring(article_index))
          show_guide(pname, article_index)
          selected_article[pname] = article_index
       end
