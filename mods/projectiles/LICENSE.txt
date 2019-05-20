@@ -1,0 +1,6 @@
+Source code (by BillyS):
+MIT License
+
+Sounds:
+projectiles_rifle_shot: Public Domain, created by Kibblesbob
+projectiles_pistol_shot: Attribution 3.0 United States (CC BY 3.0 US), created by Mike Koenig
