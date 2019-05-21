@@ -66,8 +66,8 @@ end
 
 local function set_article(idx, title, text)
    articles[idx] = {
-      title = title,
-      text = text
+      title = minetest.formspec_escape(title),
+      text = minetest.formspec_escape(text)
    }
    save()
 end
