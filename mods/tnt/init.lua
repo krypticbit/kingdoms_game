@@ -1,7 +1,10 @@
 tnt = {}
 
--- Override by BillyS
-local enable_tnt = true
+-- Default to enabled when in singleplayer
+local enable_tnt = minetest.settings:get_bool("enable_tnt")
+if enable_tnt == nil then
+	enable_tnt = minetest.is_singleplayer()
+end
 
 -- loss probabilities array (one in X will be lost)
 local loss_prob = {}
@@ -11,42 +14,18 @@ loss_prob["default:dirt"] = 4
 
 local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
---
--- Written by BillyS
--- Special TNT effects for protected areas
---
-
--- Run once all nodes are registered: modify on_blast to do node damage
-
+-- Fill a list with data for content IDs, after all nodes are registered
 local cid_data = {}
-
 minetest.after(0, function()
-   local id
-   for n, def in pairs(minetest.registered_nodes) do
-      id = minetest.get_content_id(n)
-      cid_data[id] = {
-			name = n,
+	for name, def in pairs(minetest.registered_nodes) do
+		cid_data[minetest.get_content_id(name)] = {
+			name = name,
 			drops = def.drops,
 			flammable = def.groups.flammable,
+			on_blast = def.on_blast,
 		}
-      if protected_damage.blacklist[n] == nil then
-         cid_data[id].on_blast = function(pos, intensity, by)
-            -- If protected, do protection damage; otherwise, destroy
-            if minetest.is_protected(pos, by) then
-               protected_damage.do_damage(pos, n, intensity * math.random(2, 20) / 10, by)
-            else
-               minetest.set_node(pos, {name = "air"})
-            end
-         end
-      else
-         cid_data[id].on_blast = def.on_blast
-      end
-   end
+	end
 end)
-
---
--- End written by BillyS
---
 
 local function rand_pos(center, pos, radius)
 	local def
@@ -79,8 +58,8 @@ local function eject_drops(drops, pos, radius)
 			local obj = minetest.add_item(drop_pos, dropitem)
 			if obj then
 				obj:get_luaentity().collect = true
-				obj:set_acceleration({x = 0, y = -10, z = 0})
-				obj:set_velocity({x = math.random(-3, 3),
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				obj:setvelocity({x = math.random(-3, 3),
 						y = math.random(0, 10),
 						z = math.random(-3, 3)})
 			end
@@ -108,10 +87,6 @@ local basic_flame_on_construct -- cached value
 local function destroy(drops, npos, cid, c_air, c_fire,
 		on_blast_queue, on_construct_queue,
 		ignore_protection, ignore_on_blast, owner)
-   local is_protected = minetest.is_protected(npos, owner)
-	if not ignore_protection and is_protected then
-		return cid
-	end
 
 	local def = cid_data[cid]
 
@@ -120,7 +95,6 @@ local function destroy(drops, npos, cid, c_air, c_fire,
 	elseif not ignore_on_blast and def.on_blast then
 		on_blast_queue[#on_blast_queue + 1] = {
 			pos = vector.new(npos),
-         by = owner,
 			on_blast = def.on_blast
 		}
 		return cid
@@ -187,10 +161,10 @@ local function entity_physics(pos, radius, drops)
 			local moveoff = vector.multiply(dir, dist + 1.0)
 			local newpos = vector.add(pos, moveoff)
 			newpos = vector.add(newpos, {x = 0, y = 0.2, z = 0})
-			obj:set_pos(newpos)
+			obj:setpos(newpos)
 
 			obj:set_hp(obj:get_hp() - damage)
-		else
+		elseif obj:get_entity_name() ~= "tnt:tnt_flying" then
 			local do_damage = true
 			local do_knockback = true
 			local entity_drops = {}
@@ -202,8 +176,8 @@ local function entity_physics(pos, radius, drops)
 			end
 
 			if do_knockback then
-				local obj_vel = obj:get_velocity()
-				obj:set_velocity(calc_velocity(pos, obj_pos,
+				local obj_vel = obj:getvelocity()
+				obj:setvelocity(calc_velocity(pos, obj_pos,
 						obj_vel, radius * 10))
 			end
 			if do_damage then
@@ -217,6 +191,10 @@ local function entity_physics(pos, radius, drops)
 			for _, item in pairs(entity_drops) do
 				add_drop(drops, item)
 			end
+		else
+			local obj_vel = obj:getvelocity()
+				obj:setvelocity(calc_velocity(pos, obj_pos,
+						obj_vel, radius * 2))
 		end
 	end
 end
@@ -290,47 +268,54 @@ function tnt.burn(pos, nodename)
 	elseif def.on_ignite then
 		def.on_ignite(pos)
 	elseif minetest.get_item_group(name, "tnt") > 0 then
-		minetest.swap_node(pos, {name = name .. "_burning"})
+		local obj = minetest.env:add_entity(pos, name .. "_flying")
+		obj:get_luaentity().meta = {time = 4}
+		obj:setacceleration({x = 0, y = -10, z = 0})
+		minetest.remove_node(pos)
 		minetest.sound_play("tnt_ignite", {pos = pos})
-		minetest.get_node_timer(pos):start(1)
 	end
 end
 
-local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owner, explode_center)
+local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owner, explode_center, in_water)
 	pos = vector.round(pos)
 	-- scan for adjacent TNT nodes first, and enlarge the explosion
-	local vm1 = VoxelManip()
+	--local vm1 = VoxelManip()
 	local p1 = vector.subtract(pos, 2)
 	local p2 = vector.add(pos, 2)
-	local minp, maxp = vm1:read_from_map(p1, p2)
-	local a = VoxelArea:new({MinEdge = minp, MaxEdge = maxp})
-	local data = vm1:get_data()
+	--local minp, maxp = vm1:read_from_map(p1, p2)
+	--local a = VoxelArea:new({MinEdge = minp, MaxEdge = maxp})
+	--local data = vm1:get_data()
 	local count = 0
 	local c_tnt = minetest.get_content_id("tnt:tnt")
-	local c_tnt_burning = minetest.get_content_id("tnt:tnt_burning")
 	local c_tnt_boom = minetest.get_content_id("tnt:boom")
 	local c_air = minetest.get_content_id("air")
-	-- make sure we still have explosion even when centre node isnt tnt related
-	if explode_center then
-		count = 1
+	
+	if in_water == nil then
+		in_water = false
 	end
-
+	
+	-- make sure we still have explosion even when centre node isnt tnt related
+	--if explode_center then
+		count = 1
+	--end
+	--[[
 	for z = pos.z - 2, pos.z + 2 do
-	for y = pos.y - 2, pos.y + 2 do
-		local vi = a:index(pos.x - 2, y, z)
-		for x = pos.x - 2, pos.x + 2 do
-			local cid = data[vi]
-			if cid == c_tnt or cid == c_tnt_boom or cid == c_tnt_burning then
-				count = count + 1
-				data[vi] = c_air
+		for y = pos.y - 2, pos.y + 2 do
+			local vi = a:index(pos.x - 2, y, z)
+			for x = pos.x - 2, pos.x + 2 do
+				local cid = data[vi]
+				if cid == c_tnt or cid == c_tnt_boom then
+					count = count + 1
+					data[vi] = c_air
+				end
+				vi = vi + 1
 			end
-			vi = vi + 1
 		end
 	end
-	end
+	--]]
 
-	vm1:set_data(data)
-	vm1:write_to_map()
+	--vm1:set_data(data)
+	--vm1:write_to_map()
 
 	-- recalculate new radius
 	radius = math.floor(radius * math.pow(count, 1/3))
@@ -358,7 +343,7 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 		if (radius * radius) / (r * r) >= (pr:next(80, 125) / 100) then
 			local cid = data[vi]
 			local p = {x = pos.x + x, y = pos.y + y, z = pos.z + z}
-			if cid ~= c_air then
+			if cid ~= c_air and in_water == false then
 				data[vi] = destroy(drops, p, cid, c_air, c_fire,
 					on_blast_queue, on_construct_queue,
 					ignore_protection, ignore_on_blast, owner)
@@ -391,7 +376,7 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 	for _, queued_data in pairs(on_blast_queue) do
 		local dist = math.max(1, vector.distance(queued_data.pos, pos))
 		local intensity = (radius * radius) / (dist * dist)
-		local node_drops = queued_data.on_blast(queued_data.pos, intensity, queued_data.by)
+		local node_drops = queued_data.on_blast(queued_data.pos, intensity, pos)
 		if node_drops then
 			for _, item in pairs(node_drops) do
 				add_drop(drops, item)
@@ -418,11 +403,12 @@ function tnt.boom(pos, def)
 	if not def.explode_center then
 		minetest.set_node(pos, {name = "tnt:boom"})
 	end
-	local sound = def.sound or "tnt_explode"
-	minetest.sound_play(sound, {pos = pos, gain = 1.5,
-			max_hear_distance = math.min(def.radius * 20, 128)})
+	if owner == nil then
+		owner = def.owner
+	end	
+	minetest.sound_play("tnt_explode", {pos = pos, gain = 1.5, max_hear_distance = 2*64})
 	local drops, radius = tnt_explode(pos, def.radius, def.ignore_protection,
-			def.ignore_on_blast, owner, def.explode_center)
+			def.ignore_on_blast, owner, def.explode_center, def.in_water)
 	-- append entity drops
 	local damage_radius = (radius / math.max(1, def.radius)) * def.damage_radius
 	entity_physics(pos, damage_radius, drops)
@@ -440,8 +426,22 @@ minetest.register_node("tnt:boom", {
 	walkable = false,
 	drop = "",
 	groups = {dig_immediate = 3},
+	floodable = true,
 	-- unaffected by explosions
 	on_blast = function() end,
+	on_construct = function(pos)
+		minetest.get_node_timer(pos):start(3)
+	end,
+	on_timer = function(pos, elapsed)
+		minetest.remove_node(pos)
+	end,
+	on_flood = function(pos, oldnode, newnode)
+		local def = minetest.registered_items[newnode.name]
+		if def and def.groups and def.groups.water and not def.groups.igniter then
+			minetest.after(0, minetest.set_node, pos, {name = "default:water_source"})
+		end
+		return false
+	end,
 })
 
 minetest.register_node("tnt:gunpowder", {
@@ -468,11 +468,14 @@ minetest.register_node("tnt:gunpowder", {
 	sounds = default.node_sound_leaves_defaults(),
 
 	on_punch = function(pos, node, puncher)
-		if puncher:get_wielded_item():get_name() == "default:torch" then
+		local item_name = puncher:get_wielded_item():get_name()
+		local player_name = puncher:get_player_name()
+		if item_name == "default:torch" then
+			if minetest.is_protected(pos, player_name) then
+				minetest.chat_send_player(player_name, "This area is protected")
+				return
+			end
 			minetest.set_node(pos, {name = "tnt:gunpowder_burning"})
-			minetest.log("action", puncher:get_player_name() ..
-				" ignites tnt:gunpowder at " ..
-				minetest.pos_to_string(pos))
 		end
 	end,
 	on_blast = function(pos, intensity)
@@ -628,6 +631,7 @@ function tnt.register_tnt(def)
 			is_ground_content = false,
 			groups = {dig_immediate = 2, mesecon = 2, tnt = 1, flammable = 5},
 			sounds = default.node_sound_wood_defaults(),
+			floodable = true,
 			after_place_node = function(pos, placer)
 				if placer:is_player() then
 					local meta = minetest.get_meta(pos)
@@ -635,37 +639,139 @@ function tnt.register_tnt(def)
 				end
 			end,
 			on_punch = function(pos, node, puncher)
-				if puncher:get_wielded_item():get_name() == "default:torch" then
-					minetest.swap_node(pos, {name = name .. "_burning"})
-					minetest.registered_nodes[name .. "_burning"].on_construct(pos)
-					minetest.log("action", puncher:get_player_name() ..
-						" ignites " .. node.name .. " at " ..
-						minetest.pos_to_string(pos))
+				local item_name = puncher:get_wielded_item():get_name()
+				local player_name = puncher:get_player_name()
+				if item_name == "default:torch" then
+					if minetest.is_protected(pos, player_name) then
+						minetest.chat_send_player(player_name, "This area is protected")
+						return
+					end
+					local obj = minetest.env:add_entity(pos, name .. "_flying")
+					obj:get_luaentity().meta = {time = 4}
+					obj:setacceleration({x = 0, y = -10, z = 0})
+					minetest.remove_node(pos)
 				end
 			end,
-			on_blast = function(pos, intensity)
-				minetest.after(0.1, function()
-					tnt.boom(pos, def)
-				end)
+			on_blast = function(pos, intensity, blaster)
+				minetest.remove_node(pos)
+				
+				local dist = math.max(1.0, vector.distance(blaster, pos))
+				local dir = vector.normalize(vector.subtract(pos, blaster))
+				local moveoff = vector.multiply(dir, intensity / dist)
+				
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setvelocity(moveoff)
+				obj:setacceleration({x = 0, y = -10, z = 0})
 			end,
 			mesecons = {effector =
 				{action_on =
 					function(pos)
-						tnt.boom(pos, def)
+						local obj = minetest.env:add_entity(pos, name .. "_flying")
+						obj:get_luaentity().meta = {time = 4}
+						obj:setacceleration({x = 0, y = -10, z = 0})
+						minetest.remove_node(pos)
 					end
 				}
 			},
 			on_burn = function(pos)
-				minetest.swap_node(pos, {name = name .. "_burning"})
-				minetest.registered_nodes[name .. "_burning"].on_construct(pos)
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				minetest.remove_node(pos)
 			end,
 			on_ignite = function(pos, igniter)
-				minetest.swap_node(pos, {name = name .. "_burning"})
-				minetest.registered_nodes[name .. "_burning"].on_construct(pos)
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				minetest.remove_node(pos)
+			end,
+			on_flood = function(pos, oldnode, newnode)
+				local def = minetest.registered_items[newnode.name]
+				if def and def.groups and def.groups.water and not def.groups.igniter then
+					minetest.after(0, minetest.set_node, pos, {name = name .. "_wet"})
+					return false
+				end
+				return true
+			end,
+		})
+	
+		minetest.register_node(":" .. name .. "_wet", {
+			description = def.description .. " (wet)",
+			tiles = {tnt_top, tnt_bottom, tnt_side},
+			is_ground_content = false,
+			groups = {dig_immediate = 2, mesecon = 2, tnt = 1, flammable = 5, not_in_creative_inventory = 1},
+			sounds = default.node_sound_wood_defaults(),
+			drop = name,
+			after_place_node = function(pos, placer)
+				if placer:is_player() then
+					local meta = minetest.get_meta(pos)
+					meta:set_string("owner", placer:get_player_name())
+				end
+			end,
+			on_punch = function(pos, node, puncher)
+				local item_name = puncher:get_wielded_item():get_name()
+				local player_name = puncher:get_player_name()
+				if item_name == "default:torch" then
+					if minetest.is_protected(pos, player_name) then
+						minetest.chat_send_player(player_name, "This area is protected")
+						return
+					end
+					local obj = minetest.env:add_entity(pos, name .. "_flying")
+					obj:get_luaentity().meta = {time = 4}
+					obj:setacceleration({x = 0, y = -10, z = 0})
+					minetest.remove_node(pos)
+					minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
+				end
+			end,
+			on_blast = function(pos, intensity, blaster)
+				minetest.remove_node(pos)
+				
+				local dist = math.max(1.0, vector.distance(blaster, pos))
+				local dir = vector.normalize(vector.subtract(pos, blaster))
+				local moveoff = vector.multiply(dir, intensity / dist)
+				
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setvelocity(moveoff)
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
+			end,
+			mesecons = {effector =
+				{action_on =
+					function(pos)
+						local obj = minetest.env:add_entity(pos, name .. "_flying")
+						obj:get_luaentity().meta = {time = 4}
+						obj:setacceleration({x = 0, y = -10, z = 0})
+						minetest.remove_node(pos)
+						minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
+					end
+				}
+			},
+			on_burn = function(pos)
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				minetest.remove_node(pos)
+				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
+			end,
+			on_ignite = function(pos, igniter)
+				local obj = minetest.env:add_entity(pos, name .. "_flying")
+				obj:get_luaentity().meta = {time = 4}
+				obj:setacceleration({x = 0, y = -10, z = 0})
+				minetest.remove_node(pos)
+				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
 			end,
 		})
 	end
-
+	
+	local c_air = minetest.get_content_id("air")
+	local c_water_source = minetest.get_content_id("default:water_source")
+	local c_water_flowing = minetest.get_content_id("default:water_flowing")
+	local c_lava_source = minetest.get_content_id("default:lava_source")
+	local c_lava_flowing = minetest.get_content_id("default:lava_flowing")
+	local c_tnt_boom = minetest.get_content_id("tnt:boom")
+	
 	minetest.register_node(":" .. name .. "_burning", {
 		tiles = {
 			{
@@ -678,20 +784,97 @@ function tnt.register_tnt(def)
 				}
 			},
 			tnt_bottom, tnt_side
-			},
-		light_source = 5,
-		drop = "",
-		sounds = default.node_sound_wood_defaults(),
-		groups = {falling_node = 1},
-		on_timer = function(pos, elapsed)
-			tnt.boom(pos, def)
+		},
+	})
+	
+	minetest.register_entity(name .. "_flying", {
+		name = name .. "_flying",
+		textures = {
+			name .. "_burning"
+		},
+		timer = -1,
+		bomb_timer = 0,
+		visual = "wielditem",
+		visual_size = {x = 0.667, y = 0.667},
+		physical = true,
+		is_visible = true,
+		collide_with_objects = false,
+		static_save = false,
+		meta = {},
+		on_step = function(self, dtime)
+			self.timer = self.timer + dtime
+			self.bomb_timer = self.bomb_timer + dtime
+			if self.timer >= 0.1 then
+				-- Friction code copied from https://github.com/kaeza/minetest-soccer
+				local vel = self.object:get_velocity()
+				local p = self.object:get_pos()
+				p.y = p.y - 1
+				if minetest.registered_nodes[minetest.env:get_node(p).name].walkable then
+					vel.x = vel.x / 1.9
+					vel.z = vel.z / 1.9
+				end
+				if  (math.abs(vel.x) < 0.1)
+				 and (math.abs(vel.z) < 0.1) then
+					vel.x = 0
+					vel.z = 0
+				end
+				self.object:set_velocity(vel)
+				self.timer = 0
+			end
+			
+			if self.bomb_timer >= 1.0 then
+				local t = self.meta.time
+				if t and t < 1 then
+					local pos = self.object:get_pos()
+					
+					local pos1 = {x = pos.x + 1, y = pos.y + 1, z = pos.z + 1}
+					local pos2 = {x = pos.x - 1, y = pos.y - 1, z = pos.z - 1}
+					
+					local vm = minetest.get_voxel_manip()
+					
+					local emin, emax = vm:read_from_map(pos2, pos1)
+					
+					local a = VoxelArea:new{
+						MinEdge = emin,
+						MaxEdge = emax
+					}
+				
+					local data = vm:get_data()
+				
+					local vr = vector.round({x = pos.x, y = pos.y, z = pos.z})
+					local n0 = data[a:index(vr.x, vr.y, vr.z)]
+					if n0 == c_water_source or n0 == c_water_flowing or n0 == c_lava_source or n0 == c_lava_flowing or n0 == c_tnt_boom then
+						def.in_water = true
+					end
+					self.object:remove()
+					def.owner = self.meta.owner
+					tnt.boom(pos, def)
+					def.owner = nil
+					def.in_water = false
+				else
+					if t == nil then
+						t = 4
+					end
+					t = t - 1
+					self.meta.time = t
+					self.bomb_timer = 0
+				end
+			end
 		end,
-		-- unaffected by explosions
-		on_blast = function() end,
-		on_construct = function(pos)
-			minetest.sound_play("tnt_ignite", {pos = pos})
-			minetest.get_node_timer(pos):start(4)
-			minetest.check_for_falling(pos)
+		on_blast = function(pos, intensity, blaster)
+			return
+		end,
+		get_staticdata = function(self)
+			return minetest.serialize({timer = self.timer, bomb_timer = self.bomb_timer, meta = self.meta})
+		end,
+		on_activate = function(self, staticdata)
+			self.object:set_armor_groups({immortal = 1})
+			local ds = core.deserialize(staticdata)
+			if ds then
+				self.timer = ds.timer
+				self.bomb_timer = ds.bomb_timer
+				self.meta = ds.meta
+			end
 		end,
 	})
 end
@@ -700,5 +883,4 @@ tnt.register_tnt({
 	name = "tnt:tnt",
 	description = "TNT",
 	radius = tnt_radius,
-   ignore_protection = true, -- Handled by kingdoms
 })
