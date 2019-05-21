@@ -6,11 +6,17 @@ if enable_tnt == nil then
 	enable_tnt = minetest.is_singleplayer()
 end
 
+enable_tnt = true
 -- loss probabilities array (one in X will be lost)
 local loss_prob = {}
 
 loss_prob["default:cobble"] = 3
 loss_prob["default:dirt"] = 4
+
+-- indestructable nodes (Can only be destroyed by TNT if under attack from another kingdom)
+local indestructable = {}
+
+indestructable["default:obsidian"] = true
 
 local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
@@ -18,14 +24,14 @@ local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 local cid_data = {}
 minetest.after(0, function()
 	for name, def in pairs(minetest.registered_nodes) do
-      if def.groups.liquid == nil and name =~ "default:obsidian" then
-   		cid_data[minetest.get_content_id(name)] = {
-   			name = name,
-   			drops = def.drops,
-   			flammable = def.groups.flammable,
-   			on_blast = def.on_blast,
-   		}
-      end
+      local id = minetest.get_content_id(name)
+      cid_data[id] = {
+         name = name,
+         drops = def.drops,
+         flammable = def.groups.flammable,
+         on_blast = def.on_blast,
+         indestructable = def.groups.liquid ~= nil or indestructable[name] ~= nil
+      }
 	end
 end)
 
@@ -86,33 +92,48 @@ local function add_drop(drops, item)
 end
 
 local basic_flame_on_construct -- cached value
-local function destroy(drops, npos, cid, c_air, c_fire,
+local function destroy(drops, intensity, npos, cid, c_air, c_fire,
 		on_blast_queue, on_construct_queue,
 		ignore_protection, ignore_on_blast, owner)
 
-	local def = cid_data[cid]
+   local def = cid_data[cid]
+   if ignore_protection ~= true and minetest.is_protected(npos, owner) then
+      if protected_damage.do_damage(npos, def.name, intensity, owner) then
+         return c_air
+      else
+         return cid
+      end
+   end
 
 	if not def then
-		return c_air
-	elseif not ignore_on_blast and def.on_blast then
+		return cid
+   end
+
+   if def.indestructable then
+      return cid
+   end
+
+	if not ignore_on_blast and def.on_blast then
 		on_blast_queue[#on_blast_queue + 1] = {
 			pos = vector.new(npos),
 			on_blast = def.on_blast
 		}
 		return cid
-	elseif def.flammable then
+   end
+
+	if def.flammable then
 		on_construct_queue[#on_construct_queue + 1] = {
 			fn = basic_flame_on_construct,
 			pos = vector.new(npos)
 		}
 		return c_fire
-	else
-		local node_drops = minetest.get_node_drops(def.name, "")
-		for _, item in pairs(node_drops) do
-			add_drop(drops, item)
-		end
-		return c_air
+   end
+
+	local node_drops = minetest.get_node_drops(def.name, "")
+	for _, item in pairs(node_drops) do
+		add_drop(drops, item)
 	end
+	return c_air
 end
 
 local function calc_velocity(pos1, pos2, old_vel, power)
@@ -342,11 +363,12 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 	local vi = a:index(pos.x + (-radius), pos.y + y, pos.z + z)
 	for x = -radius, radius do
 		local r = vector.length(vector.new(x, y, z))
-		if (radius * radius) / (r * r) >= (pr:next(80, 125) / 100) then
+      local intensity = (radius * radius) / (r * r)
+		if intensity >= (pr:next(80, 125) / 100) then
 			local cid = data[vi]
 			local p = {x = pos.x + x, y = pos.y + y, z = pos.z + z}
 			if cid ~= c_air and in_water == false then
-				data[vi] = destroy(drops, p, cid, c_air, c_fire,
+				data[vi] = destroy(drops, intensity, p, cid, c_air, c_fire,
 					on_blast_queue, on_construct_queue,
 					ignore_protection, ignore_on_blast, owner)
 			end
@@ -405,7 +427,7 @@ function tnt.boom(pos, def)
 	if not def.explode_center then
 		minetest.set_node(pos, {name = "tnt:boom"})
 	end
-	if owner == nil then
+	if owner == "" then
 		owner = def.owner
 	end
 	minetest.sound_play("tnt_explode", {pos = pos, gain = 1.5, max_hear_distance = 2*64})
@@ -649,7 +671,9 @@ function tnt.register_tnt(def)
 						return
 					end
 					local obj = minetest.env:add_entity(pos, name .. "_flying")
-					obj:get_luaentity().meta = {time = 4}
+               local owner = minetest.get_meta(pos):get_string("owner")
+               owner = owner ~= "" and owner or puncher:get_player_name()
+					obj:get_luaentity().meta = {time = 4, owner = owner}
 					obj:setacceleration({x = 0, y = -10, z = 0})
 					minetest.remove_node(pos)
 				end
@@ -662,7 +686,9 @@ function tnt.register_tnt(def)
 				local moveoff = vector.multiply(dir, intensity / dist)
 
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or nil
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setvelocity(moveoff)
 				obj:setacceleration({x = 0, y = -10, z = 0})
 			end,
@@ -670,7 +696,9 @@ function tnt.register_tnt(def)
 				{action_on =
 					function(pos)
 						local obj = minetest.env:add_entity(pos, name .. "_flying")
-						obj:get_luaentity().meta = {time = 4}
+                  local owner = minetest.get_meta(pos):get_string("owner")
+                  owner = owner ~= "" and owner or nil
+						obj:get_luaentity().meta = {time = 4, owner = owner}
 						obj:setacceleration({x = 0, y = -10, z = 0})
 						minetest.remove_node(pos)
 					end
@@ -678,20 +706,24 @@ function tnt.register_tnt(def)
 			},
 			on_burn = function(pos)
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or nil
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setacceleration({x = 0, y = -10, z = 0})
 				minetest.remove_node(pos)
 			end,
 			on_ignite = function(pos, igniter)
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or igniter:get_player_name()
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setacceleration({x = 0, y = -10, z = 0})
 				minetest.remove_node(pos)
 			end,
 			on_flood = function(pos, oldnode, newnode)
 				local def = minetest.registered_items[newnode.name]
 				if def and def.groups and def.groups.water and not def.groups.igniter then
-					minetest.after(0, minetest.set_node, pos, {name = name .. "_wet"})
+					minetest.after(0, minetest.swap_node, pos, {name = name .. "_wet"})
 					return false
 				end
 				return true
@@ -720,7 +752,9 @@ function tnt.register_tnt(def)
 						return
 					end
 					local obj = minetest.env:add_entity(pos, name .. "_flying")
-					obj:get_luaentity().meta = {time = 4}
+               local owner = minetest.get_meta(pos):get_string("owner")
+               owner = owner ~= "" and owner or puncher:get_player_name()
+					obj:get_luaentity().meta = {time = 4, owner = owner}
 					obj:setacceleration({x = 0, y = -10, z = 0})
 					minetest.remove_node(pos)
 					minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
@@ -734,7 +768,9 @@ function tnt.register_tnt(def)
 				local moveoff = vector.multiply(dir, intensity / dist)
 
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or blaster:get_player_name()
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setvelocity(moveoff)
 				obj:setacceleration({x = 0, y = -10, z = 0})
 				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
@@ -743,7 +779,9 @@ function tnt.register_tnt(def)
 				{action_on =
 					function(pos)
 						local obj = minetest.env:add_entity(pos, name .. "_flying")
-						obj:get_luaentity().meta = {time = 4}
+                  local owner = minetest.get_meta(pos):get_string("owner")
+                  owner = owner ~= "" and owner or nil
+						obj:get_luaentity().meta = {time = 4, owner = owner}
 						obj:setacceleration({x = 0, y = -10, z = 0})
 						minetest.remove_node(pos)
 						minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
@@ -752,14 +790,18 @@ function tnt.register_tnt(def)
 			},
 			on_burn = function(pos)
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or nil
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setacceleration({x = 0, y = -10, z = 0})
 				minetest.remove_node(pos)
 				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
 			end,
 			on_ignite = function(pos, igniter)
 				local obj = minetest.env:add_entity(pos, name .. "_flying")
-				obj:get_luaentity().meta = {time = 4}
+            local owner = minetest.get_meta(pos):get_string("owner")
+            owner = owner ~= "" and owner or igniter:get_player_name()
+				obj:get_luaentity().meta = {time = 4, owner = owner}
 				obj:setacceleration({x = 0, y = -10, z = 0})
 				minetest.remove_node(pos)
 				minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})

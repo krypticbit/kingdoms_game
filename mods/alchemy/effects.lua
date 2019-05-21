@@ -92,7 +92,6 @@ register_effect("energized_base", function(p, pos, cLevel)
       tnt.boom(p:get_pos(), {
          radius = radius,
          damage_radius = 0,
-         ignore_protection = true,
       })
       p:set_hp(0)
    end

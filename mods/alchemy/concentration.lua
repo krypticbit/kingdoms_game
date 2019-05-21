@@ -192,7 +192,6 @@ register_concentration("energized_base", {
       tnt.boom(pos, {
          radius = 20,
          damage_radius = 50,
-         ignore_protection = true,
       })
       inv:set_stack("dst", 1, "")
       inv:set_stack("src1", 1, "")
@@ -226,7 +225,6 @@ register_concentration("speed_boost", {
       tnt.boom(pos, {
          radius = 4,
          damage_radius = 8,
-         ignore_protection = true,
       })
       inv:set_stack("dst", 1, "")
       inv:set_stack("src1", 1, "")
@@ -247,7 +245,6 @@ register_concentration("water_breathing_brew", {
       tnt.boom(pos, {
          radius = 0,
          damage_radius = 20,
-         ignore_protection = true,
       })
    end
 })

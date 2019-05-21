@@ -89,10 +89,10 @@ function protected_damage.do_damage(pos, name, amt, by)
    s = s - amt
    s = math.floor(s + 0.5)
    if s <= 0 then
-      minetest.set_node(pos, {name = "air"})
-      return
+      return true
    else
       meta:set_int("node_hp", s)
+      return false
    end
 end
 
@@ -104,7 +104,9 @@ function protected_damage.damage(pos, amt, by)
       return
    end
    -- Do damage
-   protected_damage.do_damage(pos, node.name, amt, by)
+   if protected_damage.do_damage(pos, node.name, amt, by) then
+      minetest.set_node(pos, {name = "air"})
+   end
 end
 
 -- Register tool to get node strength

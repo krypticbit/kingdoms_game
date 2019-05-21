@@ -41,7 +41,6 @@ alchemy.disasters.explode_up = function(pos, height, particles)
          tnt.boom(currPos, {
             radius = 3,
             damage_radius = 4,
-            ignore_protection = true,
          })
       end
    end
