@@ -53,7 +53,7 @@ local function show_guide(name, aIndex)
    if canEdit then
       fs = fs .. "field[2.5,0.5;5.5,1;title;Title:;" .. sArticle.title .. "]" ..
          "textarea[2.5,1.6;5.5,7.5;content;Article " .. tostring(aIndex) .. ":;" ..
-         sArticle.text .. "]" ..
+         minetest.formspec_escape(sArticle.text) .. "]" ..
          "button[0,8.4;2,1;save;Save]" ..
          "button[2,8.4;2,1;add;Add New Article]"
    else
