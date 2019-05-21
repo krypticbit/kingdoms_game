@@ -18,12 +18,14 @@ local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 local cid_data = {}
 minetest.after(0, function()
 	for name, def in pairs(minetest.registered_nodes) do
-		cid_data[minetest.get_content_id(name)] = {
-			name = name,
-			drops = def.drops,
-			flammable = def.groups.flammable,
-			on_blast = def.on_blast,
-		}
+      if def.groups.liquid == nil and name =~ "default:obsidian" then
+   		cid_data[minetest.get_content_id(name)] = {
+   			name = name,
+   			drops = def.drops,
+   			flammable = def.groups.flammable,
+   			on_blast = def.on_blast,
+   		}
+      end
 	end
 end)
 
