@@ -398,10 +398,12 @@ minetest.register_chatcommand("ac", {
       -- Send to teammates
       for _,p in pairs(minetest.get_connected_players()) do
          local pname = p:get_player_name()
-         local r = kingdoms.get_relation(kingdoms.members[pname].kingdom, k)
-         if kingdoms.members[pname] and (kingdoms.members[pname].kingdom == k
-         or r.id == kingdoms.relations.alliance and r.pending ~= true) then
-            minetest.chat_send_player(pname, msg)
+         if kingdoms.members[pname] then
+            local r = kingdoms.get_relation(kingdoms.members[pname].kingdom, k)
+            if (kingdoms.members[pname].kingdom == k
+            or r.id == kingdoms.relations.alliance and r.pending ~= true) then
+               minetest.chat_send_player(pname, msg)
+            end
          end
       end
       -- Log
