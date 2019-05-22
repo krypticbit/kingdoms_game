@@ -39,8 +39,7 @@ end
 
 local function start_sprint(player)
   if player:get_meta():get("hbsprint:sprinting") == "false" then
-    if mod_player_monoids then
-      set_player_physics_multiplier(player, {speed = speed, jump = jump}, "hbsprint")
+    set_player_physics_multiplier(player, {speed = speed, jump = jump}, "hbsprint")
   end
 end
 
