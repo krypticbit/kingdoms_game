@@ -367,7 +367,7 @@ minetest.register_chatcommand("tc", {
       local k = kingdoms.members[name].kingdom
       msg = "[Team Chat] <" .. name .. "> " .. msg
       -- Send to teammates
-      for _,pname in kingdoms.helpers.get_online_members(k) do
+      for _,pname in pairs(kingdoms.helpers.get_online_members(k)) do
          minetest.chat_send_player(pname, msg)
       end
       -- Log
