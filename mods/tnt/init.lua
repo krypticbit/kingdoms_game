@@ -30,7 +30,7 @@ minetest.after(0, function()
          drops = def.drops,
          flammable = def.groups.flammable,
          on_blast = def.on_blast,
-         indestructable = def.groups.liquid ~= nil or indestructable[name] ~= nil
+         indestructable = def.groups.liquid ~= nil or indestructable[name] ~= nil or name:find("mesecons") ~= nil
       }
 	end
 end)
@@ -700,6 +700,7 @@ function tnt.register_tnt(def)
                   owner = owner ~= "" and owner or nil
 						obj:get_luaentity().meta = {time = 4, owner = owner}
 						obj:setacceleration({x = 0, y = -10, z = 0})
+                  mesecon.on_dignode(pos, {name = "tnt:tnt"})
 						minetest.remove_node(pos)
 					end
 				}
@@ -783,6 +784,7 @@ function tnt.register_tnt(def)
                   owner = owner ~= "" and owner or nil
 						obj:get_luaentity().meta = {time = 4, owner = owner}
 						obj:setacceleration({x = 0, y = -10, z = 0})
+                  mesecon.on_dignode(pos, {name = "tnt:tnt"})
 						minetest.remove_node(pos)
 						minetest.after(0.1, minetest.set_node, pos, {name = "default:water_source"})
 					end
