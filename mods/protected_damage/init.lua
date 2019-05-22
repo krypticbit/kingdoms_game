@@ -86,6 +86,12 @@ function protected_damage.can_damage(pos, by)
    -- An attack must already be going on or a member of the team must be online
    if (attacks[protected_by] and os.time() - attacks[protected_by] < attack_cooldown) or
    (#kingdoms.helpers.get_online_members(protected_by) > 0) then
+      -- Warn defending teammates
+      if attacks[protected_by] == nil then
+         for _, m in pairs(kingdoms.helpers.get_online_members(protected_by)) do
+            minetest.chat_send_player(m, minetest.colorize("#ff0000", ("[WARNING] Your kingdom is under attack at (%.0f, %.0f, %.0f)"):format(pos.x, pos.y, pos.z)))
+         end
+      end
       attacks[protected_by] = os.time()
       return true
    else
