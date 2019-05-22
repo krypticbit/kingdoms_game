@@ -57,18 +57,25 @@ end
 
 -- Check if protected damage can happen
 function protected_damage.can_damage(pos, by)
+   if by == nil then return false end
    -- Damager must be a member of a kingdom
    local m = kingdoms.members[by]
    if m == nil then
+      minetest.chat_send_player(by, "You must be a member of a kingdom to damage protected areas")
       return false
    end
    -- Damager can't attack their own kingdom
    local protected_by = kingdoms.helpers.get_owning_kingdom(pos)
    if protected_by == m.kingdom then
+      minetest.chat_send_player(by, "You cannot attack your own kingdom")
+      return false
+   elseif protected_by == nil then
+      minetest.chat_send_player(by, "You cannot attack an unprotected area")
       return false
    end
    -- Damager must be at war
    if kingdoms.get_relation(m.kingdom, protected_by).id ~= kingdoms.relations.war then
+      minetest.chat_send_player(by, "You are not at war with this kingdom")
       return false
    end
    return true
@@ -169,5 +176,44 @@ minetest.register_craft({
       {"", "", "default:steelblock"},
       {"", "default:steel_ingot", ""},
       {"default:steel_ingot", "", ""}
+   }
+})
+
+-- Register siege hammer
+minetest.register_tool("protected_damage:siege_hammer", {
+   description = "Siege Hammer (Damages protected blocks during war)",
+   inventory_image = "protected_damage_siege_hammer.png",
+   tool_capabilities = {
+		full_punch_interval = 5,
+		max_drop_level = 0,
+		range = 1,
+		groupcaps={
+			cracky = {times={[1]=8.0, [2]=4.0, [3]=2.0}, uses=30, maxlevel=3},
+		},
+		damage_groups = {fleshy=5},
+   },
+   on_use = function(itemstack, user, pointed_thing)
+      -- Check pointed_thing
+      if pointed_thing.type ~= "node" then return end
+      -- Check protection
+      local pname = user:get_player_name()
+      local pos = minetest.get_pointed_thing_position(pointed_thing)
+      if minetest.is_protected(pos, pname) ~= true then
+         minetest.chat_send_player(pname, "The siege hammer can only be used on areas protected by other kingdoms")
+         return
+      end
+      -- Damage
+      protected_damage.damage(pos, 1, pname)
+      itemstack:add_wear(50)
+      return itemstack
+   end
+})
+
+minetest.register_craft({
+   output = "protected_damage:siege_hammer",
+   recipe = {
+      {"default:obsidian", "default:obsidian", "default:obsidian"},
+      {"default:obsidian", "default:steelblock", "default:obsidian"},
+      {"", "group:wood", ""}
    }
 })
