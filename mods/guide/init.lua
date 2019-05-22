@@ -39,7 +39,7 @@ local function show_guide(name, aIndex)
       local idx = tonumber(lName:sub(2, -2))
       if articles[idx] then
          link_indicies[name][#link_indicies[name] + 1] = idx
-         fs = fs .. articles[idx].title .. ","
+         fs = fs .. minetest.formspec_escape(articles[idx].title) .. ","
          didAdd = true
       end
    end
@@ -51,14 +51,14 @@ local function show_guide(name, aIndex)
    -- Add selected article
    local sArticle = articles[aIndex]
    if canEdit then
-      fs = fs .. "field[2.5,0.5;5.5,1;title;Title:;" .. sArticle.title .. "]" ..
+      fs = fs .. "field[2.5,0.5;5.5,1;title;Title:;" .. minetest.formspec_escape(sArticle.title) .. "]" ..
          "textarea[2.5,1.6;5.5,7.5;content;Article " .. tostring(aIndex) .. ":;" ..
          minetest.formspec_escape(sArticle.text) .. "]" ..
          "button[0,8.4;2,1;save;Save]" ..
          "button[2,8.4;2,1;add;Add New Article]"
    else
-      fs = fs .. "textarea[2.5,0.35;6,9;;" .. sArticle.title .. ":;" ..
-         sArticle.text:gsub(link_pattern, "") .. "]"
+      fs = fs .. "textarea[2.5,0.35;6,9;;" .. minetest.formspec_escape(sArticle.title) .. ":;" ..
+         minetest.formspec_escape(sArticle.text:gsub(link_pattern, "")) .. "]"
    end
    -- Show
    minetest.show_formspec(name, "guide:guide", fs)
@@ -66,8 +66,8 @@ end
 
 local function set_article(idx, title, text)
    articles[idx] = {
-      title = minetest.formspec_escape(title),
-      text = minetest.formspec_escape(text)
+      title = title,
+      text = text
    }
    save()
 end
