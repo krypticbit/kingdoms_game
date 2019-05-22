@@ -412,7 +412,7 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 		queued_data.fn(queued_data.pos)
 	end
 
-	minetest.log("action", "TNT owned by " .. owner .. " detonated at " ..
+	minetest.log("action", "TNT owned by " .. tosrting(owner) .. " detonated at " ..
 		minetest.pos_to_string(pos) .. " with radius " .. radius)
 
 	return drops, radius
