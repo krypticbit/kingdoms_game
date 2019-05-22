@@ -76,6 +76,17 @@ function kingdoms.helpers.get_owning_kingdom(pos)
    return k
 end
 
+function kingdoms.helpers.get_online_members(kingdom)
+   local members = {}
+   for _,p in pairs(minetest.get_connected_players()) do
+      local pname = p:get_player_name()
+      if kingdoms.members[pname] and kingdoms.members[pname].kingdom == kingdom then
+         table.insert(members, pname)
+      end
+   end
+   return members
+end
+
 function kingdoms.helpers.save()
    local ktable = minetest.serialize(kingdoms.kingdoms)
    kingdoms.storage:set_string("kingdoms", ktable)

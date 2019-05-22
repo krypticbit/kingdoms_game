@@ -1,6 +1,7 @@
 protected_damage = {}
 local attacks = {}
-local attack_cooldown = 60 * 20 -- Seconds
+local attack_cooldown = 60 * 4 -- Seconds
+local time_since_last_punch = {}
 
 local function div(a, b)
    if a == nil or b == nil then return 0 end
@@ -16,6 +17,10 @@ protected_damage.blacklist = {
    ["kingdoms:marker"] = true,
    ["air"] = true
 }
+
+for color,_ in pairs(kingdoms.colors) do
+   protected_damage.blacklist["kingdoms:marker_" .. string.lower(color)] = true
+end
 
 -- Get node strength as a string
 local function get_node_strength_str(hp, max_hp)
@@ -78,13 +83,26 @@ function protected_damage.can_damage(pos, by)
       minetest.chat_send_player(by, "You are not at war with this kingdom")
       return false
    end
-   return true
+   -- An attack must already be going on or a member of the team must be online
+   if (attacks[protected_by] and os.time() - attacks[protected_by] < attack_cooldown) or
+   (#kingdoms.helpers.get_online_members(protected_by) > 0) then
+      attacks[protected_by] = os.time()
+      return true
+   else
+      minetest.chat_send_player(by, "You cannot attack this kingdom when none of its members are connected")
+      return false
+   end
 end
 
 -- Core damage function (used by tnt mod)
 function protected_damage.do_damage(pos, name, amt, by)
    -- Check kingdoms / members
    if not protected_damage.can_damage(pos, by) then return end
+   -- Check blacklist
+   if protected_damage.blacklist[name] ~= nil then
+      minetest.chat_send_player(by, "This node cannot be damaged")
+      return
+   end
    -- Get node strength
    local meta = minetest.get_meta(pos)
    local s = meta:get_int("node_hp")
@@ -99,6 +117,7 @@ function protected_damage.do_damage(pos, name, amt, by)
       return true
    else
       meta:set_int("node_hp", s)
+      minetest.chat_send_player(by, "Node HP: " .. tostring(s))
       return false
    end
 end
@@ -131,8 +150,8 @@ minetest.register_tool("protected_damage:checker", {
       -- Tell player
       minetest.chat_send_player(pname, get_node_strength_str(hp, max_hp))
       -- Add wear
-      itemstack:add_wear(100)
-
+      itemstack:add_wear(300)
+      return itemstack
    end
 })
 minetest.register_craft({
@@ -184,30 +203,32 @@ minetest.register_tool("protected_damage:siege_hammer", {
    description = "Siege Hammer (Damages protected blocks during war)",
    inventory_image = "protected_damage_siege_hammer.png",
    tool_capabilities = {
-		full_punch_interval = 5,
-		max_drop_level = 0,
-		range = 1,
-		groupcaps={
-			cracky = {times={[1]=8.0, [2]=4.0, [3]=2.0}, uses=30, maxlevel=3},
-		},
-		damage_groups = {fleshy=5},
+		full_punch_interval = 2.0,
+		damage_groups = {fleshy = 5},
    },
-   on_use = function(itemstack, user, pointed_thing)
-      -- Check pointed_thing
-      if pointed_thing.type ~= "node" then return end
-      -- Check protection
-      local pname = user:get_player_name()
-      local pos = minetest.get_pointed_thing_position(pointed_thing)
-      if minetest.is_protected(pos, pname) ~= true then
-         minetest.chat_send_player(pname, "The siege hammer can only be used on areas protected by other kingdoms")
-         return
-      end
+})
+
+minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
+   -- Check wielded item
+   local w = puncher:get_wielded_item()
+   if w:get_name() ~= "protected_damage:siege_hammer" then return end
+   -- Check protection
+   local pname = puncher:get_player_name()
+   if minetest.is_protected(pos, pname) ~= true then
+      minetest.chat_send_player(pname, "The siege hammer can only be used on areas protected by other kingdoms")
+      return
+   end
+   -- Hacky workaround to take into account full_punch_interval
+   if time_since_last_punch[pname] == nil or
+   os.time() - time_since_last_punch[pname] > 2 then
       -- Damage
       protected_damage.damage(pos, 1, pname)
-      itemstack:add_wear(50)
-      return itemstack
    end
-})
+   time_since_last_punch[pname] = os.time()
+   -- Set wear
+   w:add_wear(100)
+   puncher:set_wielded_item(w)
+end)
 
 minetest.register_craft({
    output = "protected_damage:siege_hammer",
