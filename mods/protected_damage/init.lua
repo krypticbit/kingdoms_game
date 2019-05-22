@@ -203,7 +203,7 @@ minetest.register_tool("protected_damage:siege_hammer", {
    description = "Siege Hammer (Damages protected blocks during war)",
    inventory_image = "protected_damage_siege_hammer.png",
    tool_capabilities = {
-		full_punch_interval = 2.0,
+		full_punch_interval = 1.0,
 		damage_groups = {fleshy = 5},
    },
 })
@@ -220,7 +220,7 @@ minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
    end
    -- Hacky workaround to take into account full_punch_interval
    if time_since_last_punch[pname] == nil or
-   os.time() - time_since_last_punch[pname] > 2 then
+   os.time() - time_since_last_punch[pname] >= 1 then
       -- Damage
       protected_damage.damage(pos, 1, pname)
    end
