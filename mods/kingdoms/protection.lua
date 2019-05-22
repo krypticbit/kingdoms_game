@@ -86,12 +86,15 @@ end
 local old_is_protected = minetest.is_protected
 function minetest.is_protected(pos, name)
    -- Check if name is defined and player is connected
-   local p = minetest.get_player_by_name(name)
-   if p == nil then return end
-   -- If wifi-glitching, everything is protected
-	if players_glitching[name] then
-		return true
-	end
+   if name ~= nil then
+      local p = minetest.get_player_by_name(name)
+      if p ~= nil then
+         -- If wifi-glitching, everything is protected
+         if players_glitching[name] then
+            return true
+         end
+      end
+   end
    -- Check for marker protection
    if new_is_protected(pos, name) then
       return true
