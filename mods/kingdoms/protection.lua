@@ -43,7 +43,8 @@ minetest.after(5, step)
 
 -- Update players_violating and teleport players
 minetest.register_on_protection_violation(function(pos, name)
-   minetest.chat_send_player(name, "This area is protected by a kingdom")
+   local k = kingdoms.helpers.get_owning_kingdom(pos)
+   minetest.chat_send_player(name, "This area is protected by kingdom " .. k)
    players_violating[name] = os.time()
    local p = minetest.get_player_by_name(name)
    if p == nil then return end
