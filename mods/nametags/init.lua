@@ -40,6 +40,8 @@ minetest.register_entity("nametags:nametag", {
 })
 
 minetest.register_on_joinplayer(function(pobj)
-   minetest.add_entity(pobj:get_pos(), "nametags:nametag", pobj:get_player_name())
+   minetest.after(2, function ()
+      minetest.add_entity(pobj:get_pos(), "nametags:nametag", pobj:get_player_name())
+   end)
    pobj:set_nametag_attributes({text = " "})
 end)
