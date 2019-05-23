@@ -1,4 +1,4 @@
-local edge = 100
+local edge = 10000
 local step_time = 5
 
 local function step()
