@@ -2,8 +2,8 @@ local players = {}
 local player_positions = {}
 local last_wielded = {}
 
-function round(num) 
-	return math.floor(num + 0.5) 
+function round(num)
+	return math.floor(num + 0.5)
 end
 
 minetest.register_on_joinplayer(function(player)
@@ -28,7 +28,7 @@ end)
 minetest.register_on_leaveplayer(function(player)
 	local player_name = player:get_player_name()
 	for i,v in ipairs(players) do
-		if v == player_name then 
+		if v == player_name then
 			table.remove(players, i)
 			last_wielded[player_name] = nil
 			-- Neuberechnung des Lichts erzwingen
@@ -63,7 +63,7 @@ minetest.register_globalstep(function(dtime)
 					minetest.env:add_node(rounded_pos,{type="node",name="walking_light:light"})
 				end
 				if (player_positions[player_name]["x"] ~= rounded_pos.x or player_positions[player_name]["y"] ~= rounded_pos.y or player_positions[player_name]["z"] ~= rounded_pos.z) then
-					-- wenn Position geänder, dann altes Licht löschen
+					-- wenn Position geï¿½nder, dann altes Licht lï¿½schen
 					local old_pos = {x=player_positions[player_name]["x"], y=player_positions[player_name]["y"], z=player_positions[player_name]["z"]}
 					-- Neuberechnung des Lichts erzwingen
 					local is_light = minetest.env:get_node_or_nil(old_pos)
@@ -116,6 +116,10 @@ minetest.register_node("walking_light:light", {
 	sunlight_propagates = true,
 	light_source = 13,
 	selection_box = {
+        type = "fixed",
+        fixed = {0, 0, 0, 0, 0, 0},
+    },
+    collision_box = {
         type = "fixed",
         fixed = {0, 0, 0, 0, 0, 0},
     },
