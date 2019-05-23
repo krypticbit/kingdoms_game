@@ -1,3 +1,33 @@
+local function pickup(pos, node, puncher)
+   local pName = puncher:get_player_name()
+   -- Check protection
+   if minetest.is_protected(pos, pName) then
+      minetest.record_protection_violation(pos, pName)
+      return
+   end
+   -- Dig node
+   local playerInv = puncher:get_inventory()
+   local oldmeta = minetest.get_meta(pos)
+   local isSplash = minetest.get_item_group(node.name, "splash_beaker") ~= 0
+   local stack = ItemStack(node.name)
+   local stackMeta = stack:get_meta()
+   if not isSplash then
+      local concentration = oldmeta:get_int("concentration")
+      if concentration == 0 then
+         concentration = 1
+      end
+      stackMeta:set_int("concentration", concentration)
+   end
+   alchemy.helpers.set_beaker_descripton(stack, isSplash)
+   minetest.remove_node(pos)
+   if playerInv:room_for_item("main", stack) then
+      playerInv:add_item("main", stack)
+   else
+      minetest.add_entity(pos, "__builtin:item", stack:to_string())
+   end
+end
+
+
 --
 -- Normal beakers
 --
@@ -88,32 +118,7 @@ local function register_beaker(name, description, texture)
          meta:set_string("infotext", desc .. "\nConcentration: " .. concentration)
       end,
 
-
-      on_punch = function(pos, node, puncher)
-         local pName = puncher:get_player_name()
-         -- Check protection
-         if minetest.is_protected(pos, pName) then
-            minetest.record_protection_violation(pos, pName)
-            return
-         end
-         -- Dig node
-         local playerInv = puncher:get_inventory()
-         local oldmeta = minetest.get_meta(pos)
-         local stack = ItemStack(node.name)
-         local stackMeta = stack:get_meta()
-         local concentration = oldmeta:get_int("concentration")
-         if concentration == 0 then
-            concentration = 1
-         end
-         stackMeta:set_int("concentration", concentration)
-         alchemy.helpers.set_beaker_descripton(stack)
-         minetest.remove_node(pos)
-         if playerInv:room_for_item("main", stack) then
-            playerInv:add_item("main", stack)
-         else
-            minetest.add_entity(pos, "__builtin:item", stack:to_string())
-         end
-      end,
+      on_punch = pickup,
 
       on_drop = function(itemstack, dropper, pos)
          -- Get effect function
@@ -224,6 +229,19 @@ local function register_splash_beaker(name, description, texture)
       tiles = {"beaker.png", texture},
       stack_max = 1,
       inventory_image = tex,
+      groups = {vessel = 1, splash_beaker = 1}, -- Unbreakable but picked up on punch - no particles
+
+      selection_box = {
+         type = "fixed",
+         fixed = splash_box
+      },
+      collision_box = {
+         type = "fixed",
+         fixed = splash_box
+      },
+
+      on_punch = pickup,
+
       on_drop = function(itemstack, dropper, pos)
          -- Get random section of texture
          local texpart = ("[combine:3x3:%d,%d=" .. texture):format(math.random(-29, 0), math.random(-29, 0))
@@ -247,6 +265,11 @@ local function register_splash_beaker(name, description, texture)
          -- Remove item
          itemstack:take_item()
          return itemstack
+      end,
+
+      after_place_node = function(pos, placer, itemstack, pointed_thing)
+         local meta = minetest.get_meta(pos)
+         meta:set_string("infotext", desc)
       end
    })
 

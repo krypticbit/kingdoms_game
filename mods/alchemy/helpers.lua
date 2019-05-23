@@ -40,19 +40,11 @@ alchemy.helpers.is_full_beaker = function (iString)
    if iString == "alchemy:beaker_empty" then
       return false
    else
-      local n = minetest.registered_items[iString]
-      if n then
-         if n.groups.beaker then
-            return true
-         end
-         return false
-      else
-         return false
-      end
+      return minetest.get_item_group(iString, "beaker") ~= 0
    end
 end
 
-alchemy.helpers.set_beaker_descripton = function(iStack)
+alchemy.helpers.set_beaker_descripton = function(iStack, isSplash)
    local name = iStack:get_name()
    local m = iStack:get_meta()
    local node = minetest.registered_nodes[name]
@@ -60,5 +52,9 @@ alchemy.helpers.set_beaker_descripton = function(iStack)
    local baseDes = node.description
    local cLevel = m:get_int("concentration")
    if cLevel == 0 then cLevel = 1 end
-   m:set_string("description", baseDes .. "\nConcentration: " .. cLevel)
+   if isSplash then
+      m:set_string("description", baseDes)
+   else
+      m:set_string("description", baseDes .. "\nConcentration: " .. cLevel)
+   end
 end

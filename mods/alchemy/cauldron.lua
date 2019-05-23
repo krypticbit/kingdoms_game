@@ -71,7 +71,7 @@ local function register_cauldron(itemname, def)
             local iStack
             if n == "alchemy:beaker_empty" then
                iStack = ItemStack("alchemy:beaker_" .. itemname:sub(0, -2))
-               alchemy.helpers.set_beaker_descripton(iStack)
+               alchemy.helpers.set_beaker_descripton(iStack, false)
             else
                iStack = ItemStack("alchemy:beaker_empty")
             end
