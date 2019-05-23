@@ -398,7 +398,7 @@ minetest.register_chatcommand("ac", {
          if kingdoms.members[pname] then
             local r = kingdoms.get_relation(kingdoms.members[pname].kingdom, k)
             if (kingdoms.members[pname].kingdom == k
-            or r.id == kingdoms.relations.alliance and r.pending ~= true) then
+            or (r.id == kingdoms.relations.alliance and r.pending ~= true)) then
                minetest.chat_send_player(pname, msg)
             end
          end
