@@ -43,7 +43,9 @@ local function allow_put(pos, listname, index, stack, player)
             return 1
          end
       else
-         return 1
+         if minetest.get_item_group(stack:get_name(), "beaker") ~= 0 then
+            return 1
+         end
       end
    end
    return 0
