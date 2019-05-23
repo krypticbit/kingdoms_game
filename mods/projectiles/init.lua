@@ -146,7 +146,6 @@ projectiles.register_shooter = function(name, def)
             if wear == 1 then wearfinal = 65534 end -- Don't let it break
             istack:set_wear(wearfinal)
             if sound then
-               minetest.chat_send_all("Playing sound")
                minetest.sound_play(sound, {
                   pos = user:get_pos(),
                   max_hear_distance = 200,
