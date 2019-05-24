@@ -52,7 +52,7 @@ projectiles.register_shooter("pistol", {
 })
 
 minetest.register_craftitem("projectiles:pistol_cartridge", {
-   definition = "Pistol Cartridge",
+   description = "Pistol Cartridge",
    inventory_image = "projectiles_pistol_cartridge.png",
 })
 
