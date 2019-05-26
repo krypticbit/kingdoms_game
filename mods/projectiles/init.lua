@@ -130,7 +130,6 @@ projectiles.register_shooter = function(name, def)
    minetest.register_tool(iname, {
       description = description,
       inventory_image = texture,
-      range = 0,
       wield_scale = scale,
       wear_represents = "reloading", -- For anvil
       on_use = function(istack, user, pointed_thing)
