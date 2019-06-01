@@ -11,13 +11,13 @@ local function step()
 		local info = minetest.get_player_information(name)
 		if name ~= nil and info ~= nil then
 			if info.avg_jitter > timeout and not players_glitching[name] then
-				players_glitching[name] = true
+				players_glitching[name] = player:get_pos()
 			elseif info.avg_jitter < timeout and players_glitching[name] then
 				minetest.after(0.5, function() players_glitching[name] = nil end)
 			end
 		elseif name ~= nil then
 			if not players_glitching[name] then
-				players_glitching[name] = true
+				players_glitching[name] = player:get_pos()
 			end
 		end
       -- Check if player is violating protection
@@ -48,7 +48,9 @@ minetest.register_on_protection_violation(function(pos, name)
    players_violating[name] = os.time()
    local p = minetest.get_player_by_name(name)
    if p == nil then return end
-   if player_ghosts[name] then
+   if players_glitching[name] then
+      p:set_pos(players_glitching[name])
+   elseif player_ghosts[name] then
       p:set_pos(player_ghosts[name])
    else
       p:set_pos(p:get_pos())
