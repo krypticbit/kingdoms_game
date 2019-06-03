@@ -232,7 +232,6 @@ end
 knockout.wake_up = function(player)
    local pName, p
    pName, p = get_name_and_ref(player)
-	knockout.knocked_out[pName] = nil
 	-- Un-freeze player
 	local e = p:get_attach()
 	if e ~= nil then
@@ -253,10 +252,12 @@ knockout.wake_up = function(player)
 		end
 	end
 	-- Give the whiny player their privs back already
-	local privs = minetest.get_player_privs(pName)
-	privs.shout = true
-	privs.interact = true
-	minetest.set_player_privs(pName, privs)
+   if knockout.knocked_out[pName] ~= nil then
+      local privs = minetest.get_player_privs(pName)
+      privs.shout = true
+      privs.interact = true
+      minetest.set_player_privs(pName, privs)
+   end
 	-- Hide formspec
 	if p:get_hp() > 0 then
 		minetest.close_formspec(pName, "knockout:fs")
@@ -267,6 +268,7 @@ knockout.wake_up = function(player)
 		knockout_huds[pName] = nil
 	end
 	-- Save
+   knockout.knocked_out[pName] = nil
 	knockout.save()
 end
 
