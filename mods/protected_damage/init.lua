@@ -227,8 +227,8 @@ minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
    -- Hacky workaround to take into account full_punch_interval
    if time_since_last_punch[pname] == nil or
    os.time() - time_since_last_punch[pname] >= 1 then
-      -- Damage
-      protected_damage.damage(pos, 1, pname)
+      -- Damage 1-7
+      protected_damage.damage(pos, math.random(1, 8), pname)
    end
    time_since_last_punch[pname] = os.time()
    -- Set wear
