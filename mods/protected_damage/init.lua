@@ -47,14 +47,14 @@ function protected_damage.get_node_strength(name)
    end
    -- Calculate strength
    local groups = ndef.groups
-   local s = div(100, groups.cracky)
-      + div(140, groups.stone)
-      + mult(300, groups.level)
-      + div(50, groups.crumbly)
-      - mult(20, groups.oddly_breakable_by_hand)
-      + div(60, groups.snappy)
-      + div(80, groups.choppy)
-      - mult(20, groups.dig_immediate)
+   local s = div(47, groups.cracky)
+      + div(68, groups.stone)
+      + mult(150, groups.level)
+      + div(25, groups.crumbly)
+      - mult(5, groups.oddly_breakable_by_hand)
+      + div(15, groups.snappy)
+      + div(35, groups.choppy)
+      - mult(2, groups.dig_immediate)
    s = math.floor(s + 0.5)
    if s < 0 then s = 1 end
    return s
