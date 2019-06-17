@@ -1168,6 +1168,14 @@ M.register_chatcommand("craft", {
 	description = S("Show recipe(s) of the pointed node"),
 	func = function(name)
 		local player = get_player_by_name(name)
+		
+		local inv = player:get_inventory()
+			
+		if not inv:contains_item("main", "craftguide:book") then
+			minetest.chat_send_player("You need a crafting guide in your inventory to use this!")
+			return
+		end
+			
 		local ppos   = player:get_pos()
 		local dir    = player:get_look_dir()
 		local eye_h  = {x = ppos.x, y = ppos.y + 1.625, z = ppos.z}
